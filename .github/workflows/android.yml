@@ -62,12 +62,67 @@ jobs:
           PROJECT_DIR="$(dirname "$SETTINGS")"
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
-      - name: Build APK
-        run: gradle -p "$PROJECT_DIR" assembleDebug
+      - name: Configure permanent signing
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing GitHub Actions secret: $name"
+              exit 1
+            fi
+          done
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/mediaplus-release.jks"
+          chmod 600 "$RUNNER_TEMP/mediaplus-release.jks"
+          export ANDROID_KEYSTORE_PATH="$RUNNER_TEMP/mediaplus-release.jks"
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          p = Path(os.environ["PROJECT_DIR"]) / "app" / "build.gradle.kts"
+          s = p.read_text()
+          needle = "    buildTypes {"
+          assert s.count(needle) == 1, "Expected a single buildTypes block"
+          s = s.replace(needle, """    signingConfigs {
+              create("permanentRelease") {
+                  storeFile = file(System.getenv("ANDROID_KEYSTORE_PATH"))
+                  storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                  keyAlias = System.getenv("ANDROID_KEY_ALIAS")
+                  keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+              }
+          }
+          """ + needle, 1)
+          old = 'signingConfig = signingConfigs.getByName("debug")'
+          assert s.count(old) == 1, "Expected existing debug release signing line"
+          s = s.replace(old, 'signingConfig = signingConfigs.getByName("permanentRelease")', 1)
+          p.write_text(s)
+          PY
+          echo "ANDROID_KEYSTORE_PATH=$ANDROID_KEYSTORE_PATH" >> "$GITHUB_ENV"
 
-      - name: Save APK
+      - name: Build permanently signed release APK
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: gradle -p "$PROJECT_DIR" assembleRelease
+
+      - name: Verify APK signature
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="$(find "$PROJECT_DIR/app/build/outputs/apk/release" -maxdepth 1 -name '*.apk' -type f | head -n 1)"
+          test -n "$APK"
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)"
+          test -n "$APKSIGNER"
+          "$APKSIGNER" verify --verbose "$APK"
+
+      - name: Save signed APK
         uses: actions/upload-artifact@v4
         with:
-          name: MediaPlus-Cote-dIvoire-APK
-          path: source/**/build/outputs/apk/debug/*.apk
+          name: MediaPlus-Cote-dIvoire-SIGNED-APK
+          path: source/**/build/outputs/apk/release/*.apk
           if-no-files-found: error
