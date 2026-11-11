@@ -1,0 +1,48 @@
+
+name: Build Media Plus Af APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Extract project
+        run: |
+          mkdir -p source
+          unzip -q MediaPlusAfrique-Premium-Blue-v1.2.0-Recommendations.zip -d source
+          PROJECT_DIR=$(dirname "$(find source -name settings.gradle.kts -o -name settings.gradle | head -n 1)")
+          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
+          if [ -z "$PROJECT_DIR" ] || [ "$PROJECT_DIR" = "." ]; then
+            echo "Projet Android introuvable"
+            exit 1
+          fi
+
+      - name: Build APK
+        run: gradle -p "$PROJECT_DIR" assembleDebug
+
+      - name: Save APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Media-Plus-Af-APK
+          path: source/**/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
