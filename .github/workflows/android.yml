@@ -29,7 +29,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ZIP="$(find . -maxdepth 1 -type f -name 'MediaPlusAfrique-Smart-IPTV-Pro-v*.zip' | sort -Vr | head -n 1)"
+          ZIP="$(find . -maxdepth 1 -type f -name 'MediaPlus-Cote-dIvoire-v*.zip' | sort -Vr | head -n 1)"
+          if [ -z "$ZIP" ]; then
+            ZIP="$(find . -maxdepth 1 -type f -name 'MediaPlusAfrique-Smart-IPTV-Pro-v*.zip' | sort -Vr | head -n 1)"
+          fi
           if [ -z "$ZIP" ]; then
           while IFS= read -r candidate; do
             name="$(basename "$candidate")"
@@ -65,6 +68,6 @@ jobs:
       - name: Save APK
         uses: actions/upload-artifact@v4
         with:
-          name: Media-Plus-Af-APK
+          name: MediaPlus-Cote-dIvoire-APK
           path: source/**/build/outputs/apk/debug/*.apk
           if-no-files-found: error
