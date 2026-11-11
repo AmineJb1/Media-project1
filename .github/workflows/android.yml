@@ -29,7 +29,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ZIP=""
+          ZIP="$(find . -maxdepth 1 -type f -name 'MediaPlusAfrique-Smart-IPTV-Pro-v*.zip' | sort -Vr | head -n 1)"
+          if [ -z "$ZIP" ]; then
           while IFS= read -r candidate; do
             name="$(basename "$candidate")"
             case "$name" in
@@ -38,6 +39,7 @@ jobs:
             ZIP="$candidate"
             break
           done < <(find . -maxdepth 1 -type f -name 'MediaPlusAfrique-Premium-Blue-v*.zip' | sort -Vr)
+          fi
 
           if [ -z "$ZIP" ]; then
             ZIP="MediaPlusAfrique-TEST-CORRIGE.zip"
