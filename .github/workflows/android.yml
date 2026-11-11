@@ -77,9 +77,9 @@ jobs:
               exit 1
             fi
           done
-          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/mediaplus-release.jks"
-          chmod 600 "$RUNNER_TEMP/mediaplus-release.jks"
-          export ANDROID_KEYSTORE_PATH="$RUNNER_TEMP/mediaplus-release.jks"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/mediaplus-release.p12"
+          chmod 600 "$RUNNER_TEMP/mediaplus-release.p12"
+          export ANDROID_KEYSTORE_PATH="$RUNNER_TEMP/mediaplus-release.p12"
           python3 - <<'PY'
           import os
           from pathlib import Path
@@ -90,6 +90,7 @@ jobs:
           s = s.replace(needle, """    signingConfigs {
               create("permanentRelease") {
                   storeFile = file(System.getenv("ANDROID_KEYSTORE_PATH"))
+                  storeType = "pkcs12"
                   storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
                   keyAlias = System.getenv("ANDROID_KEY_ALIAS")
                   keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
