@@ -60,12 +60,20 @@ fun Header(showAccount: Boolean, expiryEpochSeconds: Long?, compact: Boolean = f
     val c = MaterialTheme.colorScheme
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Column(horizontalAlignment = Alignment.Start) {
-            Image(
-                painter = painterResource(R.drawable.media_plus_brand),
-                contentDescription = "Logo Media+ Côte d’Ivoire",
-                modifier = Modifier.width(if (compact) 58.dp else 116.dp).height(if (compact) 43.dp else 82.dp).clip(RoundedCornerShape(12.dp)),
-                contentScale = ContentScale.Fit
-            )
+            Box {
+                Image(
+                    painter = painterResource(R.drawable.media_plus_brand),
+                    contentDescription = "Logo Media+ Côte d’Ivoire",
+                    modifier = Modifier.width(if (compact) 58.dp else 116.dp)
+                        .height(if (compact) 43.dp else 82.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Fit
+                )
+                Text("🇨🇮", fontSize = if (compact) 13.sp else 20.sp,
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                        .background(Color.White, RoundedCornerShape(5.dp))
+                        .padding(horizontal = 2.dp))
+            }
             val days = expiryEpochSeconds?.let { expiry ->
                 val remaining = expiry * 1000L - System.currentTimeMillis()
                 if (remaining <= 0L) 0L else (remaining + 86_399_999L) / 86_400_000L
@@ -86,8 +94,20 @@ fun Header(showAccount: Boolean, expiryEpochSeconds: Long?, compact: Boolean = f
         }
         Spacer(Modifier.width(10.dp))
         Column(Modifier.weight(1f)) {
-            Text("Media+", color = c.onSurface, fontSize = if (compact) 16.sp else 21.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
-            Text("Côte d’Ivoire", color = c.onSurface, fontSize = if (compact) 11.sp else 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Media", color = Color(0xFF103D2B),
+                    fontSize = if (compact) 19.sp else 27.sp,
+                    fontWeight = FontWeight.Black, maxLines = 1)
+                Text("+", color = Color(0xFFF28A16),
+                    fontSize = if (compact) 21.sp else 30.sp,
+                    fontWeight = FontWeight.Black, maxLines = 1)
+            }
+            Text("Côte d’Ivoire", color = Color(0xFFD9650A),
+                fontSize = if (compact) 12.sp else 17.sp,
+                fontWeight = FontWeight.Bold, maxLines = 1)
+            Box(Modifier.width(if (compact) 72.dp else 116.dp).height(3.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(Brush.horizontalGradient(listOf(Color(0xFFFF8A00), Color.White, Color(0xFF07964E)))))
         }
         if (false && showAccount) TextButton(onClick = onAccount) {
             Text("Compte", color = c.secondary, fontWeight = FontWeight.Bold)
