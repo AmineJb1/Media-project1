@@ -49,8 +49,26 @@ fun SettingsScreen(s: AppState, modifier: Modifier = Modifier) {
     var password by remember { mutableStateOf("") }
     var mac by remember { mutableStateOf("") }
     var deleteIndex by remember { mutableIntStateOf(-1) }
+    var expandedSection by remember { mutableStateOf<String?>(null) }
     Column(modifier.verticalScroll(rememberScrollState()).padding(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Paramètres", style = MaterialTheme.typography.headlineMedium)
+        Text("Choisissez une rubrique pour afficher ses options.")
+        listOf("Informations d’abonnement", "Contrôle parental", "Mes comptes", "Lecture et stockage", "À propos").forEach { section ->
+            OutlinedCard(onClick = { expandedSection = if (expandedSection == section) null else section }, modifier = Modifier.fillMaxWidth()) {
+                Text((if (expandedSection == section) "⌄  " else "›  ") + section, modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleMedium)
+            }
+        }
+        if (expandedSection == "Informations d’abonnement") {
+            val days = s.subscriptionExpirySeconds?.let { ((it * 1000L - System.currentTimeMillis()).coerceAtLeast(0L) + 86399999L) / 86400000L }
+            Text("Durée restante : " + (days?.let { "$it jours" } ?: "inconnue"))
+            Text("Connexion : " + if (s.mode == 0) "Xtream Codes" else "Adresse MAC")
+        }
+        if (expandedSection == "Lecture et stockage") {
+            Text("Cache vidéo : ${s.cacheMb} Mo")
+            OutlinedButton(onClick = { s.clearCache() }) { Text("Vider le cache") }
+        }
+        if (expandedSection == "À propos") { Text("Media+ Afrique · Version 2.1.0") }
+        if (expandedSection == "Contrôle parental") {
         HorizontalDivider()
         Text("Contrôle parental", style = MaterialTheme.typography.titleLarge)
         Text(if (s.parentalPinExists) "Code parental configuré" else "Aucun code parental. Il sera obligatoire au premier accès aux chaînes Adultes.")
@@ -63,6 +81,8 @@ fun SettingsScreen(s: AppState, modifier: Modifier = Modifier) {
                 pin = ""; pinConfirm = ""
             }) { Text("Enregistrer le code") }
         }
+        }
+        if (expandedSection == "Mes comptes") {
         HorizontalDivider()
         Text("Mes comptes", style = MaterialTheme.typography.titleLarge)
         s.accounts.forEachIndexed { index, account ->
@@ -88,6 +108,7 @@ fun SettingsScreen(s: AppState, modifier: Modifier = Modifier) {
             } else message = "Complétez les champs obligatoires"
         }) { Text("Ajouter le compte") }
         if (message.isNotEmpty()) Text(message)
+        }
     }
     if (deleteIndex >= 0) AlertDialog(
         onDismissRequest = { deleteIndex = -1 },
