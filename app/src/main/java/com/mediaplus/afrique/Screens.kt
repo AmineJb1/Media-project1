@@ -25,6 +25,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.Brush
@@ -213,7 +217,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 Column(Modifier.width(if (tvWide) 92.dp else 76.dp).fillMaxHeight().background(Color.White.copy(alpha = 0.60f))
                     .padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    listOf(0 to "Direct", 2 to "Films", 3 to "Séries", 5 to "Réglages").forEach { (section, title) ->
+                    listOf(0 to "Direct", 2 to "Films", 3 to "Séries", 4 to "Favoris", 5 to "Réglages").forEach { (section, title) ->
                         val active = if (section == 5) settingsOpen else !settingsOpen && s.section == section
                         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
                             .background(if (active) Color.White.copy(alpha = 0.72f) else Color.Transparent)
@@ -221,10 +225,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                 if (section == 5) { onSettingsOpen(true); s.clearPreview() }
                                 else { onSettingsOpen(false); onSettingsPage(null); s.pickSection(section) }
                             }.padding(vertical = 5.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                            if (section == 5) Icon(Icons.Filled.Settings, contentDescription = title,
-                                tint = c.primary, modifier = Modifier.size(22.dp))
-                            else Text(when (section) { 0 -> "◉"; 2 -> "▶"; else -> "▣" },
-                                fontSize = 20.sp, color = c.primary)
+                            Icon(when (section) { 0 -> Icons.Filled.Home; 2 -> Icons.Filled.PlayArrow; 3 -> Icons.Filled.List; 4 -> Icons.Filled.Favorite; else -> Icons.Filled.Settings }, contentDescription = title, tint = if (active) c.secondary else c.primary, modifier = Modifier.size(23.dp))
                             Text(title, fontSize = 10.sp, color = c.onSurface, maxLines = 1)
                         }
                     }
@@ -240,7 +241,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
             } else {
             Row(verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.weight(1f)) { Text(
-                when (s.section) { 2 -> "Films"; 3 -> "Séries"; else -> "TV en direct" },
+                when (s.section) { 2 -> "Films"; 3 -> "Séries"; 4 -> "Mes favoris"; else -> "TV en direct" },
                 color = c.onSurface,
                 style = if (useSideRail) MaterialTheme.typography.titleMedium else if (wide) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.ExtraBold
@@ -356,11 +357,11 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 tonalElevation = 0.dp,
                 modifier = Modifier.clip(RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp))
             ) {
-                listOf(0 to "Direct", 2 to "Films", 3 to "Séries", 5 to "Paramètres").forEach { (section, title) ->
+                listOf(0 to "Direct", 2 to "Films", 3 to "Séries", 4 to "Favoris", 5 to "Paramètres").forEach { (section, title) ->
                     NavigationBarItem(
                         selected = if (section == 5) settingsOpen else !settingsOpen && s.section == section,
                         onClick = { if (section == 5) { onSettingsOpen(true); s.clearPreview() } else { onSettingsOpen(false); onSettingsPage(null); s.pickSection(section) } },
-                        icon = { if (section == 5) Icon(Icons.Filled.Settings, contentDescription = "Paramètres", modifier = Modifier.size(23.dp)) else Text(when (section) { 0 -> "◉"; 2 -> "▶"; else -> "▣" }, fontSize = 20.sp) },
+                        icon = { Icon(when (section) { 0 -> Icons.Filled.Home; 2 -> Icons.Filled.PlayArrow; 3 -> Icons.Filled.List; 4 -> Icons.Filled.Favorite; else -> Icons.Filled.Settings }, contentDescription = title, modifier = Modifier.size(23.dp)) },
                         label = { Text(title, fontWeight = FontWeight.SemiBold, fontSize = 10.sp, maxLines = 1, softWrap = false) },
                         alwaysShowLabel = true,
                         colors = NavigationBarItemDefaults.colors(
