@@ -304,6 +304,9 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         scope.launch {
             try {
                 val l = withContext(Dispatchers.IO) {
+                    if (mode == 0 && xt().isSubscriptionExpired()) {
+                        throw IllegalStateException("Abonnement Expiré")
+                    }
                     val r = if (mode == 0) xt().live() else Stalker(Config.PORTAL, mac.trim().uppercase()).also { stalker = it }.channels()
                     cacheFile.writeText(r.joinToString("\n") { encode(it) })
                     r
@@ -321,7 +324,14 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
                 status = "${l.size} chaînes"; showLogin = false
                 refreshSubscription()
                 loadVodCache()
-            } catch (e: Exception) { status = "Erreur : ${e.message}" }
+            } catch (e: Exception) {
+                val msg = e.message.orEmpty()
+                status = if (msg == "Abonnement Expiré" ||
+                    msg.contains("expired", ignoreCase = true) ||
+                    msg.contains("expiré", ignoreCase = true))
+                    "Abonnement Expiré" else "Erreur de récupération"
+                prefs.edit().putBoolean("session_active", false).apply()
+            }
         }
     }
 
