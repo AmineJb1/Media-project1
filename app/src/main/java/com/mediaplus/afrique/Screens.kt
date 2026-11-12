@@ -52,7 +52,7 @@ fun LoginScreen(s: AppState) {
     var rememberUsername by remember { mutableStateOf(true) }
     var showBiometricHelp by remember { mutableStateOf(false) }
     val host = LocalContext.current as? FragmentActivity
-    val biometricReady = host != null && BiometricManager.from(host).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
+    val biometricReady = host != null && BiometricManager.from(host).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK) == BiometricManager.BIOMETRIC_SUCCESS
 
     var biometricRequested by remember { mutableStateOf(false) }
     fun requestBiometric() {
@@ -77,7 +77,7 @@ fun LoginScreen(s: AppState) {
         prompt.authenticate(BiometricPrompt.PromptInfo.Builder()
             .setTitle("Media+ Côte d’Ivoire")
             .setSubtitle("Confirmez votre empreinte pour accéder au compte enregistré")
-            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_WEAK)
             .setNegativeButtonText("Annuler")
             .build())
     }
