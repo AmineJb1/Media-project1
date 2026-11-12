@@ -98,7 +98,7 @@ fun LoginScreen(s: AppState) {
                     Text("DIRECT · FILMS · SÉRIES", color = c.secondary, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                 }
             }
-            Text("Version ${BuildConfig.VERSION_NAME}", fontSize = 10.sp, color = c.onSurfaceVariant.copy(alpha = .7f))
+            Text("Version 2.1.10", fontSize = 10.sp, color = c.onSurfaceVariant.copy(alpha = .7f))
             Spacer(Modifier.height(if (wide) 14.dp else 9.dp))
             Card(
                 Modifier.fillMaxWidth().widthIn(max = 560.dp).animateContentSize(),
