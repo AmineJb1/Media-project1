@@ -13,6 +13,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.ui.text.style.TextOverflow
+import coil.compose.AsyncImage
 import androidx.compose.material3.*
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -331,7 +333,50 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 Text("Tri par date disponible selon les informations du serveur", color = c.onSurfaceVariant,
                     style = MaterialTheme.typography.labelSmall)
             }
-            if (s.section == 0 && useSideRail) {
+            if (s.section == 2 || s.section == 3) {
+                val vodItems = if (s.section == 2) s.movies.orEmpty() else s.series.orEmpty()
+                val categoryNames = (if (s.section == 2) s.movieCategories else s.seriesCategories)
+                    .plus(vodItems.map { it.group }).filter { it.isNotBlank() }.distinct()
+                val resume = s.continueWatching.filter { it.kind == s.section - 1 }
+                val displayed = when {
+                    s.query.isNotBlank() -> vodItems.filter {
+                        it.name.contains(s.query, ignoreCase = true) ||
+                            it.group.contains(s.query, ignoreCase = true)
+                    }
+                    s.group == "Continuez à Regarder" -> resume
+                    s.group != null -> vodItems.filter { it.group == s.group }
+                    else -> emptyList()
+                }.let { entries ->
+                    if (s.newestFirst && s.group != null && s.group != "Continuez à Regarder")
+                        entries.sortedWith(compareByDescending<Item> { it.modifiedAt }.thenBy { it.name })
+                    else entries
+                }
+                val tileWidth = if (maxWidth >= 900.dp) 148.dp else if (maxWidth >= 600.dp) 130.dp else 112.dp
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(tileWidth),
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(9.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 18.dp)
+                ) {
+                    if (s.group == null && s.query.isBlank()) {
+                        if (resume.isNotEmpty()) item {
+                            VodIconTile("Continuez à Regarder", "", true) {
+                                s.group = "Continuez à Regarder"
+                            }
+                        }
+                        items(categoryNames) { name ->
+                            VodIconTile(name, "", true) { s.requestGroup(name) }
+                        }
+                    } else {
+                        items(displayed, key = { it.kind.toString() + ":" + it.id }) { item ->
+                            VodIconTile(item.name, item.logo, false) {
+                                s.requestAdultItem(item) { s.pick(item) }
+                            }
+                        }
+                    }
+                }
+            } else if (s.section == 0 && useSideRail) {
                 Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Box(Modifier.weight(if (s.previewChannelId != null) 0.64f else 1f).fillMaxHeight()) {
                         val visibleItems = if (s.query.isNotBlank()) {
@@ -523,5 +568,32 @@ private fun LivePreviewPanel(s: AppState, compact: Boolean) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun VodIconTile(title: String, poster: String, isBouquet: Boolean, onClick: () -> Unit) {
+    val c = MaterialTheme.colorScheme
+    Column(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(13.dp))
+            .background(Color.White.copy(alpha = 0.88f))
+            .clickable(onClick = onClick).padding(7.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(Modifier.fillMaxWidth().aspectRatio(if (isBouquet) 1.15f else 0.75f)
+            .clip(RoundedCornerShape(10.dp))
+            .background(Color(0xFFE7EEE9)), contentAlignment = Alignment.Center) {
+            if (!isBouquet && poster.startsWith("http")) {
+                AsyncImage(model = poster, contentDescription = title,
+                    contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+            } else {
+                Text(if (isBouquet) "▦" else "▶", fontSize = 33.sp, color = c.primary)
+            }
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(title, color = c.onSurface, fontWeight = FontWeight.SemiBold,
+            fontSize = 12.sp, maxLines = 2, overflow = TextOverflow.Ellipsis,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            lineHeight = 15.sp)
     }
 }
