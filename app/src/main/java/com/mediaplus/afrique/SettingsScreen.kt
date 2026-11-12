@@ -1,6 +1,13 @@
 package com.mediaplus.afrique
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -56,21 +63,50 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
     var deleteIndex by remember { mutableIntStateOf(-1) }
     var confirmDisconnect by remember { mutableStateOf(false) }
 
-    Column(modifier.verticalScroll(rememberScrollState()).padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(modifier.verticalScroll(rememberScrollState()).padding(horizontal = 10.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)) {
         if (page == null) {
-            Text("Paramètres", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            Text("Sélectionnez une rubrique.")
-            listOf("Mon compte", "Informations d’abonnement", "Contrôle parental", "À propos").forEach { section ->
-                OutlinedCard(onClick = { onPage(section); message = "" }, modifier = Modifier.fillMaxWidth()) {
-                    Text("›   $section", modifier = Modifier.padding(18.dp), style = MaterialTheme.typography.titleMedium)
+            Text("Paramètres", style = MaterialTheme.typography.headlineMedium,
+                color = Color(0xFF153E30), fontWeight = FontWeight.Bold)
+            Text("Gérez votre abonnement et personnalisez votre expérience.",
+                style = MaterialTheme.typography.bodyMedium, color = Color(0xFF65726C))
+            val sections = listOf(
+                Triple("Mon compte", "Gérer vos profils et connexions", "♙"),
+                Triple("Informations d’abonnement", "Validité, expiration et accès", "◷"),
+                Triple("Contrôle parental", "Sécuriser l’accès aux contenus", "◈"),
+                Triple("À propos", "Version et informations de l’application", "ⓘ")
+            )
+            sections.forEach { (section, subtitle, symbol) ->
+                Surface(
+                    onClick = { onPage(section); message = "" },
+                    modifier = Modifier.fillMaxWidth().shadow(3.dp, RoundedCornerShape(18.dp)),
+                    color = Color.White.copy(alpha = 0.94f),
+                    shape = RoundedCornerShape(18.dp),
+                    border = BorderStroke(1.dp, Color(0xFFE1E7E3))
+                ) {
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 17.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(13.dp)) {
+                        Surface(shape = RoundedCornerShape(13.dp), color = Color(0xFFEAF3EE)) {
+                            Box(Modifier.size(44.dp), contentAlignment = Alignment.Center) {
+                                Text(symbol, fontSize = 23.sp, color = Color(0xFF1A6345))
+                            }
+                        }
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(section, style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold, color = Color(0xFF193D30))
+                            Text(subtitle, style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFF6D7772))
+                        }
+                        Text("›", fontSize = 27.sp, color = Color(0xFFB66A26))
+                    }
                 }
             }
         } else {
             TextButton(onClick = { onPage(if (page == "Ajouter un compte") "Mon compte" else null); message = "" }) {
                 Text("‹  Retour")
             }
-            Text(page, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Text(page, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = Color(0xFF153E30))
             when (page) {
                 "Informations d’abonnement" -> {
                     Text("Nom d’utilisateur : " + if (s.mode == 0) s.user.ifBlank { "Non renseigné" } else "Adresse MAC : " + s.mac)
@@ -97,14 +133,14 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                     if (s.adultUnlocked) OutlinedButton(onClick = { s.lockAdult() }) { Text("Verrouiller les chaînes Adultes") }
                 }
                 "Mon compte" -> {
-                    Text("Abonnement actif", style = MaterialTheme.typography.titleMedium)
+                    Text("Compte actuellement connecté", style = MaterialTheme.typography.titleMedium, color = Color(0xFF153E30), fontWeight = FontWeight.SemiBold)
                     Text(if (s.mode == 0) "Utilisateur : " + s.user.ifBlank { "Non renseigné" } else "Adresse MAC : " + s.mac)
                     s.accounts.forEachIndexed { index, account ->
-                        OutlinedCard(Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(12.dp)) {
+                        OutlinedCard(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), colors = CardDefaults.outlinedCardColors(containerColor = Color.White.copy(alpha = 0.94f))) {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
                                 Text(account.name, fontWeight = FontWeight.Bold)
                                 Text(if (account.mode == 0) "Utilisateur : ${account.user}" else "MAC : ${account.mac}")
-                                Row {
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     TextButton(onClick = { s.activateAccount(index) }) { Text("Utiliser") }
                                     TextButton(onClick = { deleteIndex = index }) { Text("Supprimer") }
                                 }
@@ -131,7 +167,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                         } else message = "Complétez tous les champs"
                     }) { Text("Enregistrer le compte") }
                 }
-                "À propos" -> Text("Media+ Côte d’Ivoire · Version 2.1.5")
+                "À propos" -> Text("Media+ Côte d’Ivoire · Version ${BuildConfig.VERSION_NAME}")
             }
             if (message.isNotEmpty()) Text(message, color = MaterialTheme.colorScheme.primary)
         }
