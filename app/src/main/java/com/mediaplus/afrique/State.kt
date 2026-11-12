@@ -184,6 +184,10 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     fun disconnect() {
         playing = null; playingChannel = null; clearPreview(); adultUnlocked = false
         group = null; section = 0; query = ""; episodes = null
+        pass = ""
+        prefs.edit().remove("pass").remove("biometric_saved_user").apply()
+        cacheFile.delete()
+        live = emptyList(); movies = null; series = null
         showLogin = true; status = ""
     }
     fun removeAccount(index: Int) { if (index in accounts.indices) { accounts.removeAt(index); saveAccounts() } }
@@ -245,15 +249,9 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         }
         recentlyWatched.addAll((prefs.getString("recent_live_ids", "") ?: "").split("\n").filter { it.isNotBlank() }.take(10))
         favs.addAll(prefs.getStringSet("favs", emptySet())?.mapNotNull { decode(it) } ?: emptyList())
-        if (cacheFile.exists()) {
-            live = runCatching { cacheFile.readLines().mapNotNull { decode(it) } }.getOrDefault(emptyList())
-            if (live.isNotEmpty()) {
-                section = 0; group = null; query = ""; episodes = null
-                showLogin = false; status = "${live.size} chaînes"
-                if (mode == 1) stalker = Stalker(Config.PORTAL, mac.trim().uppercase())
-                else loadVodCache()
-            }
-        }
+        // Require explicit login on every app launch; never auto-open cached channels.
+        showLogin = true
+
     }
 
     private fun xt() = Xtream(Config.SERVER, user, pass)
