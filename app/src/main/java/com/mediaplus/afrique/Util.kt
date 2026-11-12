@@ -47,6 +47,12 @@ object PlayerCache {
             .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
     }
 
+    // Live streams must never read stale video segments from the disk cache.
+    fun liveFactory(): DefaultHttpDataSource.Factory =
+        DefaultHttpDataSource.Factory()
+            .setUserAgent("MediaPlus/1.0")
+            .setAllowCrossProtocolRedirects(true)
+
     fun sizeMb(ctx: Context): Long = get(ctx).cacheSpace / (1024 * 1024)
 
     fun clear(ctx: Context) {
