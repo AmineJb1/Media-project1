@@ -10,8 +10,8 @@ android {
         applicationId = "com.mediaplus.afrique"
         minSdk = 21
         targetSdk = 34
-        versionCode = 61
-        versionName = "2.3.10"
+        versionCode = 62
+        versionName = "2.3.11"
     }
     buildTypes {
         release {
