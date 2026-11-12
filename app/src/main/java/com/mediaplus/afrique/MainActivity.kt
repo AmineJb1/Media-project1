@@ -3,6 +3,9 @@ package com.mediaplus.afrique
 import android.app.Activity
 import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.material3.*
@@ -23,7 +26,18 @@ fun App() {
     val activity = ctx as? Activity
     val scope = rememberCoroutineScope()
     val s = remember { AppState(ctx.applicationContext, scope) }
-    DisposableEffect(s) { onDispose { if (s.isLivePlayerInitialized()) s.livePlayer.release() } }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(s, lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE) s.stopLivePlayback()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            s.stopLivePlayback()
+            if (s.isLivePlayerInitialized()) s.livePlayer.release()
+        }
+    }
     var confirmExit by remember { mutableStateOf(false) }
     var settingsOpen by remember { mutableStateOf(false) }
     var settingsPage by remember { mutableStateOf<String?>(null) }
@@ -66,7 +80,7 @@ fun App() {
             text = { Text("Voulez-vous vraiment fermer Media+ Côte d’Ivoire ?", color = Color(0xFF343A35)) },
             confirmButton = {
                 Button(
-                    onClick = { confirmExit = false; activity?.finish() },
+                    onClick = { s.stopLivePlayback(); confirmExit = false; activity?.finish() },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF58216))
                 ) { Text("Oui, quitter", color = Color.White) }
             },
