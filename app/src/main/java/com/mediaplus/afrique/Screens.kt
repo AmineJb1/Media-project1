@@ -184,7 +184,30 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val wide = maxWidth >= 700.dp
         val landscapeCompact = maxWidth > maxHeight && maxHeight < 560.dp
-        Column(Modifier.fillMaxSize().padding(horizontal = if (landscapeCompact) 12.dp else if (wide) 30.dp else 16.dp)) {
+        Row(Modifier.fillMaxSize()) {
+            if (landscapeCompact) {
+                Column(Modifier.width(84.dp).fillMaxHeight().background(Color.White.copy(alpha = 0.88f))
+                    .padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    listOf(0 to "Direct", 2 to "Films", 3 to "Séries", 5 to "Réglages").forEach { (section, title) ->
+                        val active = if (section == 5) settingsOpen else !settingsOpen && s.section == section
+                        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                            .background(if (active) Color(0xFFE7E9EC) else Color.Transparent)
+                            .clickable {
+                                if (section == 5) { onSettingsOpen(true); s.clearPreview() }
+                                else { onSettingsOpen(false); onSettingsPage(null); s.pickSection(section) }
+                            }.padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                            if (section == 5) Icon(Icons.Filled.Settings, contentDescription = title,
+                                tint = c.primary, modifier = Modifier.size(22.dp))
+                            else Text(when (section) { 0 -> "◉"; 2 -> "▶"; else -> "▣" },
+                                fontSize = 23.sp, color = c.primary)
+                            Text(title, fontSize = 10.sp, color = c.onSurface, maxLines = 1)
+                        }
+                    }
+                }
+            }
+            Column(Modifier.weight(1f).fillMaxHeight()
+                .padding(horizontal = if (landscapeCompact) 12.dp else if (wide) 30.dp else 16.dp)) {
             Spacer(Modifier.height(if (landscapeCompact) 2.dp else 14.dp))
             Header(false, s.subscriptionExpirySeconds, compact = landscapeCompact) { }
             Spacer(Modifier.height(if (landscapeCompact) 1.dp else 5.dp))
@@ -251,16 +274,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
             }
             }
             Spacer(Modifier.height(2.dp))
-            if (landscapeCompact) {
-                Row(Modifier.fillMaxWidth().height(44.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-                    listOf(0 to "Direct", 2 to "Films", 3 to "Séries", 5 to "Paramètres").forEach { (section, title) ->
-                        TextButton(onClick = {
-                            if (section == 5) { onSettingsOpen(true); s.clearPreview() }
-                            else { onSettingsOpen(false); onSettingsPage(null); s.pickSection(section) }
-                        }) { Text(title, fontSize = 12.sp) }
-                    }
-                }
-            } else NavigationBar(
+            if (!landscapeCompact) NavigationBar(
                 containerColor = Color.White,
                 contentColor = c.onSurface,
                 tonalElevation = 0.dp,
@@ -282,6 +296,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                         )
                     )
                 }
+            }
             }
         }
     }
