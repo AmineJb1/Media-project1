@@ -102,17 +102,20 @@ fun LoginScreen(s: AppState) {
         val wide = maxWidth >= 700.dp
         val tvLayout = isTv || (maxWidth >= 800.dp && maxWidth > maxHeight)
         Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.12f)))
-        // Use the actual available width on TV boxes, including devices that
-        // incorrectly report a phone UI mode. Constrain the entire login group.
-        val safeHorizontalPadding = if (tvLayout) 28.dp else if (wide) 32.dp else 18.dp
-        Column(
-            Modifier.fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = safeHorizontalPadding, vertical = if (tvLayout) 24.dp else 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        // Constrain the parent before using fillMaxWidth inside the login form.
+        Box(
+            Modifier.fillMaxSize().padding(
+                horizontal = if (tvLayout) 32.dp else 18.dp,
+                vertical = if (tvLayout) 28.dp else 16.dp
+            ),
+            contentAlignment = Alignment.TopCenter
         ) {
-            Row(Modifier.fillMaxWidth().widthIn(max = 520.dp),
+            Column(
+                Modifier.widthIn(max = if (tvLayout) 520.dp else 560.dp)
+                    .fillMaxWidth().verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+            Row(Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically) {
                 Image(
                     painter = painterResource(R.drawable.media_plus_brand),
@@ -138,10 +141,10 @@ fun LoginScreen(s: AppState) {
             }
             Text("Version $installedVersion", fontSize = if (tvLayout) 12.sp else 10.sp,
                 color = c.onSurfaceVariant.copy(alpha = .85f),
-                modifier = Modifier.fillMaxWidth().widthIn(max = 520.dp))
+                modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(if (tvLayout) 8.dp else if (wide) 14.dp else 9.dp))
             Card(
-                Modifier.fillMaxWidth().widthIn(max = 520.dp).animateContentSize()
+                Modifier.fillMaxWidth().animateContentSize()
                     .shadow(16.dp, RoundedCornerShape(26.dp), ambientColor = Color(0x223B4540), spotColor = Color(0x33475045)),
                 shape = RoundedCornerShape(26.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = if (tvLayout) .97f else .88f)),
@@ -195,6 +198,7 @@ fun LoginScreen(s: AppState) {
                 }
             }
             Spacer(Modifier.height(18.dp))
+            }
         }
     }
     if (showMacAccess) {
