@@ -46,10 +46,11 @@ import java.util.Locale
 @Composable
 fun LoginScreen(s: AppState) {
     val c = MaterialTheme.colorScheme
-    val field = RoundedCornerShape(24.dp)
+    val field = RoundedCornerShape(17.dp)
     val f = Modifier.fillMaxWidth().padding(top = 6.dp)
     var showPassword by remember { mutableStateOf(false) }
     var rememberUsername by remember { mutableStateOf(true) }
+    var showBiometricHelp by remember { mutableStateOf(false) }
     val host = LocalContext.current as? FragmentActivity
     val biometricReady = host != null && BiometricManager.from(host).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
 
@@ -63,7 +64,7 @@ fun LoginScreen(s: AppState) {
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
                     biometricRequested = false
-                    s.connect()
+                    s.connectWithBiometric()
                 }
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     super.onAuthenticationError(errorCode, errString)
@@ -83,10 +84,10 @@ fun LoginScreen(s: AppState) {
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val wide = maxWidth >= 700.dp
-        Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.08f)))
+        Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.12f)))
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-                .padding(horizontal = if (wide) 48.dp else 22.dp, vertical = if (wide) 32.dp else 22.dp),
+                .padding(horizontal = if (wide) 48.dp else 18.dp, vertical = if (wide) 24.dp else 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -117,14 +118,14 @@ fun LoginScreen(s: AppState) {
             Spacer(Modifier.height(if (wide) 14.dp else 9.dp))
             Card(
                 Modifier.fillMaxWidth().widthIn(max = 560.dp).animateContentSize()
-                    .shadow(22.dp, RoundedCornerShape(32.dp), ambientColor = Color(0x553B4540), spotColor = Color(0x66475045)),
-                shape = RoundedCornerShape(32.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = .78f)),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = .82f)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    .shadow(16.dp, RoundedCornerShape(26.dp), ambientColor = Color(0x223B4540), spotColor = Color(0x33475045)),
+                shape = RoundedCornerShape(26.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = .88f)),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = .95f)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
                 Column(Modifier.fillMaxWidth().padding(if (wide) 22.dp else 16.dp)) {
-                    Text("Bienvenue", fontSize = 25.sp, fontWeight = FontWeight.Bold, color = c.onSurface, modifier = Modifier.align(Alignment.CenterHorizontally))
+                    Text("Bienvenue", fontSize = 23.sp, fontWeight = FontWeight.Bold, color = c.onSurface, modifier = Modifier.align(Alignment.CenterHorizontally))
                     Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, fontSize = 13.sp, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp, bottom = 18.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         OutlinedButton(onClick = { s.mode = 0 }, modifier = Modifier.weight(1f).height(48.dp), shape = RoundedCornerShape(25.dp), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (s.mode == 0) Color(0xFFEDEDED) else Color.White)) { Text("Identifiants", color = c.onSurface, fontSize = 13.sp) }
@@ -132,10 +133,21 @@ fun LoginScreen(s: AppState) {
                     }
                     if (s.mode == 0) {
                         OutlinedTextField(s.user, { if (rememberUsername) s.saveUsername(it) else s.user = it }, f, singleLine = true, shape = field, label = { Text("Nom d'utilisateur") })
-                        OutlinedTextField(s.pass, { s.pass = it }, f.onFocusChanged { if (it.isFocused) requestBiometric() }, singleLine = true, shape = field, label = { Text("Mot de passe") }, visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(), trailingIcon = { TextButton(onClick = { showPassword = !showPassword }) { Text(if (showPassword) "◉ Masquer" else "◉ Voir") } })
-                        if (biometricReady && s.hasSavedBiometricAccount()) {
-                            TextButton(onClick = { requestBiometric() }, modifier = Modifier.align(Alignment.End)) {
-                                Text("◉  Connexion par empreinte", color = c.primary, fontSize = 12.sp)
+                        OutlinedTextField(s.pass, { s.pass = it }, f.onFocusChanged { if (it.isFocused && s.hasSavedBiometricAccount()) requestBiometric() }, singleLine = true, shape = field, label = { Text("Mot de passe") }, visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(), trailingIcon = { TextButton(onClick = { showPassword = !showPassword }) { Text(if (showPassword) "◉ Masquer" else "◉ Voir") } })
+                        if (biometricReady) {
+                            TextButton(onClick = {
+                                if (s.hasSavedBiometricAccount()) requestBiometric()
+                                else showBiometricHelp = !showBiometricHelp
+                            }, modifier = Modifier.align(Alignment.End)) {
+                                Text("◉  Connexion par empreinte", color = c.primary, fontSize = 13.sp)
+                            }
+                            if (showBiometricHelp && !s.hasSavedBiometricAccount()) {
+                                Text("Connectez-vous une première fois avec votre mot de passe pour activer l’empreinte.",
+                                    color = c.onSurfaceVariant, fontSize = 11.sp)
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Checkbox(checked = s.biometricOptIn, onCheckedChange = { s.biometricOptIn = it })
+                                Text("Activer l’empreinte après connexion", fontSize = 12.sp, color = c.onSurfaceVariant)
                             }
                         }
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 6.dp)) {
