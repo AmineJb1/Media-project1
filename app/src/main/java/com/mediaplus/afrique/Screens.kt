@@ -110,11 +110,43 @@ fun LoginScreen(s: AppState) {
             ),
             contentAlignment = Alignment.TopCenter
         ) {
+            if (tvLayout) {
+                Column(
+                    Modifier.align(Alignment.TopStart).padding(start = 12.dp, top = 8.dp),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(R.drawable.media_plus_brand),
+                            contentDescription = "Media+ Afrique",
+                            modifier = Modifier.size(116.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                        Text("🇨🇮", fontSize = 20.sp, modifier = Modifier.padding(start = 4.dp))
+                    }
+                    Text("DIRECT  ·  FILMS  ·  SÉRIES",
+                        color = c.onSurface, fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(start = 6.dp, top = 2.dp))
+                }
+                val tvAppContext = LocalContext.current
+                val tvVersion = remember(tvAppContext) {
+                    try { tvAppContext.packageManager.getPackageInfo(tvAppContext.packageName, 0).versionName ?: "2.3.12" }
+                    catch (_: Exception) { "2.3.12" }
+                }
+                Text("Version $tvVersion",
+                    color = c.onSurfaceVariant.copy(alpha = .9f),
+                    fontSize = 12.sp,
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(end = 12.dp, bottom = 8.dp))
+            }
             Column(
                 Modifier.widthIn(max = if (tvLayout) 520.dp else 560.dp)
-                    .fillMaxWidth().verticalScroll(rememberScrollState()),
+                    .fillMaxWidth()
+                    .padding(top = if (tvLayout) 142.dp else 0.dp)
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+            if (!tvLayout) {
             Row(Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically) {
                 Image(
@@ -142,13 +174,14 @@ fun LoginScreen(s: AppState) {
             Text("Version $installedVersion", fontSize = if (tvLayout) 12.sp else 10.sp,
                 color = c.onSurfaceVariant.copy(alpha = .85f),
                 modifier = Modifier.fillMaxWidth())
+            }
             Spacer(Modifier.height(if (tvLayout) 8.dp else if (wide) 14.dp else 9.dp))
             Card(
                 Modifier.fillMaxWidth().animateContentSize()
                     .shadow(16.dp, RoundedCornerShape(26.dp), ambientColor = Color(0x223B4540), spotColor = Color(0x33475045)),
                 shape = RoundedCornerShape(26.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = if (tvLayout) .97f else .88f)),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = .95f)),
+                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = if (tvLayout) .72f else .88f)),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = if (tvLayout) .55f else .95f)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
                 Column(Modifier.fillMaxWidth().padding(if (tvLayout) 18.dp else if (wide) 22.dp else 16.dp)) {
