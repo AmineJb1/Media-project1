@@ -1,6 +1,7 @@
 package com.mediaplus.afrique
 
 import android.graphics.BitmapFactory
+import android.content.res.Configuration
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -80,6 +81,7 @@ fun AfricaTheme(content: @Composable () -> Unit) {
             Brush.verticalGradient(listOf(Color.White, Color(0xFFFFFBF7), Color.White))
         )) {
             val ctx = LocalContext.current
+            val tvBackground = (ctx.resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK) == Configuration.UI_MODE_TYPE_TELEVISION || ctx.resources.configuration.screenWidthDp >= 800 && ctx.resources.configuration.screenWidthDp > ctx.resources.configuration.screenHeightDp
             val premiumBackground = remember {
                 try {
                     ctx.assets.open("bg_cote_ivoire_3d.jpg").use { stream ->
@@ -93,9 +95,9 @@ fun AfricaTheme(content: @Composable () -> Unit) {
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize().graphicsLayer {
                         // Enlarge Africa while keeping Côte d’Ivoire near the screen center.
-                        scaleX = 1.48f
-                        scaleY = 1.48f
-                        translationX = size.width * 0.28f
+                        scaleX = if (tvBackground) 1.05f else 1.48f
+                        scaleY = if (tvBackground) 1.05f else 1.48f
+                        translationX = size.width * (if (tvBackground) 0.15f else 0.28f)
                     },
                     contentScale = ContentScale.Fit
                 )
@@ -107,7 +109,7 @@ fun AfricaTheme(content: @Composable () -> Unit) {
                     contentScale = ContentScale.Fit
                 )
             }
-            Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.08f)))
+            Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = if (tvBackground) 0.76f else 0.08f)))
             Surface(Modifier.fillMaxSize(), color = Color.Transparent) { content() }
         }
     }
