@@ -33,6 +33,13 @@ class Xtream(server: String, user: String, pass: String) {
         return raw.toLongOrNull()?.takeIf { it > 0L }
     }
 
+    fun isSubscriptionExpired(): Boolean {
+        val info = JSONObject(httpGet(api)).optJSONObject("user_info") ?: return false
+        val expiry = info.optString("exp_date").trim().toLongOrNull()
+        return (expiry != null && expiry > 0L && expiry <= System.currentTimeMillis() / 1000L) ||
+            info.optString("status").equals("Expired", ignoreCase = true)
+    }
+
     data class Catalog(val items: List<Item>, val categories: List<String>)
 
     private fun catalog(catAction: String, listAction: String, build: (JSONObject, String) -> Item): Catalog {
