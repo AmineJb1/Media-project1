@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -246,8 +249,60 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 Text("Tri par date disponible selon les informations du serveur", color = c.onSurfaceVariant,
                     style = MaterialTheme.typography.labelSmall)
             }
-            if (s.section == 0 && wide) {
-                Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(if (landscapeCompact) 8.dp else 14.dp)) {
+            if (s.section == 0 && landscapeCompact) {
+                Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Box(Modifier.weight(if (s.previewChannelId != null) 0.40f else 1f).fillMaxHeight()) {
+                        val visibleItems = if (s.query.isNotBlank()) {
+                            list.filter { it.name.contains(s.query, ignoreCase = true) || it.group.contains(s.query, ignoreCase = true) }
+                        } else if (s.group == null) emptyList()
+                        else specialGroups[s.group] ?: list.filter { it.group == s.group }
+                        if (s.group == null && s.query.isBlank()) {
+                            val groups = (specialGroups.keys + list.map { it.group }).filter { it.isNotBlank() }.distinct()
+                            LazyVerticalGrid(columns = GridCells.Adaptive(100.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                contentPadding = PaddingValues(bottom = 12.dp)) {
+                                items(groups) { groupName ->
+                                    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                                        .background(Color.White.copy(alpha = 0.72f))
+                                        .clickable { s.requestGroup(groupName) }
+                                        .padding(9.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Text(bouquetIcon(groupName), fontSize = 27.sp)
+                                        Text(groupName, fontSize = 11.sp, maxLines = 2,
+                                            color = c.onSurface, fontWeight = FontWeight.SemiBold)
+                                    }
+                                }
+                            }
+                        } else {
+                            LazyVerticalGrid(columns = GridCells.Adaptive(94.dp),
+                                horizontalArrangement = Arrangement.spacedBy(7.dp),
+                                verticalArrangement = Arrangement.spacedBy(7.dp),
+                                contentPadding = PaddingValues(bottom = 12.dp)) {
+                                items(visibleItems) { item ->
+                                    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                                        .background(Color.White.copy(alpha = if (s.previewChannelId == item.id) 0.92f else 0.70f))
+                                        .clickable {
+                                            s.selectPlaybackBouquet(s.group, visibleItems)
+                                            s.requestAdultItem(item) { s.pick(item) }
+                                        }.padding(7.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Logo(item)
+                                        Spacer(Modifier.height(4.dp))
+                                        Text(item.name, fontSize = 10.sp, color = c.onSurface,
+                                            fontWeight = FontWeight.Medium, maxLines = 2)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (s.previewChannelId != null) {
+                        Box(Modifier.weight(0.60f).fillMaxHeight()) {
+                            LivePreviewPanel(s, compact = false)
+                        }
+                    }
+                }
+            } else if (s.section == 0 && wide) {
+                Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     Box(Modifier.weight(if (landscapeCompact) 0.58f else 0.54f).fillMaxHeight()) {
                         ItemList(list, s.group, s.query, favUrls, false,
                             { s.requestGroup(it) }, { item ->
