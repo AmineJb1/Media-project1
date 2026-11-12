@@ -55,6 +55,27 @@ jobs:
           print("Kotlin source compatibility fixes applied")
           PY
 
+      - name: Verify settings source before Kotlin compilation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          source = Path("app/src/main/java/com/mediaplus/afrique/SettingsScreen.kt")
+          text = source.read_text()
+          if "BuildConfig.VERSION_NAME" in text:
+              gradle = Path("app/build.gradle.kts").read_text()
+              match = re.search(r'versionName\s*=\s*"([^"]+)"', gradle)
+              if not match:
+                  raise RuntimeError("Unable to determine app versionName")
+              text = text.replace("BuildConfig.VERSION_NAME", '"' + match.group(1) + '"')
+              source.write_text(text)
+              print("Removed unavailable BuildConfig reference")
+          assert "BuildConfig" not in source.read_text(), "Unexpected BuildConfig reference in SettingsScreen.kt"
+          print("SettingsScreen.kt verified; no BuildConfig reference")
+          PY
+
       - name: Configure permanent signing
         shell: bash
         env:
