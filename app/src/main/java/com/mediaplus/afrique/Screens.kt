@@ -77,14 +77,7 @@ fun LoginScreen(s: AppState) {
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val wide = maxWidth >= 700.dp
-        Box(
-            Modifier.fillMaxSize().background(
-                Brush.radialGradient(
-                    listOf(Color(0xFFE7F5EB), Color.White, Color(0xFFFFF9F1)),
-                    radius = 1100f
-                )
-            )
-        )
+        Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.08f)))
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(horizontal = if (wide) 48.dp else 22.dp, vertical = if (wide) 32.dp else 22.dp),
@@ -101,7 +94,6 @@ fun LoginScreen(s: AppState) {
                 Spacer(Modifier.width(10.dp))
                 Column(Modifier.weight(1f)) {
                     Text("Media+ Côte d’Ivoire", color = c.onSurface, fontSize = if (wide) 25.sp else 20.sp, lineHeight = if (wide) 29.sp else 23.sp, fontWeight = FontWeight.ExtraBold, maxLines = 2)
-                    Text("🇨🇮", color = c.secondary, style = MaterialTheme.typography.bodyMedium)
                     Text("DIRECT · FILMS · SÉRIES", color = c.secondary, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                 }
             }
@@ -114,11 +106,11 @@ fun LoginScreen(s: AppState) {
                 elevation = CardDefaults.cardElevation(defaultElevation = 14.dp)
             ) {
                 Column(Modifier.fillMaxWidth().padding(if (wide) 30.dp else 20.dp)) {
-                    Text("Bienvenue", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = c.onSurface)
+                    Text("Bienvenue", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = c.onSurface, modifier = Modifier.align(Alignment.CenterHorizontally))
                     Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 5.dp, bottom = 20.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Pill("Identifiants", s.mode == 0, Modifier.weight(1f)) { s.mode = 0 }
-                        Pill("MAC", s.mode == 1, Modifier.weight(1f)) { s.mode = 1 }
+                        OutlinedButton(onClick = { s.mode = 0 }, modifier = Modifier.weight(1f), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (s.mode == 0) Color(0xFFEDEDED) else Color.White)) { Text("Identifiants", color = c.onSurface, fontSize = 13.sp) }
+                        OutlinedButton(onClick = { s.mode = 1 }, modifier = Modifier.weight(1f), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (s.mode == 1) Color(0xFFEDEDED) else Color.White)) { Text("MAC", color = c.onSurface, fontSize = 13.sp) }
                     }
                     if (s.mode == 0) {
                         OutlinedTextField(s.user, { s.saveUsername(it) }, f, singleLine = true, shape = field, label = { Text("Nom d'utilisateur") })
@@ -132,8 +124,10 @@ fun LoginScreen(s: AppState) {
                         onClick = { s.connect() },
                         modifier = Modifier.fillMaxWidth().padding(top = 18.dp).height(if (wide) 60.dp else 54.dp),
                         shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = c.primary)
-                    ) { Text("Se connecter", fontWeight = FontWeight.Bold) }
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F2F1), contentColor = c.onSurface),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 5.dp)
+                    ) { Text("▶  Se connecter", fontWeight = FontWeight.Bold) }
                     AnimatedVisibility(s.status.isNotEmpty()) {
                         Text(s.status, Modifier.padding(top = 12.dp), color = c.secondary, style = MaterialTheme.typography.bodySmall)
                     }
