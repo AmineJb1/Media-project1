@@ -43,6 +43,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     // A salted PIN hash avoids storing the parental PIN in clear text.
     private fun pinHash(pin: String, salt: String): String = MessageDigest.getInstance("SHA-256")
         .digest((salt + ":" + pin).toByteArray()).joinToString("") { "%02x".format(it) }
+    init { if (!prefs.contains("parental_pin_hash")) setParentalPin("0000") }
     val parentalPinExists get() = prefs.contains("parental_pin_hash")
     fun setParentalPin(pin: String): Boolean {
         if (parentalPinExists || !pin.matches(Regex("[0-9]{4}"))) return false
@@ -50,6 +51,12 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         val salt = bytes.joinToString("") { "%02x".format(it) }
         prefs.edit().putString("parental_pin_salt", salt).putString("parental_pin_hash", pinHash(pin, salt)).apply()
         return true
+    }
+    fun changeParentalPin(oldPin: String, newPin: String): Boolean {
+        if (!verifyParentalPin(oldPin) || !newPin.matches(Regex("[0-9]{4}"))) return false
+        prefs.edit().remove("parental_pin_hash").remove("parental_pin_salt").commit()
+        adultUnlocked = false
+        return setParentalPin(newPin)
     }
     fun verifyParentalPin(pin: String): Boolean {
         val salt = prefs.getString("parental_pin_salt", "") ?: ""
@@ -87,6 +94,11 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         if (name.isBlank() || (mode == 0 && (user.isBlank() || pass.isBlank())) || (mode == 1 && mac.isBlank())) return false
         accounts.add(Account(name.trim(), mode, user.trim(), pass, mac.trim()))
         saveAccounts(); return true
+    }
+    fun disconnect() {
+        playing = null; playingChannel = null; clearPreview(); adultUnlocked = false
+        group = null; section = 0; query = ""; episodes = null
+        showLogin = true; status = ""
     }
     fun removeAccount(index: Int) { if (index in accounts.indices) { accounts.removeAt(index); saveAccounts() } }
     fun activateAccount(index: Int) {
