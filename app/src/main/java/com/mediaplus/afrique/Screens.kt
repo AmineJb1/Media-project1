@@ -110,11 +110,33 @@ fun LoginScreen(s: AppState) {
             ),
             contentAlignment = Alignment.TopCenter
         ) {
+            if (tvLayout) {
+                Row(
+                    Modifier.align(Alignment.TopStart).padding(start = 12.dp, top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.media_plus_brand),
+                        contentDescription = "Media+ Afrique",
+                        modifier = Modifier.size(116.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                    Text("🇨🇮", fontSize = 20.sp, modifier = Modifier.padding(start = 6.dp))
+                    Column(Modifier.padding(start = 12.dp)) {
+                        Text("Media+ Côte d’Ivoire", color = c.onSurface, fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold, maxLines = 1)
+                        Text("DIRECT · FILMS · SÉRIES", color = c.secondary, fontSize = 12.sp)
+                    }
+                }
+            }
             Column(
                 Modifier.widthIn(max = if (tvLayout) 520.dp else 560.dp)
-                    .fillMaxWidth().verticalScroll(rememberScrollState()),
+                    .fillMaxWidth()
+                    .padding(top = if (tvLayout) 142.dp else 0.dp)
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+            if (!tvLayout) {
             Row(Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically) {
                 Image(
@@ -142,6 +164,7 @@ fun LoginScreen(s: AppState) {
             Text("Version $installedVersion", fontSize = if (tvLayout) 12.sp else 10.sp,
                 color = c.onSurfaceVariant.copy(alpha = .85f),
                 modifier = Modifier.fillMaxWidth())
+            }
             Spacer(Modifier.height(if (tvLayout) 8.dp else if (wide) 14.dp else 9.dp))
             Card(
                 Modifier.fillMaxWidth().animateContentSize()
