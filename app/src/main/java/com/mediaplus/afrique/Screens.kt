@@ -320,48 +320,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 }
             } else {
                 if (s.section == 0 && s.previewChannelId != null) LivePreviewPanel(s, compact = true)
-                if (s.section == 0 && s.group == null && s.query.isBlank()) {
-                    val groups = (specialGroups.keys + list.map { it.group }).filter { it.isNotBlank() }.distinct()
-                    LazyVerticalGrid(columns = GridCells.Adaptive(132.dp), modifier = Modifier.weight(1f),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        contentPadding = PaddingValues(8.dp)) {
-                        items(groups) { name ->
-                            Surface(modifier = Modifier.fillMaxWidth().clickable { s.requestGroup(name) },
-                                shape = RoundedCornerShape(16.dp), color = Color.White.copy(alpha = 0.94f),
-                                shadowElevation = 5.dp) {
-                                Column(Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text(bouquetIcon(name), fontSize = 28.sp)
-                                    Text(name, fontSize = 12.sp, color = c.onSurface,
-                                        fontWeight = FontWeight.SemiBold, maxLines = 2)
-                                }
-                            }
-                        }
-                    }
-                } else if (s.section == 0) {
-                    val channels = if (s.query.isNotBlank()) list.filter {
-                        it.name.contains(s.query, true) || it.group.contains(s.query, true)
-                    } else specialGroups[s.group] ?: list.filter { it.group == s.group }
-                    LazyVerticalGrid(columns = GridCells.Adaptive(132.dp), modifier = Modifier.weight(1f),
-                        horizontalArrangement = Arrangement.spacedBy(9.dp),
-                        verticalArrangement = Arrangement.spacedBy(9.dp),
-                        contentPadding = PaddingValues(8.dp)) {
-                        items(channels) { item ->
-                            Surface(modifier = Modifier.fillMaxWidth().clickable {
-                                s.selectPlaybackBouquet(s.group, channels)
-                                s.requestAdultItem(item) { s.pick(item) }
-                            }, shape = RoundedCornerShape(16.dp),
-                                color = if (s.previewChannelId == item.id) Color(0xFFFFF0DF) else Color.White.copy(alpha = 0.94f),
-                                shadowElevation = 4.dp) {
-                                Column(Modifier.padding(9.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Logo(item)
-                                    Text(item.name, fontSize = 11.sp, color = c.onSurface,
-                                        fontWeight = FontWeight.Medium, maxLines = 2)
-                                }
-                            }
-                        }
-                    }
-                } else ItemList(list, s.group, s.query, favUrls, false,
+                ItemList(list, s.group, s.query, favUrls, false,
                     { s.requestGroup(it) }, { item ->
                                 if (s.section == 0) s.selectPlaybackBouquet(s.group, specialGroups[s.group] ?: list.filter { it.group == s.group })
                                 s.requestAdultItem(item) { s.pick(item) }
