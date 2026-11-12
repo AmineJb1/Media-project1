@@ -100,11 +100,11 @@ fun Tile(onClick: () -> Unit, content: @Composable RowScope.() -> Unit) {
     var focused by remember { mutableStateOf(false) }
     val c = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(18.dp)
-    val bg by animateColorAsState(if (focused) Color.White.copy(alpha = 0.28f) else Color.White.copy(alpha = 0.10f), label = "tile-background")
+    val bg by animateColorAsState(if (focused) Color.White.copy(alpha = 0.70f) else Color.White.copy(alpha = 0.48f), label = "tile-background")
     Row(
         Modifier.fillMaxWidth().padding(vertical = 5.dp).clip(shape)
             .background(bg)
-            .border(if (focused) 2.dp else 1.dp, if (focused) c.secondary.copy(alpha = 0.75f) else c.outline.copy(alpha = 0.32f), shape)
+            .border(if (focused) 2.dp else 1.dp, if (focused) c.secondary.copy(alpha = 0.95f) else Color(0xFF777F85).copy(alpha = 0.72f), shape)
             .onFocusChanged { focused = it.isFocused }
             .clickable { onClick() }.padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
