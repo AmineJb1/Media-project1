@@ -29,33 +29,6 @@ jobs:
       - name: Use repository Android project
         run: echo "PROJECT_DIR=." >> "$GITHUB_ENV"
 
-      - name: Fix Kotlin compatibility in selected source ZIP
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          import os
-          from pathlib import Path
-          root = Path(os.environ["PROJECT_DIR"]) / "app/src/main/java"
-          main = next(root.rglob("MainActivity.kt"))
-          text = main.read_text()
-          old = "VideoPlayer(p) { s.onPlayerError(it) }"
-          new = "VideoPlayer(p, onError = { s.onPlayerError(it) })"
-          if old in text:
-              main.write_text(text.replace(old, new))
-          elif new not in text:
-              raise RuntimeError("Unexpected VideoPlayer call in MainActivity.kt")
-          tv = next(root.rglob("TvPlayer.kt"))
-          text = tv.read_text()
-          old = "import androidx.compose.ui.focus.focusable"
-          new = "import androidx.compose.foundation.focusable"
-          if old in text:
-              tv.write_text(text.replace(old, new))
-          elif new not in text:
-              raise RuntimeError("Unexpected focusable import in TvPlayer.kt")
-          print("Kotlin source compatibility fixes applied")
-          PY
-
       - name: Verify settings source before Kotlin compilation
         shell: bash
         run: |
