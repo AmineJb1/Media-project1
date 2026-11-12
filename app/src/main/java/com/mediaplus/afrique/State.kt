@@ -25,6 +25,15 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     private val prefs = ctx.getSharedPreferences("p", 0)
     private val cacheFile = File(ctx.cacheDir, "live.tsv")
     private var stalker: Stalker? = null
+    // Display-only code; not used for login or authentication.
+    fun macDisplayKey(): String {
+        val period = System.currentTimeMillis() / 2592000000L
+        val raw = mac.trim().uppercase() + "|" + period + "|MediaPlusAfrique"
+        val bytes = MessageDigest.getInstance("SHA-256").digest(raw.toByteArray())
+        val value = (((bytes[0].toInt() and 255) * 65536) + ((bytes[1].toInt() and 255) * 256) + (bytes[2].toInt() and 255)) % 1000000
+        return "%06d".format(java.util.Locale.US, value)
+    }
+
 
     private val vodTtlMs = 24L * 60 * 60 * 1000
     private val vodLoading = mutableSetOf<Int>()
