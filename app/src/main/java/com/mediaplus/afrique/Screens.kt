@@ -138,32 +138,32 @@ fun LoginScreen(s: AppState) {
                 Column(Modifier.fillMaxWidth().padding(if (wide) 22.dp else 16.dp)) {
                     Text("Bienvenue", fontSize = 23.sp, fontWeight = FontWeight.Bold, color = c.onSurface, modifier = Modifier.align(Alignment.CenterHorizontally))
                     Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, fontSize = 13.sp, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp, bottom = 18.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        OutlinedButton(onClick = { s.mode = 0 }, modifier = Modifier.weight(1f).height(48.dp), shape = RoundedCornerShape(25.dp), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (s.mode == 0) Color(0xFFEDEDED) else Color.White)) { Text("Identifiants", color = c.onSurface, fontSize = 13.sp) }
-                        OutlinedButton(onClick = { s.mode = 1 }, modifier = Modifier.weight(1f), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (s.mode == 1) Color(0xFFEDEDED) else Color.White)) { Text("MAC", color = c.onSurface, fontSize = 13.sp) }
-                    }
-                    if (s.mode == 0) {
-                        OutlinedTextField(s.user, { s.saveUsername(it) }, f, singleLine = true, shape = field, label = { Text("Nom d'utilisateur") })
-                        OutlinedTextField(s.pass, { s.pass = it }, f.onFocusChanged { if (it.isFocused && s.hasSavedBiometricAccount()) requestBiometric() }, singleLine = true, shape = field, label = { Text("Mot de passe") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(), trailingIcon = { TextButton(onClick = { showPassword = !showPassword }) { Text(if (showPassword) "◉ Masquer" else "◉ Voir") } })
-                        if (biometricReady) {
-                            TextButton(onClick = {
-                                if (s.hasSavedBiometricAccount()) requestBiometric()
-                                else showBiometricHelp = !showBiometricHelp
-                            }, modifier = Modifier.align(Alignment.End)) {
-                                Text("◉  Connexion par empreinte", color = c.primary, fontSize = 13.sp)
-                            }
-                            if (showBiometricHelp && !s.hasSavedBiometricAccount()) {
-                                Text("Connectez-vous une première fois avec votre mot de passe pour activer l’empreinte.",
-                                    color = c.onSurfaceVariant, fontSize = 11.sp)
-                            }
+                    Text("Identifiants", color = c.onSurface, fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 4.dp))
+                    OutlinedTextField(s.user, { s.saveUsername(it) }, f, singleLine = true,
+                        shape = field, label = { Text("Nom d'utilisateur") })
+                    OutlinedTextField(s.pass, { s.pass = it },
+                        f.onFocusChanged { if (it.isFocused && s.hasSavedBiometricAccount()) requestBiometric() },
+                        singleLine = true, shape = field, label = { Text("Mot de passe") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = { TextButton(onClick = { showPassword = !showPassword }) {
+                            Text(if (showPassword) "◉ Masquer" else "◉ Voir")
+                        } })
+                    if (biometricReady) {
+                        TextButton(onClick = {
+                            if (s.hasSavedBiometricAccount()) requestBiometric()
+                            else showBiometricHelp = !showBiometricHelp
+                        }, modifier = Modifier.align(Alignment.End)) {
+                            Text("◉  Connexion par empreinte", color = c.primary, fontSize = 13.sp)
                         }
-                    } else {
-                        OutlinedTextField(s.mac, { s.mac = it }, f, singleLine = true, shape = field, label = { Text("Adresse MAC") }, leadingIcon = { Text("▣") })
-                        Text("Clé MAC : ${s.macDisplayKey()}", modifier = Modifier.padding(top = 12.dp), color = c.primary)
-                        Text("Renouvellement tous les 30 jours", style = MaterialTheme.typography.labelSmall, color = c.onSurfaceVariant)
+                        if (showBiometricHelp && !s.hasSavedBiometricAccount()) {
+                            Text("Connectez-vous une première fois avec votre mot de passe pour activer l’empreinte.",
+                                color = c.onSurfaceVariant, fontSize = 11.sp)
+                        }
                     }
                     Button(
-                        onClick = { s.connect() },
+                        onClick = { s.mode = 0; s.connect() },
                         modifier = Modifier.fillMaxWidth().padding(top = 12.dp).height(if (wide) 52.dp else 48.dp),
                         shape = RoundedCornerShape(28.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F2F1), contentColor = c.onSurface),
