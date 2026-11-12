@@ -243,10 +243,13 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
 
     init {
         prefs.getString("pass", null)?.let { old ->
-            if (secure.put("pass", old)) { pass = old; prefs.edit().remove("pass").apply() }
+            pass = old
+            secure.put("pass", old)
+            prefs.edit().remove("pass").apply()
         }
         prefs.getString("accounts", null)?.let { old ->
-            if (secure.put("accounts", old)) prefs.edit().remove("accounts").apply()
+            secure.put("accounts", old)
+            if (android.os.Build.VERSION.SDK_INT >= 23) prefs.edit().remove("accounts").apply()
         }
         runCatching {
             val array = JSONArray(secure.get("accounts") ?: prefs.getString("accounts", "[]") ?: "[]")
