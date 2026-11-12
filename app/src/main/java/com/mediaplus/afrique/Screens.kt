@@ -108,12 +108,11 @@ fun LoginScreen(s: AppState) {
 }
 
 @Composable
-fun MainScreen(s: AppState, onExit: () -> Unit = {}) {
+fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSettingsOpen: (Boolean) -> Unit, onSettingsPage: (String?) -> Unit) {
     val c = MaterialTheme.colorScheme
     val list = s.current()
     val favUrls = s.favs.map { it.url }.toSet()
     var searchOpen by remember { mutableStateOf(false) }
-    var settingsOpen by remember { mutableStateOf(false) }
     val recent = s.recentlyWatched.mapNotNull { id -> s.live.firstOrNull { it.id == id } }
     // Exact channel names supplied by the user; no fabricated streams or URLs.
     val ivoryCoastNames = remember {
@@ -141,7 +140,7 @@ fun MainScreen(s: AppState, onExit: () -> Unit = {}) {
             Header(false, s.subscriptionExpirySeconds) { }
             Spacer(Modifier.height(5.dp))
             if (settingsOpen) {
-                SettingsScreen(s, Modifier.weight(1f))
+                SettingsScreen(s, settingsPage, onSettingsPage, Modifier.weight(1f))
             } else {
             Row(verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.weight(1f)) { Text(
@@ -213,7 +212,7 @@ fun MainScreen(s: AppState, onExit: () -> Unit = {}) {
                 listOf(0 to "Direct", 2 to "Films", 3 to "Séries", 5 to "Paramètres").forEach { (section, title) ->
                     NavigationBarItem(
                         selected = if (section == 5) settingsOpen else !settingsOpen && s.section == section,
-                        onClick = { if (section == 5) { settingsOpen = true; s.clearPreview() } else { settingsOpen = false; s.pickSection(section) } },
+                        onClick = { if (section == 5) { onSettingsOpen(true); s.clearPreview() } else { onSettingsOpen(false); onSettingsPage(null); s.pickSection(section) } },
                         icon = { if (section == 5) Icon(Icons.Filled.Settings, contentDescription = "Paramètres", modifier = Modifier.size(23.dp)) else Text(when (section) { 0 -> "◉"; 2 -> "▶"; else -> "▣" }, fontSize = 20.sp) },
                         label = { Text(title, fontWeight = FontWeight.SemiBold, fontSize = 10.sp, maxLines = 1, softWrap = false) },
                         alwaysShowLabel = true,
