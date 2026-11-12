@@ -405,13 +405,13 @@ private fun LivePreviewPanel(s: AppState, compact: Boolean) {
                 Box(
                     Modifier.weight(0.44f).aspectRatio(16f / 9f)
                         .clip(RoundedCornerShape(9.dp)).background(Color.Black)
-                        .clickable(enabled = s.previewUrl != null) { s.playLive(selected) },
+                        .clickable(enabled = s.previewUrl != null) { s.playLive(selected, fromPreview = true) },
                     contentAlignment = Alignment.Center
                 ) {
                     val url = s.previewUrl
                     if (url != null) VideoPlayer(url, onError = { s.onPlayerError(it) },
                         modifier = Modifier.fillMaxSize(), showControls = false,
-                        onVideoResolution = { w, h -> resolution = if (w > 0 && h > 0) "$w × $h" else "—" })
+                        onVideoResolution = { w, h -> resolution = if (w > 0 && h > 0) "$w × $h" else "—" }, sharedPlayer = s.livePlayer)
                     else Text("Chargement…", color = Color.White,
                         style = MaterialTheme.typography.labelSmall)
                 }
@@ -424,7 +424,7 @@ private fun LivePreviewPanel(s: AppState, compact: Boolean) {
                     Text(epgText, style = MaterialTheme.typography.labelSmall, maxLines = 2, color = c.onSurfaceVariant)
                     if (nextText.isNotEmpty()) Text(nextText, style = MaterialTheme.typography.labelSmall, maxLines = 1, color = c.onSurfaceVariant)
                     Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                        TextButton(onClick = { s.playLive(selected) },
+                        TextButton(onClick = { s.playLive(selected, fromPreview = true) },
                             enabled = s.previewUrl != null,
                             contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)) {
                             Text("⛶", style = MaterialTheme.typography.titleMedium)
