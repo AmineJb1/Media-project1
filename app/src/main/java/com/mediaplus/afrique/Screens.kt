@@ -186,28 +186,28 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
         val landscapeCompact = maxWidth > maxHeight && maxHeight < 560.dp
         Row(Modifier.fillMaxSize()) {
             if (landscapeCompact) {
-                Column(Modifier.width(84.dp).fillMaxHeight().background(Color.White.copy(alpha = 0.88f))
+                Column(Modifier.width(76.dp).fillMaxHeight().background(Color.White.copy(alpha = 0.60f))
                     .padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     listOf(0 to "Direct", 2 to "Films", 3 to "Séries", 5 to "Réglages").forEach { (section, title) ->
                         val active = if (section == 5) settingsOpen else !settingsOpen && s.section == section
                         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-                            .background(if (active) Color(0xFFE7E9EC) else Color.Transparent)
+                            .background(if (active) Color.White.copy(alpha = 0.72f) else Color.Transparent)
                             .clickable {
                                 if (section == 5) { onSettingsOpen(true); s.clearPreview() }
                                 else { onSettingsOpen(false); onSettingsPage(null); s.pickSection(section) }
-                            }.padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                            }.padding(vertical = 5.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                             if (section == 5) Icon(Icons.Filled.Settings, contentDescription = title,
                                 tint = c.primary, modifier = Modifier.size(22.dp))
                             else Text(when (section) { 0 -> "◉"; 2 -> "▶"; else -> "▣" },
-                                fontSize = 23.sp, color = c.primary)
+                                fontSize = 20.sp, color = c.primary)
                             Text(title, fontSize = 10.sp, color = c.onSurface, maxLines = 1)
                         }
                     }
                 }
             }
             Column(Modifier.weight(1f).fillMaxHeight()
-                .padding(horizontal = if (landscapeCompact) 12.dp else if (wide) 30.dp else 16.dp)) {
+                .padding(horizontal = if (landscapeCompact) 9.dp else if (wide) 30.dp else 16.dp)) {
             Spacer(Modifier.height(if (landscapeCompact) 2.dp else 14.dp))
             Header(false, s.subscriptionExpirySeconds, compact = landscapeCompact) { }
             Spacer(Modifier.height(if (landscapeCompact) 1.dp else 5.dp))
@@ -229,7 +229,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
             Spacer(Modifier.height(5.dp))
             if (s.group != null) {
                 TextButton({ s.group = null }) {
-                    Text("‹  Retour aux catégories", color = c.secondary, fontWeight = FontWeight.SemiBold)
+                    Text(if (landscapeCompact) "‹  Bouquets" else "‹  Retour aux catégories", color = c.secondary, fontWeight = FontWeight.SemiBold, fontSize = if (landscapeCompact) 12.sp else 14.sp)
                 }
             }
             if (s.status.isNotEmpty()) {
@@ -247,8 +247,8 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     style = MaterialTheme.typography.labelSmall)
             }
             if (s.section == 0 && wide) {
-                Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                    Box(Modifier.weight(0.54f).fillMaxHeight()) {
+                Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(if (landscapeCompact) 8.dp else 14.dp)) {
+                    Box(Modifier.weight(if (landscapeCompact) 0.58f else 0.54f).fillMaxHeight()) {
                         ItemList(list, s.group, s.query, favUrls, false,
                             { s.requestGroup(it) }, { item ->
                                 if (s.section == 0) s.selectPlaybackBouquet(s.group, specialGroups[s.group] ?: list.filter { it.group == s.group })
@@ -256,7 +256,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                             }, { s.toggleFav(it) }, Modifier.fillMaxSize(), specialGroups = specialGroups, savedPositions = s.bouquetPositions)
                     }
                     if (s.previewChannelId != null) {
-                        Box(Modifier.weight(0.46f).fillMaxHeight()) {
+                        Box(Modifier.weight(if (landscapeCompact) 0.42f else 0.46f).fillMaxHeight()) {
                             LivePreviewPanel(s, compact = false)
                         }
                     }
