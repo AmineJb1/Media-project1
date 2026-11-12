@@ -96,7 +96,11 @@ fun LoginScreen(s: AppState) {
                 Text("🇨🇮", fontSize = 15.sp, modifier = Modifier.offset(x = (-15).dp, y = (-30).dp))
                 Spacer(Modifier.width(6.dp))
                 Column(Modifier.weight(1f)) {
-                    Text("Media+ Côte d’Ivoire", color = c.onSurface, fontSize = if (wide) 22.sp else 17.sp, lineHeight = if (wide) 26.sp else 21.sp, fontWeight = FontWeight.ExtraBold, maxLines = 2)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("Media+", color = c.onSurface, fontSize = if (wide) 25.sp else 20.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
+                        Spacer(Modifier.width(5.dp))
+                        Text("Côte d’Ivoire", color = c.onSurface, fontSize = if (wide) 17.sp else 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                    }
                     Text("DIRECT · FILMS · SÉRIES", color = c.secondary, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                 }
             }
