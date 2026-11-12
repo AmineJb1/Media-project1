@@ -439,6 +439,28 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         }
     }
 
+    var selectedVod by mutableStateOf<Item?>(null)
+    var selectedVodDetails by mutableStateOf<Xtream.VodDetails?>(null)
+    var vodDetailsLoading by mutableStateOf(false)
+    fun openVodDetails(item: Item) {
+        selectedVod = item
+        selectedVodDetails = null
+        vodDetailsLoading = true
+        scope.launch {
+            val details = runCatching { withContext(Dispatchers.IO) { xt().vodDetails(item) } }.getOrNull()
+            if (selectedVod?.id == item.id && selectedVod?.kind == item.kind) {
+                selectedVodDetails = details
+                vodDetailsLoading = false
+            }
+        }
+    }
+    fun closeVodDetails() { selectedVod = null; selectedVodDetails = null }
+    fun launchSelectedVod() {
+        val item = selectedVod ?: return
+        closeVodDetails()
+        pick(item)
+    }
+
     fun pick(i: Item) {
         if (section == 0 && i.kind == 0) { selectLive(i); return }
         clearPreview()
@@ -493,6 +515,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     fun back() {
         when {
             playing != null -> stopLivePlayback()
+            selectedVod != null -> closeVodDetails()
             previewChannelId != null -> clearPreview()
             query.isNotEmpty() -> query = ""
             episodes != null -> { episodes = null; group = null }
