@@ -3,6 +3,9 @@ package com.mediaplus.afrique
 
 import android.content.Context
 import android.media.AudioManager
+import android.app.Activity
+import android.view.View
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -46,6 +49,17 @@ import kotlinx.coroutines.withContext
 fun TvPlayer(s: AppState) {
     val ctx = LocalContext.current
     val audio = remember { ctx.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
+    val view = LocalView.current
+    DisposableEffect(view) {
+        val decor = (ctx as? Activity)?.window?.decorView
+        val previous = decor?.systemUiVisibility ?: 0
+        decor?.systemUiVisibility = previous or View.SYSTEM_UI_FLAG_FULLSCREEN or
+            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        onDispose { decor?.systemUiVisibility = previous }
+    }
+    val displayPrefs = remember { ctx.getSharedPreferences("player_display", Context.MODE_PRIVATE) }
     val player = remember {
         ExoPlayer.Builder(ctx)
             .setMediaSourceFactory(DefaultMediaSourceFactory(PlayerCache.liveFactory()))
@@ -55,7 +69,13 @@ fun TvPlayer(s: AppState) {
     var menuVisible by remember { mutableStateOf(false) }
     var settingsVisible by remember { mutableStateOf(false) }
     var infoVisible by remember { mutableStateOf(true) }
-    var resizeMode by remember { mutableIntStateOf(AspectRatioFrameLayout.RESIZE_MODE_FIT) }
+    var resizeMode by remember {
+        mutableIntStateOf(displayPrefs.getInt("resize_mode", AspectRatioFrameLayout.RESIZE_MODE_FIT))
+    }
+    fun setDisplayMode(value: Int) {
+        resizeMode = value
+        displayPrefs.edit().putInt("resize_mode", value).apply()
+    }
     var tracksRevision by remember { mutableIntStateOf(0) }
     LaunchedEffect(s.playingChannel?.id) { infoVisible = true }
     LaunchedEffect(infoVisible, settingsVisible, menuVisible, s.playingChannel?.id) {
@@ -78,7 +98,12 @@ fun TvPlayer(s: AppState) {
     val now = System.currentTimeMillis()
     val current = epg.firstOrNull { now in it.start until it.end }
     val next = epg.firstOrNull { it.start >= (current?.end ?: now) }
-    val quality = if (videoSize.width > 0 && videoSize.height > 0) "${videoSize.width} × ${videoSize.height}" else "Résolution…"
+    val quality = if (videoSize.width > 0 && videoSize.height > 0) {
+        val h = videoSize.height
+        val tier = when { h >= 2160 -> "4K"; h >= 1080 -> "FHD"; h >= 720 -> "HD"; else -> "SD" }
+        val fps = player.videoFormat?.frameRate?.takeIf { it > 0 }?.let { " · ${it.toInt()} fps" } ?: ""
+        "$tier · ${videoSize.width}×$h$fps"
+    } else "Qualité : —"
 
     DisposableEffect(player) {
         val listener = object : Player.Listener {
@@ -151,23 +176,28 @@ fun TvPlayer(s: AppState) {
                     Text(if (current != null) current.title else "EPG indisponible",
                         color = Color.LightGray, style = MaterialTheme.typography.bodySmall, maxLines = 2)
                 }
-                Text(quality, color = Color.White, style = MaterialTheme.typography.labelSmall)
+                Surface(color = Color(0xB2223230), shape = RoundedCornerShape(8.dp)) {
+                    Text(quality, color = Color.White, fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp))
+                }
                 TextButton(onClick = { settingsVisible = true; infoVisible = true }) {
                     Text("⚙", color = Color.White, fontSize = 24.sp)
                 }
             }
         }
         if (settingsVisible) {
+            Box(Modifier.fillMaxSize().clickable { settingsVisible = false; infoVisible = false })
             val observedTracksRevision = tracksRevision
             val availableGroups = remember(observedTracksRevision) { player.currentTracks.groups }
             val audioGroups = availableGroups.filter { it.type == C.TRACK_TYPE_AUDIO }
             val textGroups = availableGroups.filter { it.type == C.TRACK_TYPE_TEXT }
             Surface(
-                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().fillMaxWidth(0.82f),
+                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(0.84f).fillMaxWidth(0.62f),
                 color = Color(0xF0152119),
                 shape = RoundedCornerShape(topStart = 18.dp, bottomStart = 18.dp)
             ) {
-                Column(Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(14.dp)) {
+                Column(Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(10.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("Paramètres du lecteur", color = Color.White,
                             fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
@@ -180,7 +210,7 @@ fun TvPlayer(s: AppState) {
                         "Zoom" to AspectRatioFrameLayout.RESIZE_MODE_ZOOM,
                         "Largeur fixe" to AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH
                     ).forEach { (name, value) ->
-                        TextButton(onClick = { resizeMode = value }) {
+                        TextButton(onClick = { setDisplayMode(value) }) {
                             Text((if (resizeMode == value) "✓ " else "") + name, color = Color.White)
                         }
                     }
