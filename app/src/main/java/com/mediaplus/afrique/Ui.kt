@@ -248,7 +248,7 @@ fun GroupRow(name: String, count: Int, onClick: () -> Unit) {
 }
 
 @Composable
-fun ItemRow(item: Item, fav: Boolean, onFav: () -> Unit, onClick: () -> Unit) {
+fun ItemRow(item: Item, fav: Boolean, onFav: () -> Unit, onClick: () -> Unit, showBouquet: Boolean = true) {
     val c = MaterialTheme.colorScheme
     Tile(onClick) {
         Logo(item)
@@ -256,7 +256,7 @@ fun ItemRow(item: Item, fav: Boolean, onFav: () -> Unit, onClick: () -> Unit) {
         Column(Modifier.weight(1f)) {
             Text(item.name, color = c.onSurface, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold,
                 maxLines = 2, overflow = TextOverflow.Ellipsis)
-            if (item.group.isNotEmpty()) Text(item.group, style = MaterialTheme.typography.bodySmall,
+            if (showBouquet && item.group.isNotEmpty()) Text(item.group, style = MaterialTheme.typography.bodySmall,
                 color = c.onSurfaceVariant, maxLines = 1)
         }
         Text(if (fav) "★" else "☆", color = if (fav) Color(0xFFE57A18) else c.onSurfaceVariant, fontSize = 27.sp,
@@ -290,7 +290,7 @@ fun ItemList(
     }
     LazyColumn(modifier, state = scrollState) {
         if (flat || query.isNotBlank()) {
-            itemsIndexed(found, key = { i, x -> "$i${x.url}" }) { _, x -> ItemRow(x, x.url in favUrls, { onFav(x) }) { onPick(x) } }
+            itemsIndexed(found, key = { i, x -> "$i${x.url}" }) { _, x -> ItemRow(x, x.url in favUrls, { onFav(x) }, { onPick(x) }, showBouquet = !flat) }
         } else if (group == null) {
             itemsIndexed(allCategories, key = { _, name -> name }) { _, name ->
                 GroupRow(name, specialGroups[name]?.size ?: groups[name]?.size ?: 0) { onGroup(name) }
