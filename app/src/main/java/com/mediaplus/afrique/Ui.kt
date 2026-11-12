@@ -132,32 +132,51 @@ fun Logo(item: Item) {
 }
 
 private fun bouquetCountryFlag(name: String): String? {
-    val n = name.lowercase(Locale.ROOT)
+    val normalized = java.text.Normalizer.normalize(name.lowercase(Locale.ROOT), java.text.Normalizer.Form.NFD)
+        .replace(Regex("[\\u0300-\\u036f]"), "")
+        .replace(Regex("[^a-z0-9]+"), " ").trim()
+    val tokens = normalized.split(" ").filter { it.isNotBlank() }.toSet()
     val countries = listOf(
-        "🇹🇳" to listOf("tunisie", "tunisia", "tunisian", "tounes"),
-        "🇩🇿" to listOf("algérie", "algerie", "algeria", "algerian"),
-        "🇲🇦" to listOf("maroc", "morocco", "marocain", "moroccan"),
-        "🇪🇬" to listOf("égypte", "egypte", "egypt", "egyptian"),
-        "🇸🇦" to listOf("arabie saoudite", "saudi", "ksa"),
-        "🇦🇪" to listOf("émirats", "emirats", "uae", "united arab emirates"),
-        "🇶🇦" to listOf("qatar", "qatari"),
-        "🇰🇼" to listOf("koweït", "koweit", "kuwait"),
-        "🇧🇭" to listOf("bahreïn", "bahrein", "bahrain"),
+        "🇨🇮" to listOf("cote d ivoire", "cote ivoire", "ivory coast", "ivoirien", "civ"),
+        "🇹🇳" to listOf("tunisie", "tunisia", "tunis", "tounes", "tn"),
+        "🇩🇿" to listOf("algerie", "algeria", "alger", "dz"),
+        "🇲🇦" to listOf("maroc", "morocco", "maghreb maroc", "ma"),
+        "🇪🇬" to listOf("egypte", "egypt", "egyptian", "eg"),
+        "🇸🇦" to listOf("arabie saoudite", "saudi", "saudia", "ksa"),
+        "🇦🇪" to listOf("emirats", "emirates", "uae", "dubai", "abu dhabi"),
+        "🇶🇦" to listOf("qatar", "qatari", "qa"),
+        "🇰🇼" to listOf("koweit", "kuwait", "kw"),
+        "🇧🇭" to listOf("bahrein", "bahrain"),
         "🇴🇲" to listOf("oman", "omani"),
-        "🇯🇴" to listOf("jordanie", "jordan"),
-        "🇱🇧" to listOf("liban", "lebanon"),
-        "🇸🇾" to listOf("syrie", "syria"),
-        "🇮🇶" to listOf("irak", "iraq"),
-        "🇵🇸" to listOf("palestine", "palestinian"),
-        "🇾🇪" to listOf("yémen", "yemen"),
-        "🇱🇾" to listOf("libye", "libya"),
-        "🇸🇩" to listOf("soudan", "sudan"),
-        "🇲🇷" to listOf("mauritanie", "mauritania"),
-        "🇸🇴" to listOf("somalie", "somalia"),
+        "🇯🇴" to listOf("jordanie", "jordan", "jo"),
+        "🇱🇧" to listOf("liban", "lebanon", "lb"),
+        "🇸🇾" to listOf("syrie", "syria", "sy"),
+        "🇮🇶" to listOf("irak", "iraq", "iq"),
+        "🇵🇸" to listOf("palestine", "palestinian", "ps"),
+        "🇾🇪" to listOf("yemen", "ye"),
+        "🇱🇾" to listOf("libye", "libya", "ly"),
+        "🇸🇩" to listOf("soudan", "sudan", "sd"),
+        "🇲🇷" to listOf("mauritanie", "mauritania", "mr"),
+        "🇸🇴" to listOf("somalie", "somalia", "so"),
         "🇩🇯" to listOf("djibouti"),
-        "🇰🇲" to listOf("comores", "comoros")
+        "🇰🇲" to listOf("comores", "comoros"),
+        "🇫🇷" to listOf("france", "francais", "french"),
+        "🇬🇧" to listOf("royaume uni", "united kingdom", "uk", "british"),
+        "🇺🇸" to listOf("usa", "united states", "etats unis", "america"),
+        "🇨🇦" to listOf("canada", "canadien"),
+        "🇸🇳" to listOf("senegal", "sn"),
+        "🇲🇱" to listOf("mali"),
+        "🇨🇲" to listOf("cameroun", "cameroon"),
+        "🇧🇫" to listOf("burkina", "burkina faso"),
+        "🇬🇳" to listOf("guinee", "guinea"),
+        "🇳🇬" to listOf("nigeria"),
+        "🇬🇭" to listOf("ghana"),
+        "🇨🇩" to listOf("rdc", "congo kinshasa", "republique democratique du congo"),
+        "🇨🇬" to listOf("congo brazzaville")
     )
-    return countries.firstOrNull { (_, aliases) -> aliases.any { n.contains(it) } }?.first
+    return countries.firstOrNull { (_, aliases) ->
+        aliases.any { alias -> if (alias.length <= 3) alias in tokens else (" $normalized ").contains(" $alias ") }
+    }?.first
 }
 
 @Composable
@@ -175,7 +194,7 @@ fun GroupRow(name: String, count: Int, onClick: () -> Unit) {
             if (countryFlag != null) {
                 Text(countryFlag, fontSize = 34.sp)
             } else if (football) {
-                Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(Color(0xFF087D45), Color(0xFF1AB86B)))), contentAlignment = Alignment.Center) {
+                Box(Modifier.fillMaxSize().background(Color.White), contentAlignment = Alignment.Center) {
                     Text("⚽", fontSize = 32.sp)
                 }
             } else Text(bouquetIcon(name), fontSize = 26.sp)
