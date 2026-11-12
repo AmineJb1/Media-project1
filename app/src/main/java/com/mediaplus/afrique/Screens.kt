@@ -140,9 +140,10 @@ fun LoginScreen(s: AppState) {
                     modifier = Modifier.align(Alignment.BottomEnd).padding(end = 12.dp, bottom = 8.dp))
             }
             Column(
-                Modifier.widthIn(max = if (tvLayout) 520.dp else 560.dp)
+                Modifier.align(Alignment.TopCenter)
+                    .widthIn(max = if (tvLayout) 480.dp else 560.dp)
                     .fillMaxWidth()
-                    .padding(top = if (tvLayout) 142.dp else 0.dp)
+                    .padding(top = if (tvLayout) 118.dp else 0.dp)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -178,11 +179,11 @@ fun LoginScreen(s: AppState) {
             Spacer(Modifier.height(if (tvLayout) 8.dp else if (wide) 14.dp else 9.dp))
             Card(
                 Modifier.fillMaxWidth().animateContentSize()
-                    .shadow(16.dp, RoundedCornerShape(26.dp), ambientColor = Color(0x223B4540), spotColor = Color(0x33475045)),
+                    ,
                 shape = RoundedCornerShape(26.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = if (tvLayout) .72f else .88f)),
                 border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = if (tvLayout) .55f else .95f)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Column(Modifier.fillMaxWidth().padding(if (tvLayout) 18.dp else if (wide) 22.dp else 16.dp)) {
                     Text("Bienvenue", fontSize = if (tvLayout) 27.sp else 23.sp, fontWeight = FontWeight.Bold, color = c.onSurface, modifier = Modifier.align(Alignment.CenterHorizontally))
@@ -217,7 +218,7 @@ fun LoginScreen(s: AppState) {
                         shape = RoundedCornerShape(28.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F2F1), contentColor = c.onSurface),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 9.dp)
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
                     ) { Text("▶  Se connecter", fontSize = 15.sp, fontWeight = FontWeight.SemiBold) }
                     Spacer(Modifier.height(10.dp))
                     Button(
@@ -226,7 +227,7 @@ fun LoginScreen(s: AppState) {
                         shape = RoundedCornerShape(28.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F2F1), contentColor = c.onSurface),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 9.dp)
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
                     ) { Text("▶  Connexion avec Adresse MAC", fontSize = 15.sp, fontWeight = FontWeight.SemiBold) }
                     AnimatedVisibility(s.status.startsWith("Erreur", ignoreCase = true) || s.status == "Abonnement Expiré") {
                         Text(s.status, Modifier.padding(top = 12.dp), color = c.secondary, style = MaterialTheme.typography.bodySmall)
