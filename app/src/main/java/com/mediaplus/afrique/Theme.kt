@@ -31,7 +31,7 @@ val Africa = lightColorScheme(
     primary = Color(0xFFDE6A12), onPrimary = Color.White,
     secondary = Color(0xFFCE5B09), tertiary = Color(0xFFFF8A00),
     primaryContainer = Color(0xFFFFEBDD), onPrimaryContainer = Color(0xFF72350D),
-    background = Color(0xFFFFFEFB), surface = Color(0xFFFFFFFF), onSurface = Color(0xFF17241D),
+    background = Color.White, surface = Color.White, onSurface = Color(0xFF17241D),
     surfaceVariant = Color(0xFFF3F3F3), onSurfaceVariant = Color(0xFF606660),
     outline = Color(0xFFD9DCDD)
 )
@@ -89,7 +89,7 @@ fun AfricaTheme(content: @Composable () -> Unit) {
     val bg = remember { loadBackground(ctx) }
     MaterialTheme(colorScheme = Africa) {
         Box(Modifier.fillMaxSize().background(
-            Brush.verticalGradient(listOf(Color(0xFFFFFFFF), Color(0xFFFAFAF8), Color(0xFFFFFFFF)))
+            Brush.verticalGradient(listOf(Color.White, Color(0xFFFCFCFC), Color.White))
         )) {
             if (bg != null) {
                 Image(bg, null, Modifier.fillMaxSize().graphicsLayer {
@@ -97,7 +97,7 @@ fun AfricaTheme(content: @Composable () -> Unit) {
                     scaleY = 1.10f
                     translationY = -size.height * 0.065f
                 }, contentScale = ContentScale.Crop)
-                Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.48f)))
+                Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.58f)))
             }
             Surface(Modifier.fillMaxSize(), color = Color.Transparent) { content() }
         }
