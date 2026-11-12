@@ -79,19 +79,34 @@ fun Header(showAccount: Boolean, expiryEpochSeconds: Long?, compact: Boolean = f
                 val remaining = expiry * 1000L - System.currentTimeMillis()
                 if (remaining <= 0L) 0L else (remaining + 86_399_999L) / 86_400_000L
             }
-            Text(
-                when (days) {
-                    null -> "Abonnement : date inconnue"
-                    0L -> "Abonnement expiré"
-                    1L -> "1 jour restant"
-                    else -> "$days jours restants"
-                },
-                fontSize = if (compact) 10.sp else 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = if (days != null && days <= 7L) Color(0xFFB45309) else c.onSurfaceVariant,
-                maxLines = 2,
-                lineHeight = 17.sp
-            )
+            Surface(
+                color = if (days != null && days <= 7L) Color(0xFFFFE9D5) else Color(0xFFEAF3ED),
+                shape = RoundedCornerShape(50),
+                border = androidx.compose.foundation.BorderStroke(1.dp,
+                    if (days != null && days <= 7L) Color(0xFFE6A16B) else Color(0xFFC8DFD0)),
+                modifier = Modifier.padding(top = 4.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = if (compact) 6.dp else 10.dp,
+                        vertical = if (compact) 3.dp else 5.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text("◷", color = Color(0xFF20724B), fontSize = if (compact) 10.sp else 13.sp)
+                    Text(
+                        when (days) {
+                            null -> "Date inconnue"
+                            0L -> "Abonnement expiré"
+                            1L -> "1 jour restant"
+                            else -> "$days jours restants"
+                        },
+                        fontSize = if (compact) 9.sp else 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (days != null && days <= 7L) Color(0xFF9A4A0E) else Color(0xFF174C36),
+                        maxLines = 1
+                    )
+                }
+            }
         }
         Spacer(Modifier.width(10.dp))
         Column(Modifier.weight(1f)) {
