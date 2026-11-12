@@ -3,6 +3,7 @@ package com.mediaplus.afrique
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -44,6 +45,7 @@ fun LoginScreen(s: AppState) {
     val field = RoundedCornerShape(16.dp)
     val f = Modifier.fillMaxWidth().padding(top = 6.dp)
     var showPassword by remember { mutableStateOf(false) }
+    var rememberUsername by remember { mutableStateOf(true) }
     val host = LocalContext.current as? FragmentActivity
     val biometricReady = host != null && BiometricManager.from(host).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
 
@@ -88,35 +90,39 @@ fun LoginScreen(s: AppState) {
                 Image(
                     painter = painterResource(R.drawable.media_plus_brand),
                     contentDescription = "Media+ Côte d’Ivoire",
-                    modifier = Modifier.size(if (wide) 76.dp else 62.dp).clip(RoundedCornerShape(12.dp)),
+                    modifier = Modifier.size(if (wide) 96.dp else 78.dp).clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Fit
                 )
-                Text("🇨🇮", fontSize = 13.sp)
+                Text("🇨🇮", fontSize = 12.sp)
                 Spacer(Modifier.width(6.dp))
                 Column(Modifier.weight(1f)) {
-                    Text("Media+ Côte d’Ivoire", color = c.onSurface, fontSize = if (wide) 22.sp else 17.sp, lineHeight = if (wide) 26.sp else 21.sp, fontWeight = FontWeight.ExtraBold, maxLines = 2)
+                    Text("Media+ Côte d’Ivoire", color = c.onSurface, fontSize = if (wide) 23.sp else 18.sp, lineHeight = if (wide) 26.sp else 21.sp, fontWeight = FontWeight.ExtraBold, maxLines = 2)
                     Text("DIRECT · FILMS · SÉRIES", color = c.secondary, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                 }
             }
-            Text("Version 2.1.10", fontSize = 10.sp, color = c.onSurfaceVariant.copy(alpha = .7f))
+            Text("Version 2.1.11", fontSize = 10.sp, color = c.onSurfaceVariant.copy(alpha = .7f))
             Spacer(Modifier.height(if (wide) 14.dp else 9.dp))
             Card(
                 Modifier.fillMaxWidth().widthIn(max = 560.dp).animateContentSize(),
-                shape = RoundedCornerShape(22.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = .95f)),
+                shape = RoundedCornerShape(32.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = .93f)),
                 border = androidx.compose.foundation.BorderStroke(1.dp, c.outline),
-                elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 9.dp)
             ) {
                 Column(Modifier.fillMaxWidth().padding(if (wide) 22.dp else 16.dp)) {
-                    Text("Bienvenue", fontSize = 21.sp, fontWeight = FontWeight.SemiBold, color = c.onSurface, modifier = Modifier.align(Alignment.CenterHorizontally))
-                    Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 3.dp, bottom = 12.dp))
+                    Text("Bienvenue", fontSize = 25.sp, fontWeight = FontWeight.SemiBold, color = c.onSurface, modifier = Modifier.align(Alignment.CenterHorizontally))
+                    Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, fontSize = 13.sp, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp, bottom = 18.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         OutlinedButton(onClick = { s.mode = 0 }, modifier = Modifier.weight(1f), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (s.mode == 0) Color(0xFFEDEDED) else Color.White)) { Text("Identifiants", color = c.onSurface, fontSize = 13.sp) }
                         OutlinedButton(onClick = { s.mode = 1 }, modifier = Modifier.weight(1f), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (s.mode == 1) Color(0xFFEDEDED) else Color.White)) { Text("MAC", color = c.onSurface, fontSize = 13.sp) }
                     }
                     if (s.mode == 0) {
-                        OutlinedTextField(s.user, { s.saveUsername(it) }, f, singleLine = true, shape = field, label = { Text("Nom d'utilisateur") })
-                        OutlinedTextField(s.pass, { s.pass = it }, f.onFocusChanged { if (it.isFocused) requestBiometric() }, singleLine = true, shape = field, label = { Text("Mot de passe") }, visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(), trailingIcon = { TextButton(onClick = { showPassword = !showPassword }) { Text(if (showPassword) "Masquer" else "Voir") } })
+                        OutlinedTextField(s.user, { if (rememberUsername) s.saveUsername(it) else s.user = it }, f, singleLine = true, shape = field, label = { Text("Nom d'utilisateur") })
+                        OutlinedTextField(s.pass, { s.pass = it }, f.onFocusChanged { if (it.isFocused) requestBiometric() }, singleLine = true, shape = field, label = { Text("Mot de passe") }, visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(), trailingIcon = { TextButton(onClick = { showPassword = !showPassword }) { Text(if (showPassword) "◉ Masquer" else "◉ Voir") } })
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 6.dp)) {
+                            Checkbox(checked = rememberUsername, onCheckedChange = { rememberUsername = it; if (it) s.saveUsername(s.user) })
+                            Text("Mémoriser le nom d’utilisateur", fontSize = 12.sp, color = c.onSurfaceVariant)
+                        }
                     } else {
                         OutlinedTextField(s.mac, { s.mac = it }, f, singleLine = true, shape = field, label = { Text("Adresse MAC") }, leadingIcon = { Text("▣") })
                         Text("Clé MAC : ${s.macDisplayKey()}", modifier = Modifier.padding(top = 12.dp), color = c.primary)
@@ -128,8 +134,8 @@ fun LoginScreen(s: AppState) {
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F2F1), contentColor = c.onSurface),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp)
-                    ) { Text("Se connecter", fontSize = 14.sp, fontWeight = FontWeight.SemiBold) }
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
+                    ) { Text("▶  Se connecter", fontSize = 15.sp, fontWeight = FontWeight.SemiBold) }
                     AnimatedVisibility(s.status.isNotEmpty()) {
                         Text(s.status, Modifier.padding(top = 12.dp), color = c.secondary, style = MaterialTheme.typography.bodySmall)
                     }
