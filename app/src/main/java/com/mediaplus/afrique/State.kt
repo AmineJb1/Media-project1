@@ -187,7 +187,8 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         group = null; section = 0; query = ""; episodes = null
         pass = ""
         secure.remove("pass")
-        prefs.edit().remove("pass").apply()
+        secure.remove("biometric_pass")
+        prefs.edit().remove("pass").remove("session_active").remove("biometric_saved_user").apply()
         cacheFile.delete()
         live = emptyList(); movies = null; series = null
         showLogin = true; status = ""
@@ -209,6 +210,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         if (!saved.isNullOrBlank()) { pass = saved; connect() }
     }
     var biometricOptIn by mutableStateOf(prefs.getBoolean("biometric_opt_in", true))
+    var rememberPassword by mutableStateOf(prefs.getBoolean("remember_password", false))
     var pass by mutableStateOf("")
     var mac by mutableStateOf(prefs.getString("mac", null) ?: randomMac().also { prefs.edit().putString("mac", it).apply() })
     var live by mutableStateOf(emptyList<Item>())
@@ -265,8 +267,13 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         }
         recentlyWatched.addAll((prefs.getString("recent_live_ids", "") ?: "").split("\n").filter { it.isNotBlank() }.take(10))
         favs.addAll(prefs.getStringSet("favs", emptySet())?.mapNotNull { decode(it) } ?: emptyList())
-        // Require explicit login on every app launch; never auto-open cached channels.
-        showLogin = true
+        // Resume only sessions whose credentials were explicitly saved securely.
+        val savedPassword = if (rememberPassword) secure.get("pass") else null
+        if (prefs.getBoolean("session_active", false) && (mode == 1 || (mode == 0 && !savedPassword.isNullOrBlank()))) {
+            if (mode == 0) pass = savedPassword.orEmpty()
+            showLogin = true
+            connect()
+        } else showLogin = true
 
     }
 
@@ -280,7 +287,9 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     fun connect() {
         section = 0; group = null; episodes = null; query = ""; clearPreview(); playing = null
         prefs.edit().putInt("mode", mode).putString("user", user).putString("mac", mac).remove("pass").apply()
-        if (pass.isNotBlank()) secure.put("pass", pass) else secure.remove("pass")
+        val savedSecurely = mode == 0 && rememberPassword && pass.isNotBlank() && secure.put("pass", pass)
+        if (!savedSecurely) secure.remove("pass")
+        prefs.edit().putBoolean("remember_password", rememberPassword).apply()
         status = "Connexion…"
         scope.launch {
             try {
@@ -298,6 +307,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
                     secure.remove("biometric_pass")
                     prefs.edit().remove("biometric_saved_user").putBoolean("biometric_opt_in", false).apply()
                 }
+                prefs.edit().putBoolean("session_active", mode == 1 || savedSecurely).apply()
                 status = "${l.size} chaînes"; showLogin = false
                 refreshSubscription()
                 loadVodCache()
