@@ -59,16 +59,17 @@ fun LoginScreen(s: AppState) {
                 Image(
                     painter = painterResource(R.drawable.media_plus_brand),
                     contentDescription = "Media+ Afrique",
-                    modifier = Modifier.size(if (wide) 92.dp else 76.dp).clip(RoundedCornerShape(16.dp)),
+                    modifier = Modifier.size(if (wide) 82.dp else 64.dp).clip(RoundedCornerShape(16.dp)),
                     contentScale = ContentScale.Fit
                 )
                 Spacer(Modifier.width(14.dp))
                 Column {
-                    Text("Media+ Afrique 🇨🇮", color = c.onSurface, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
+                    Text("Media+ Afrique", color = c.onSurface, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
+                    Text("🇹🇳 🇩🇿 🇲🇦 🇪🇬 🇸🇦 🇦🇪", color = c.secondary, style = MaterialTheme.typography.bodyMedium)
                     Text("DIRECT · FILMS · SÉRIES", color = c.secondary, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                 }
             }
-            Spacer(Modifier.height(if (wide) 28.dp else 22.dp))
+            Spacer(Modifier.height(if (wide) 20.dp else 14.dp))
             Card(
                 Modifier.fillMaxWidth().widthIn(max = 560.dp).animateContentSize(),
                 shape = RoundedCornerShape(28.dp),
@@ -77,14 +78,14 @@ fun LoginScreen(s: AppState) {
                 elevation = CardDefaults.cardElevation(defaultElevation = 14.dp)
             ) {
                 Column(Modifier.fillMaxWidth().padding(if (wide) 30.dp else 20.dp)) {
-                    Text("Bienvenue", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = c.onSurface)
-                    Text("Connectez-vous pour accéder à votre contenu.", color = c.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 5.dp, bottom = 20.dp))
+                    Text("Bienvenue", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = c.onSurface)
+                    Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 5.dp, bottom = 20.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         Pill("Identifiants", s.mode == 0, Modifier.weight(1f)) { s.mode = 0 }
                         Pill("Adresse MAC", s.mode == 1, Modifier.weight(1f)) { s.mode = 1 }
                     }
                     if (s.mode == 0) {
-                        OutlinedTextField(s.user, { s.user = it }, f, singleLine = true, shape = field, label = { Text("Nom d'utilisateur") })
+                        OutlinedTextField(s.user, { s.saveUsername(it) }, f, singleLine = true, shape = field, label = { Text("Nom d'utilisateur") })
                         OutlinedTextField(s.pass, { s.pass = it }, f, singleLine = true, shape = field, label = { Text("Mot de passe") }, visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(), trailingIcon = { TextButton(onClick = { showPassword = !showPassword }) { Text(if (showPassword) "Masquer" else "Voir") } })
                     } else {
                         OutlinedTextField(s.mac, { s.mac = it }, f, singleLine = true, shape = field, label = { Text("Adresse MAC") }, leadingIcon = { Text("▣") })
