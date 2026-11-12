@@ -63,10 +63,10 @@ fun IvoireRibbons(modifier: Modifier = Modifier) {
             }
             drawPath(path, color.copy(alpha = alpha))
         }
-        ribbon(true, band * .16f, Color(0xFFF58B24), .16f)
-        ribbon(true, 0f, Color(0xFF008C49), .13f)
-        ribbon(false, band * .20f, Color(0xFFF58B24), .16f)
-        ribbon(false, 0f, Color(0xFF008C49), .13f)
+        ribbon(true, band * .16f, Color(0xFFFF8500), .45f)
+        ribbon(true, 0f, Color(0xFF078B46), .23f)
+        ribbon(false, band * .20f, Color(0xFFFF8500), .45f)
+        ribbon(false, 0f, Color(0xFF078B46), .23f)
         fun highlight(top: Boolean) {
             val y = if (top) 0f else h
             val sign = if (top) 1f else -1f
