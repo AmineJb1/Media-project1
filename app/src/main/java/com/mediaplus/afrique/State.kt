@@ -108,6 +108,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     var newestFirst by mutableStateOf(true)
     var section by mutableStateOf(0) // 0 direct, 1 guide, 2 films, 3 séries, 4 favoris
     var group by mutableStateOf<String?>(null)
+    val bouquetPositions = mutableStateMapOf<String, Pair<Int, Int>>()
     // Playback navigation keeps the selected virtual bouquet, not the source category.
     var playbackBouquetName by mutableStateOf<String?>(null)
     var playbackBouquetChannels by mutableStateOf<List<Item>>(emptyList())
