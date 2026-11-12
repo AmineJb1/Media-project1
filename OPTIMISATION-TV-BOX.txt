@@ -1,0 +1,6 @@
+Media+ Af TV / Box Android - revision source 2.3.13
+- Nom affiche Media+ Af
+- Buffer live adapte automatiquement aux appareils Android declares low-RAM par le systeme.
+- Compatibilite TV / telecommande deja presente dans le projet initial.
+- Code source fourni, APK non compile ni teste sur appareil.
+- Conserver la meme cle de signature pour mettre a jour une installation existante.
