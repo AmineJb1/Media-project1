@@ -251,7 +251,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
             }
             if (s.section == 0 && landscapeCompact) {
                 Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Box(Modifier.weight(if (s.previewChannelId != null) 0.40f else 1f).fillMaxHeight()) {
+                    Box(Modifier.weight(if (s.previewChannelId != null) 0.62f else 1f).fillMaxHeight()) {
                         val visibleItems = if (s.query.isNotBlank()) {
                             list.filter { it.name.contains(s.query, ignoreCase = true) || it.group.contains(s.query, ignoreCase = true) }
                         } else if (s.group == null) emptyList()
@@ -296,7 +296,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                         }
                     }
                     if (s.previewChannelId != null) {
-                        Box(Modifier.weight(0.60f).fillMaxHeight()) {
+                        Box(Modifier.weight(0.38f).fillMaxHeight()) {
                             LivePreviewPanel(s, compact = false)
                         }
                     }
