@@ -63,8 +63,8 @@ fun IvoireRibbons(modifier: Modifier = Modifier) {
             }
             drawPath(path, color.copy(alpha = alpha))
         }
-        ribbon(true, band * .16f, Color(0xFFFF8500), .45f)
-        ribbon(true, 0f, Color(0xFF078B46), .23f)
+        ribbon(true, band * .16f, Color(0xFFFF7600), .73f)
+        ribbon(true, 0f, Color(0xFF087F3D), .44f)
         ribbon(false, band * .20f, Color(0xFFFF8500), .45f)
         ribbon(false, 0f, Color(0xFF078B46), .23f)
         fun highlight(top: Boolean) {
@@ -94,8 +94,9 @@ fun AfricaTheme(content: @Composable () -> Unit) {
                 Image(bg, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
                 Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.97f)))
             }
-            IvoireRibbons(Modifier.fillMaxSize())
             Surface(Modifier.fillMaxSize(), color = Color.Transparent) { content() }
+            // Draw the ribbons above the UI, without intercepting touch input.
+            IvoireRibbons(Modifier.fillMaxSize())
         }
     }
 }
