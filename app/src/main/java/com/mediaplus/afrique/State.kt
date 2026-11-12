@@ -88,7 +88,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     private fun updateVod(kind: Int, force: Boolean = false) {
         if (mode != 0 || kind !in 2..3 || !vodLoading.add(kind)) return
         val key = vodAccountKey()
-        if (!force && vodTimestamp(kind) > 0 &&
+        if (!force && vodFile(kind).exists() && vodTimestamp(kind) > 0 &&
             System.currentTimeMillis() - vodTimestamp(kind) < vodTtlMs) {
             vodLoading.remove(kind)
             return
