@@ -259,7 +259,7 @@ fun ItemRow(item: Item, fav: Boolean, onFav: () -> Unit, onClick: () -> Unit) {
             if (item.group.isNotEmpty()) Text(item.group, style = MaterialTheme.typography.bodySmall,
                 color = c.onSurfaceVariant, maxLines = 1)
         }
-        Text(if (fav) "♥" else "♡", color = if (fav) c.tertiary else c.onSurfaceVariant, fontSize = 25.sp,
+        Text(if (fav) "★" else "☆", color = if (fav) Color(0xFFE57A18) else c.onSurfaceVariant, fontSize = 27.sp,
             modifier = Modifier.clickable { onFav() }.padding(8.dp))
     }
 }
