@@ -196,6 +196,8 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     }
     var user by mutableStateOf(prefs.getString("user", "") ?: "")
     fun saveUsername(value: String) { user = value; prefs.edit().putString("user", value).apply() }
+    fun hasSavedBiometricAccount(): Boolean = mode == 0 && user.isNotBlank() && pass.isNotBlank() &&
+        prefs.getString("biometric_saved_user", "") == user
     var pass by mutableStateOf(prefs.getString("pass", "") ?: "")
     var mac by mutableStateOf(prefs.getString("mac", null) ?: randomMac().also { prefs.edit().putString("mac", it).apply() })
     var live by mutableStateOf(emptyList<Item>())
@@ -246,6 +248,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         if (cacheFile.exists()) {
             live = runCatching { cacheFile.readLines().mapNotNull { decode(it) } }.getOrDefault(emptyList())
             if (live.isNotEmpty()) {
+                section = 0; group = null; query = ""; episodes = null
                 showLogin = false; status = "${live.size} chaînes"
                 if (mode == 1) stalker = Stalker(Config.PORTAL, mac.trim().uppercase())
                 else loadVodCache()
@@ -273,6 +276,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
                 }
                 live = l; movies = null; series = null; episodes = null; movieCategories = emptyList(); seriesCategories = emptyList()
                 section = 0; group = null; query = ""; selectPlaybackBouquet(null, emptyList())
+                if (mode == 0) prefs.edit().putString("biometric_saved_user", user).apply()
                 status = "${l.size} chaînes"; showLogin = false
                 refreshSubscription()
                 loadVodCache()
