@@ -351,7 +351,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                         entries.sortedWith(compareByDescending<Item> { it.modifiedAt }.thenBy { it.name })
                     else entries
                 }
-                val columnsCount = if (maxWidth >= 650.dp) 5 else if (maxWidth >= 440.dp) 4 else 3
+                val columnsCount = if (wide) 5 else 3
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(columnsCount),
                     modifier = Modifier.weight(1f),
