@@ -44,7 +44,7 @@ fun TvPlayer(s: AppState) {
     val audio = remember { ctx.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
     val player = remember {
         ExoPlayer.Builder(ctx)
-            .setMediaSourceFactory(DefaultMediaSourceFactory(PlayerCache.factory(ctx)))
+            .setMediaSourceFactory(DefaultMediaSourceFactory(PlayerCache.liveFactory()))
             .setLoadControl(DefaultLoadControl.Builder().setBufferDurationsMs(15000, 50000, 1500, 3000).build())
             .build()
     }
@@ -87,6 +87,8 @@ fun TvPlayer(s: AppState) {
     }
     LaunchedEffect(url) {
         if (url != null) {
+            player.stop()
+            player.clearMediaItems()
             player.setMediaItem(MediaItem.fromUri(url))
             player.prepare()
             player.playWhenReady = true
