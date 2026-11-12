@@ -46,6 +46,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
+import android.content.res.Configuration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.biometric.BiometricManager
@@ -63,6 +64,7 @@ fun LoginScreen(s: AppState) {
     val f = Modifier.fillMaxWidth().padding(top = 6.dp)
     var showPassword by remember { mutableStateOf(false) }
     var showMacAccess by remember { mutableStateOf(false) }
+    val isTv = (LocalContext.current.resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK) == Configuration.UI_MODE_TYPE_TELEVISION
     val clipboard = LocalClipboardManager.current
     var showBiometricHelp by remember { mutableStateOf(false) }
     val host = LocalContext.current as? FragmentActivity
@@ -98,18 +100,21 @@ fun LoginScreen(s: AppState) {
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val wide = maxWidth >= 700.dp
+        val tvLayout = isTv || (maxWidth >= 800.dp && maxWidth > maxHeight)
         Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.12f)))
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-                .padding(horizontal = if (wide) 48.dp else 18.dp, vertical = if (wide) 24.dp else 16.dp),
+                .padding(horizontal = if (tvLayout) 36.dp else if (wide) 48.dp else 18.dp,
+                    vertical = if (tvLayout) 12.dp else if (wide) 24.dp else 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.widthIn(max = if (tvLayout) 520.dp else 900.dp),
+                verticalAlignment = Alignment.CenterVertically) {
                 Image(
                     painter = painterResource(R.drawable.media_plus_brand),
                     contentDescription = "Media+ Côte d’Ivoire",
-                    modifier = Modifier.size(if (wide) 96.dp else 78.dp).clip(RoundedCornerShape(12.dp)),
+                    modifier = Modifier.size(if (tvLayout) 68.dp else if (wide) 96.dp else 78.dp).clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Fit
                 )
                 Text("🇨🇮", fontSize = 15.sp, modifier = Modifier.offset(x = (-15).dp, y = (-30).dp))
@@ -129,16 +134,16 @@ fun LoginScreen(s: AppState) {
                 catch (_: Exception) { "inconnue" }
             }
             Text("Version $installedVersion", fontSize = 10.sp, color = c.onSurfaceVariant.copy(alpha = .7f))
-            Spacer(Modifier.height(if (wide) 14.dp else 9.dp))
+            Spacer(Modifier.height(if (tvLayout) 8.dp else if (wide) 14.dp else 9.dp))
             Card(
-                Modifier.fillMaxWidth().widthIn(max = 560.dp).animateContentSize()
+                Modifier.widthIn(max = if (tvLayout) 520.dp else 560.dp).fillMaxWidth().animateContentSize()
                     .shadow(16.dp, RoundedCornerShape(26.dp), ambientColor = Color(0x223B4540), spotColor = Color(0x33475045)),
                 shape = RoundedCornerShape(26.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = .88f)),
                 border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = .95f)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
-                Column(Modifier.fillMaxWidth().padding(if (wide) 22.dp else 16.dp)) {
+                Column(Modifier.fillMaxWidth().padding(if (tvLayout) 18.dp else if (wide) 22.dp else 16.dp)) {
                     Text("Bienvenue", fontSize = 23.sp, fontWeight = FontWeight.Bold, color = c.onSurface, modifier = Modifier.align(Alignment.CenterHorizontally))
                     Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, fontSize = 13.sp, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp, bottom = 18.dp))
                     Text("Identifiants", color = c.onSurface, fontSize = 15.sp,
@@ -167,7 +172,7 @@ fun LoginScreen(s: AppState) {
                     }
                     Button(
                         onClick = { s.mode = 0; s.connect() },
-                        modifier = Modifier.fillMaxWidth().padding(top = 12.dp).height(if (wide) 52.dp else 48.dp),
+                        modifier = Modifier.fillMaxWidth().padding(top = 12.dp).height(if (tvLayout) 52.dp else if (wide) 52.dp else 48.dp),
                         shape = RoundedCornerShape(28.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F2F1), contentColor = c.onSurface),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
