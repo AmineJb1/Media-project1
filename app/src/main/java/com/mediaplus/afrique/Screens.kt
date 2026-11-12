@@ -98,9 +98,9 @@ fun LoginScreen(s: AppState) {
                     modifier = Modifier.size(if (wide) 82.dp else 64.dp).clip(RoundedCornerShape(16.dp)),
                     contentScale = ContentScale.Fit
                 )
-                Spacer(Modifier.width(14.dp))
-                Column {
-                    Text("Media+ Côte d’Ivoire", color = c.onSurface, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
+                Spacer(Modifier.width(10.dp))
+                Column(Modifier.weight(1f)) {
+                    Text("Media+ Côte d’Ivoire", color = c.onSurface, fontSize = if (wide) 25.sp else 20.sp, lineHeight = if (wide) 29.sp else 23.sp, fontWeight = FontWeight.ExtraBold, maxLines = 2)
                     Text("🇨🇮", color = c.secondary, style = MaterialTheme.typography.bodyMedium)
                     Text("DIRECT · FILMS · SÉRIES", color = c.secondary, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                 }
@@ -118,14 +118,15 @@ fun LoginScreen(s: AppState) {
                     Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 5.dp, bottom = 20.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         Pill("Identifiants", s.mode == 0, Modifier.weight(1f)) { s.mode = 0 }
-                        Pill("Adresse MAC", s.mode == 1, Modifier.weight(1f)) { s.mode = 1 }
+                        Pill("MAC", s.mode == 1, Modifier.weight(1f)) { s.mode = 1 }
                     }
                     if (s.mode == 0) {
                         OutlinedTextField(s.user, { s.saveUsername(it) }, f, singleLine = true, shape = field, label = { Text("Nom d'utilisateur") })
                         OutlinedTextField(s.pass, { s.pass = it }, f.onFocusChanged { if (it.isFocused) requestBiometric() }, singleLine = true, shape = field, label = { Text("Mot de passe") }, visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(), trailingIcon = { TextButton(onClick = { showPassword = !showPassword }) { Text(if (showPassword) "Masquer" else "Voir") } })
                     } else {
                         OutlinedTextField(s.mac, { s.mac = it }, f, singleLine = true, shape = field, label = { Text("Adresse MAC") }, leadingIcon = { Text("▣") })
-                        Text("Clé MAC : ${s.macDisplayKey()} · Renouvellement tous les 30 jours", modifier = Modifier.padding(top = 12.dp), color = c.primary)
+                        Text("Clé MAC : ${s.macDisplayKey()}", modifier = Modifier.padding(top = 12.dp), color = c.primary)
+                        Text("Renouvellement tous les 30 jours", style = MaterialTheme.typography.labelSmall, color = c.onSurfaceVariant)
                     }
                     Button(
                         onClick = { s.connect() },
