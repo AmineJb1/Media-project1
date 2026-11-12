@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
@@ -45,6 +46,34 @@ fun LoginScreen(s: AppState) {
     var showPassword by remember { mutableStateOf(false) }
     val host = LocalContext.current as? FragmentActivity
     val biometricReady = host != null && BiometricManager.from(host).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
+
+    var biometricRequested by remember { mutableStateOf(false) }
+    fun requestBiometric() {
+        val activity = host ?: return
+        if (!biometricReady || !s.hasSavedBiometricAccount() || biometricRequested) return
+        biometricRequested = true
+        val prompt = BiometricPrompt(activity, ContextCompat.getMainExecutor(activity),
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    biometricRequested = false
+                    s.connect()
+                }
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    super.onAuthenticationError(errorCode, errString)
+                    biometricRequested = false
+                }
+                override fun onAuthenticationFailed() {
+                    super.onAuthenticationFailed()
+                }
+            })
+        prompt.authenticate(BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Media+ Côte d’Ivoire")
+            .setSubtitle("Confirmez votre empreinte pour accéder au compte enregistré")
+            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+            .setNegativeButtonText("Annuler")
+            .build())
+    }
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val wide = maxWidth >= 700.dp
@@ -93,7 +122,7 @@ fun LoginScreen(s: AppState) {
                     }
                     if (s.mode == 0) {
                         OutlinedTextField(s.user, { s.saveUsername(it) }, f, singleLine = true, shape = field, label = { Text("Nom d'utilisateur") })
-                        OutlinedTextField(s.pass, { s.pass = it }, f, singleLine = true, shape = field, label = { Text("Mot de passe") }, visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(), trailingIcon = { TextButton(onClick = { showPassword = !showPassword }) { Text(if (showPassword) "Masquer" else "Voir") } })
+                        OutlinedTextField(s.pass, { s.pass = it }, f.onFocusChanged { if (it.isFocused) requestBiometric() }, singleLine = true, shape = field, label = { Text("Mot de passe") }, visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(), trailingIcon = { TextButton(onClick = { showPassword = !showPassword }) { Text(if (showPassword) "Masquer" else "Voir") } })
                     } else {
                         OutlinedTextField(s.mac, { s.mac = it }, f, singleLine = true, shape = field, label = { Text("Adresse MAC") }, leadingIcon = { Text("▣") })
                         Text("Clé MAC : ${s.macDisplayKey()} · Renouvellement tous les 30 jours", modifier = Modifier.padding(top = 12.dp), color = c.primary)
@@ -104,27 +133,6 @@ fun LoginScreen(s: AppState) {
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = c.primary)
                     ) { Text("Se connecter", fontWeight = FontWeight.Bold) }
-                    if (s.mode == 0 && biometricReady && s.user.isNotBlank() && s.pass.isNotBlank()) {
-                        OutlinedButton(onClick = {
-                            val activity = host ?: return@OutlinedButton
-                            val prompt = BiometricPrompt(activity, ContextCompat.getMainExecutor(activity),
-                                object : BiometricPrompt.AuthenticationCallback() {
-                                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                                        super.onAuthenticationSucceeded(result)
-                                        s.connect()
-                                    }
-                                })
-                            val info = BiometricPrompt.PromptInfo.Builder()
-                                .setTitle("Media+ Afrique")
-                                .setSubtitle("Connexion par empreinte")
-                                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
-                                .setNegativeButtonText("Annuler")
-                                .build()
-                            prompt.authenticate(info)
-                        }, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
-                            Text("Connexion par empreinte")
-                        }
-                    }
                     AnimatedVisibility(s.status.isNotEmpty()) {
                         Text(s.status, Modifier.padding(top = 12.dp), color = c.secondary, style = MaterialTheme.typography.bodySmall)
                     }
