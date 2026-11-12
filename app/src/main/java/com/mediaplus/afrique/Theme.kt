@@ -22,6 +22,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
 
@@ -90,7 +91,12 @@ fun AfricaTheme(content: @Composable () -> Unit) {
                 Image(
                     bitmap = premiumBackground,
                     contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().graphicsLayer {
+                        // Zoom slightly and bring Côte d’Ivoire (left of image center) to screen center.
+                        scaleX = 1.20f
+                        scaleY = 1.20f
+                        translationX = size.width * 0.21f
+                    },
                     contentScale = ContentScale.Fit
                 )
             } else {
