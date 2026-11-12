@@ -19,6 +19,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -42,6 +44,44 @@ private fun loadBackground(ctx: Context): ImageBitmap? = try {
     ctx.assets.open("bg.jpg").use { BitmapFactory.decodeStream(it, null, o2) }?.asImageBitmap()
 } catch (e: Exception) { null }
 
+// Decorative, translucent 3D-inspired Côte d’Ivoire ribbons shared by every screen.
+@Composable
+fun IvoireRibbons(modifier: Modifier = Modifier) {
+    Canvas(modifier) {
+        val w = size.width
+        val h = size.height
+        val band = (h * 0.095f).coerceAtMost(160f)
+        fun ribbon(top: Boolean, lift: Float, color: Color, alpha: Float) {
+            val y = if (top) 0f else h
+            val sign = if (top) 1f else -1f
+            val path = Path().apply {
+                moveTo(0f, y)
+                cubicTo(w * .28f, y + sign * (band * .70f + lift),
+                    w * .65f, y + sign * (band * .05f + lift), w, y + sign * (band * .90f + lift))
+                lineTo(w, y)
+                close()
+            }
+            drawPath(path, color.copy(alpha = alpha))
+        }
+        ribbon(true, band * .16f, Color(0xFFF58B24), .16f)
+        ribbon(true, 0f, Color(0xFF008C49), .13f)
+        ribbon(false, band * .20f, Color(0xFFF58B24), .16f)
+        ribbon(false, 0f, Color(0xFF008C49), .13f)
+        fun highlight(top: Boolean) {
+            val y = if (top) 0f else h
+            val sign = if (top) 1f else -1f
+            val path = Path().apply {
+                moveTo(0f, y + sign * (band * .18f))
+                cubicTo(w * .30f, y + sign * (band * .91f),
+                    w * .67f, y + sign * (band * .22f), w, y + sign * band)
+            }
+            drawPath(path, Color.White.copy(alpha = .72f), style = Stroke(width = 3.dp.toPx()))
+        }
+        highlight(true)
+        highlight(false)
+    }
+}
+
 @Composable
 fun AfricaTheme(content: @Composable () -> Unit) {
     val ctx = LocalContext.current
@@ -54,6 +94,7 @@ fun AfricaTheme(content: @Composable () -> Unit) {
                 Image(bg, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
                 Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.97f)))
             }
+            IvoireRibbons(Modifier.fillMaxSize())
             Surface(Modifier.fillMaxSize(), color = Color.Transparent) { content() }
         }
     }
