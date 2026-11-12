@@ -282,30 +282,30 @@ fun TvPlayer(s: AppState) {
             Box(Modifier.fillMaxSize().clickable { menuVisible = false })
             Surface(
                 modifier = Modifier.align(Alignment.CenterStart)
-                    .fillMaxHeight(if (portrait) 0.78f else 0.82f)
-                    .fillMaxWidth(if (portrait) 0.82f else 0.43f)
-                    .widthIn(max = 400.dp),
+                    .fillMaxHeight(if (portrait) 0.72f else 0.74f)
+                    .fillMaxWidth(if (portrait) 0.78f else 0.36f)
+                    .widthIn(max = 350.dp),
                 color = Color(0xE9192421),
-                shape = RoundedCornerShape(topEnd = 22.dp, bottomEnd = 22.dp),
+                shape = RoundedCornerShape(topEnd = 18.dp, bottomEnd = 18.dp),
                 shadowElevation = 14.dp
             ) {
                 Column(Modifier.fillMaxSize().padding(horizontal = 12.dp, vertical = 12.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("Chaînes TV", color = Color.White,
-                            fontWeight = FontWeight.Bold, fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold, fontSize = 15.sp,
                             modifier = Modifier.weight(1f))
                         TextButton(onClick = { menuVisible = false }) {
                             Text("✕", color = Color.White, fontSize = 18.sp)
                         }
                     }
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         listOf("Bouquets" to 0, "Chaînes" to 1).forEach { (title, tab) ->
                             Surface(
                                 modifier = Modifier.weight(1f).clickable { drawerTab = tab },
                                 color = if (drawerTab == tab) Color(0xFFDF792D) else Color(0x553D5047),
-                                shape = RoundedCornerShape(13.dp)
+                                shape = RoundedCornerShape(10.dp)
                             ) {
-                                Text(title, modifier = Modifier.padding(vertical = 11.dp),
+                                Text(title, modifier = Modifier.padding(vertical = 7.dp),
                                     color = Color.White, fontWeight = FontWeight.SemiBold,
                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                     maxLines = 1)
