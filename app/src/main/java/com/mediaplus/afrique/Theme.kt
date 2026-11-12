@@ -95,8 +95,6 @@ fun AfricaTheme(content: @Composable () -> Unit) {
                 Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.97f)))
             }
             Surface(Modifier.fillMaxSize(), color = Color.Transparent) { content() }
-            // Draw the ribbons above the UI, without intercepting touch input.
-            IvoireRibbons(Modifier.fillMaxSize())
         }
     }
 }
