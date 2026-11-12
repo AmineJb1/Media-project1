@@ -25,42 +25,8 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Select and extract project
-        shell: bash
-        run: |
-          set -euo pipefail
-          ZIP="$(find . -maxdepth 1 -type f -name 'MediaPlus-Cote-dIvoire-v*.zip' | sort -Vr | head -n 1)"
-          if [ -z "$ZIP" ]; then
-            ZIP="$(find . -maxdepth 1 -type f -name 'MediaPlusAfrique-Smart-IPTV-Pro-v*.zip' | sort -Vr | head -n 1)"
-          fi
-          if [ -z "$ZIP" ]; then
-          while IFS= read -r candidate; do
-            name="$(basename "$candidate")"
-            case "$name" in
-              MediaPlusAfrique-Premium-Blue-v1.0.*|MediaPlusAfrique-Premium-Blue-v1.1.*|MediaPlusAfrique-Premium-Blue-v1.2.*) continue ;;
-            esac
-            ZIP="$candidate"
-            break
-          done < <(find . -maxdepth 1 -type f -name 'MediaPlusAfrique-Premium-Blue-v*.zip' | sort -Vr)
-          fi
-
-          if [ -z "$ZIP" ]; then
-            ZIP="MediaPlusAfrique-TEST-CORRIGE.zip"
-          fi
-          if [ ! -f "$ZIP" ]; then
-            echo "Aucune archive Android compatible trouvée."
-            exit 1
-          fi
-          echo "Archive choisie : $ZIP"
-          mkdir -p source
-          unzip -q "$ZIP" -d source
-          SETTINGS="$(find source -name settings.gradle.kts -type f | head -n 1)"
-          if [ -z "$SETTINGS" ]; then
-            echo "settings.gradle.kts introuvable dans $ZIP"
-            exit 1
-          fi
-          PROJECT_DIR="$(dirname "$SETTINGS")"
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+      - name: Use repository Android project
+        run: echo "PROJECT_DIR=." >> "$GITHUB_ENV"
 
       - name: Fix Kotlin compatibility in selected source ZIP
         shell: bash
@@ -151,6 +117,6 @@ jobs:
       - name: Save signed APK
         uses: actions/upload-artifact@v4
         with:
-          name: MediaPlus-Cote-dIvoire-SIGNED-APK
-          path: source/**/build/outputs/apk/release/*.apk
+          name: MediaPlus-Afrique-v2.0.9
+          path: app/build/outputs/apk/release/*.apk
           if-no-files-found: error
