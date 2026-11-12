@@ -261,11 +261,11 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                         label = { Text(title, fontWeight = FontWeight.SemiBold, fontSize = 10.sp, maxLines = 1, softWrap = false) },
                         alwaysShowLabel = true,
                         colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = c.primary,
-                            selectedTextColor = c.primary,
-                            unselectedIconColor = Color(0xFF788078),
-                            unselectedTextColor = Color(0xFF788078),
-                            indicatorColor = Color(0xFFE5F2E8)
+                            selectedIconColor = c.onSurface,
+                            selectedTextColor = c.onSurface,
+                            unselectedIconColor = Color(0xFF62666A),
+                            unselectedTextColor = Color(0xFF62666A),
+                            indicatorColor = Color(0xFFE9EAEC)
                         )
                     )
                 }
