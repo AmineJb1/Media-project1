@@ -348,7 +348,36 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     }
                 }
             }
-            if (s.section == 2 || s.section == 3) {
+            if (s.episodes != null && s.section == 3) {
+                Column(Modifier.weight(1f)) {
+                    TextButton(onClick = { s.closeEpisodes() }) {
+                        Text("‹  Retour aux séries", color = Color(0xFF15523B),
+                            fontWeight = FontWeight.SemiBold)
+                    }
+                    Text(s.episodeSeries?.name ?: "Épisodes", fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold, color = Color(0xFF173D2E))
+                    Spacer(Modifier.height(10.dp))
+                    val episodes = s.episodes.orEmpty()
+                    if (episodes.isEmpty()) {
+                        Text(if (s.status.startsWith("Erreur")) "Impossible de récupérer les épisodes."
+                            else if (s.status.contains("Chargement")) "Chargement des épisodes…"
+                            else "Aucun épisode disponible pour cette série.",
+                            color = Color(0xFF173D2E), fontSize = 14.sp)
+                    } else {
+                        LazyVerticalGrid(columns = GridCells.Fixed(if (wide) 4 else 2),
+                            modifier = Modifier.weight(1f),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            contentPadding = PaddingValues(bottom = 16.dp)) {
+                            items(episodes, key = { it.id }) { episode ->
+                                VodIconTile(episode.name, episode.logo, false) {
+                                    s.pick(episode)
+                                }
+                            }
+                        }
+                    }
+                }
+            } else if (s.section == 2 || s.section == 3) {
                 val vodItems = if (s.section == 2) s.movies.orEmpty() else s.series.orEmpty()
                 val categoryNames = (if (s.section == 2) s.movieCategories else s.seriesCategories)
                     .plus(vodItems.map { it.group }).filter { it.isNotBlank() }.distinct()
