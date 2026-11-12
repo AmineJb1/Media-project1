@@ -326,18 +326,31 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = { s.refreshCatalog() }) { Text("↻ Actualiser") }
-                    TextButton(onClick = { s.newestFirst = !s.newestFirst }) {
-                        Text(if (s.newestFirst) "Date ↓" else "Ordre serveur", color = c.onSurface)
+                    var sortOpen by remember { mutableStateOf(false) }
+                    Box {
+                        OutlinedButton(onClick = { sortOpen = true }) {
+                            Text("Trier : " + when (s.vodSort) {
+                                1 -> "Récemment ajouté"
+                                2 -> "A-Z"
+                                else -> "Par défaut"
+                            })
+                        }
+                        DropdownMenu(expanded = sortOpen, onDismissRequest = { sortOpen = false }) {
+                            listOf("Par défaut", "Récemment ajouté", "A-Z").forEachIndexed { index, label ->
+                                DropdownMenuItem(text = { Text(label) }, onClick = {
+                                    s.vodSort = index
+                                    sortOpen = false
+                                })
+                            }
+                        }
                     }
                 }
-                Text("Tri par date disponible selon les informations du serveur", color = c.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelSmall)
             }
             if (s.section == 2 || s.section == 3) {
                 val vodItems = if (s.section == 2) s.movies.orEmpty() else s.series.orEmpty()
                 val categoryNames = (if (s.section == 2) s.movieCategories else s.seriesCategories)
                     .plus(vodItems.map { it.group }).filter { it.isNotBlank() }.distinct()
-                val resume = s.continueWatching.filter { it.kind == s.section - 1 }
+                val resume = s.continueWatching.filter { it.kind == s.section - 1 }.take(30)
                 val displayed = when {
                     s.query.isNotBlank() -> vodItems.filter {
                         it.name.contains(s.query, ignoreCase = true) ||
@@ -347,9 +360,12 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     s.group != null -> vodItems.filter { it.group == s.group }
                     else -> emptyList()
                 }.let { entries ->
-                    if (s.newestFirst && s.group != null && s.group != "Continuez à Regarder")
-                        entries.sortedWith(compareByDescending<Item> { it.modifiedAt }.thenBy { it.name })
-                    else entries
+                    if (s.group == "Continuez à Regarder") entries
+                    else when (s.vodSort) {
+                        1 -> entries.sortedWith(compareByDescending<Item> { it.modifiedAt }.thenBy { it.name })
+                        2 -> entries.sortedBy { it.name.lowercase() }
+                        else -> entries
+                    }
                 }
                 val columnsCount = if (wide) 5 else 3
                 LazyVerticalGrid(
@@ -360,8 +376,8 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     contentPadding = PaddingValues(bottom = 18.dp)
                 ) {
                     if (s.group == null && s.query.isBlank()) {
-                        if (resume.isNotEmpty()) item {
-                            VodIconTile("Continuez à Regarder", "", true) {
+                        item {
+                            VodIconTile("Continuez à Regarder", "", true, isContinue = true) {
                                 s.group = "Continuez à Regarder"
                             }
                         }
@@ -572,7 +588,7 @@ private fun LivePreviewPanel(s: AppState, compact: Boolean) {
 }
 
 @Composable
-private fun VodIconTile(title: String, poster: String, isBouquet: Boolean, onClick: () -> Unit) {
+private fun VodIconTile(title: String, poster: String, isBouquet: Boolean, isContinue: Boolean = false, onClick: () -> Unit) {
     val c = MaterialTheme.colorScheme
     Column(
         Modifier.fillMaxWidth().clip(RoundedCornerShape(13.dp))
@@ -582,12 +598,28 @@ private fun VodIconTile(title: String, poster: String, isBouquet: Boolean, onCli
     ) {
         Box(Modifier.fillMaxWidth().aspectRatio(if (isBouquet) 1.15f else 0.75f)
             .clip(RoundedCornerShape(10.dp))
-            .background(Color(0xFFE7EEE9)), contentAlignment = Alignment.Center) {
+            .background(Brush.linearGradient(
+                if (isContinue) listOf(Color(0xFF103F32), Color(0xFF218568))
+                else if (isBouquet) listOf(Color(0xFF183D51), Color(0xFF4A8996))
+                else listOf(Color(0xFFE4EBE8), Color(0xFFCADBD2))
+            )), contentAlignment = Alignment.Center) {
             if (!isBouquet && poster.startsWith("http")) {
                 AsyncImage(model = poster, contentDescription = title,
                     contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
             } else {
-                Text(if (isBouquet) "▦" else "▶", fontSize = 33.sp, color = c.primary)
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        if (isContinue) Icons.Filled.PlayArrow
+                        else if (isBouquet) Icons.Filled.List
+                        else Icons.Filled.PlayArrow,
+                        contentDescription = null,
+                        tint = if (isBouquet) Color.White else c.primary,
+                        modifier = Modifier.size(42.dp)
+                    )
+                    if (isBouquet) Text(if (isContinue) "REPRENDRE" else "COLLECTION",
+                        fontSize = 9.sp, fontWeight = FontWeight.Bold,
+                        color = Color.White.copy(alpha = .9f))
+                }
             }
         }
         Spacer(Modifier.height(6.dp))
