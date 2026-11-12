@@ -360,7 +360,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     }
 
     fun pick(i: Item) {
-        if (section == 0 && i.kind == 0) { playLive(i); return }
+        if (section == 0 && i.kind == 0) { selectLive(i); return }
         clearPreview()
         playingChannel = null
         if (i.kind == 2) {
