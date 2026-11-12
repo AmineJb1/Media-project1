@@ -102,22 +102,25 @@ fun LoginScreen(s: AppState) {
         val wide = maxWidth >= 700.dp
         val tvLayout = isTv || (maxWidth >= 800.dp && maxWidth > maxHeight)
         Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.12f)))
+        // Use the actual available width on TV boxes, including devices that
+        // incorrectly report a phone UI mode. Constrain the entire login group.
+        val safeHorizontalPadding = if (tvLayout) 28.dp else if (wide) 32.dp else 18.dp
         Column(
-            Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-                .padding(horizontal = if (tvLayout) 36.dp else if (wide) 48.dp else 18.dp,
-                    vertical = if (tvLayout) 12.dp else if (wide) 24.dp else 16.dp),
+            Modifier.fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = safeHorizontalPadding, vertical = if (tvLayout) 24.dp else 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Row(Modifier.widthIn(max = if (tvLayout) 520.dp else 900.dp),
+            Row(Modifier.fillMaxWidth().widthIn(max = 520.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 Image(
                     painter = painterResource(R.drawable.media_plus_brand),
                     contentDescription = "Media+ Côte d’Ivoire",
-                    modifier = Modifier.size(if (tvLayout) 112.dp else if (wide) 96.dp else 78.dp).clip(RoundedCornerShape(12.dp)),
+                    modifier = Modifier.size(if (tvLayout) 80.dp else if (wide) 88.dp else 78.dp).clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Fit
                 )
-                Text("🇨🇮", fontSize = if (tvLayout) 21.sp else 15.sp, modifier = Modifier.offset(x = (-15).dp, y = if (tvLayout) (-43).dp else (-30).dp))
+                Text("🇨🇮", fontSize = if (tvLayout) 21.sp else 15.sp, modifier = Modifier.offset(x = (-12).dp, y = if (tvLayout) (-25).dp else (-30).dp))
                 Spacer(Modifier.width(6.dp))
                 Column(Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -135,10 +138,10 @@ fun LoginScreen(s: AppState) {
             }
             Text("Version $installedVersion", fontSize = if (tvLayout) 12.sp else 10.sp,
                 color = c.onSurfaceVariant.copy(alpha = .85f),
-                modifier = Modifier.widthIn(max = if (tvLayout) 520.dp else 900.dp))
+                modifier = Modifier.fillMaxWidth().widthIn(max = 520.dp))
             Spacer(Modifier.height(if (tvLayout) 8.dp else if (wide) 14.dp else 9.dp))
             Card(
-                Modifier.widthIn(max = if (tvLayout) 520.dp else 560.dp).fillMaxWidth().animateContentSize()
+                Modifier.fillMaxWidth().widthIn(max = 520.dp).animateContentSize()
                     .shadow(16.dp, RoundedCornerShape(26.dp), ambientColor = Color(0x223B4540), spotColor = Color(0x33475045)),
                 shape = RoundedCornerShape(26.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = if (tvLayout) .97f else .88f)),
