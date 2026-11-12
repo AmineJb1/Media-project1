@@ -604,24 +604,23 @@ private fun VodIconTile(title: String, poster: String, isBouquet: Boolean, isCon
                     .clip(RoundedCornerShape(12.dp))
                     .background(Color(0xFFF4F8F5))
                     .border(1.dp, Color(0xFFD6E6DC), RoundedCornerShape(12.dp))
-                    .padding(horizontal = 7.dp, vertical = 10.dp),
+                    .padding(horizontal = 8.dp, vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Icon(if (isContinue) Icons.Filled.PlayArrow else Icons.Filled.List,
-                    contentDescription = null, tint = Color(0xFF15523B),
-                    modifier = Modifier.size(30.dp))
-                Text(title, color = Color(0xFF163C2E), fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp, maxLines = 3, overflow = TextOverflow.Ellipsis,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                    lineHeight = 15.sp)
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp))
-                        .background(Color(0xFF15523B)).padding(vertical = 6.dp)) {
-                    Text("Explorer  ›", color = Color.White,
-                        fontWeight = FontWeight.SemiBold, fontSize = 11.sp, maxLines = 1)
+                Spacer(Modifier.height(2.dp))
+                Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Text(title, color = Color(0xFF163C2E), fontWeight = FontWeight.Bold,
+                        fontSize = if (title.length > 25) 10.sp else if (title.length > 17) 11.sp else 13.sp,
+                        maxLines = 6, overflow = TextOverflow.Ellipsis,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        lineHeight = if (title.length > 25) 12.sp else 15.sp)
                 }
+                Spacer(Modifier.height(7.dp))
+                Text("Explorer  ›", color = Color(0xFF15523B),
+                    fontWeight = FontWeight.Medium, fontSize = 10.sp,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    maxLines = 1)
             }
         } else {
             Box(Modifier.fillMaxWidth().aspectRatio(.75f)
