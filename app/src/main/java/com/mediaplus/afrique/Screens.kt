@@ -364,14 +364,50 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                             else "Aucun épisode disponible pour cette série.",
                             color = Color(0xFF173D2E), fontSize = 14.sp)
                     } else {
-                        LazyVerticalGrid(columns = GridCells.Fixed(if (wide) 4 else 2),
+                        androidx.compose.foundation.lazy.LazyColumn(
                             modifier = Modifier.weight(1f),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            contentPadding = PaddingValues(bottom = 16.dp)) {
-                            items(episodes, key = { it.id }) { episode ->
-                                VodIconTile(episode.name, episode.logo, false) {
-                                    s.pick(episode)
+                            verticalArrangement = Arrangement.spacedBy(9.dp),
+                            contentPadding = PaddingValues(bottom = 18.dp)
+                        ) {
+                            items(episodes.size) { index ->
+                                val episode = episodes[index]
+                                Row(
+                                    Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
+                                        .background(Color.White.copy(alpha = .94f))
+                                        .clickable { s.pick(episode) }
+                                        .padding(9.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Box(Modifier.width(92.dp).height(65.dp)
+                                        .clip(RoundedCornerShape(9.dp))
+                                        .background(Color(0xFFE7EEE9)),
+                                        contentAlignment = Alignment.Center) {
+                                        if (episode.logo.startsWith("http")) {
+                                            AsyncImage(model = episode.logo,
+                                                contentDescription = null,
+                                                contentScale = ContentScale.Crop,
+                                                modifier = Modifier.fillMaxSize())
+                                        } else {
+                                            Icon(Icons.Filled.PlayArrow,
+                                                contentDescription = null,
+                                                tint = Color(0xFF15523B))
+                                        }
+                                    }
+                                    Column(Modifier.weight(1f)) {
+                                        Text("Épisode " + (index + 1),
+                                            color = Color(0xFFCB651B),
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold)
+                                        Text(episode.name, color = Color(0xFF173D2E),
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis)
+                                    }
+                                    Icon(Icons.Filled.PlayArrow,
+                                        contentDescription = "Lire l’épisode",
+                                        tint = Color(0xFF15523B))
                                 }
                             }
                         }
