@@ -414,7 +414,18 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     }
 
     fun refreshCache() { cacheMb = PlayerCache.sizeMb(ctx) }
-    fun clearCache() { PlayerCache.clear(ctx); refreshCache() }
+    fun clearCache() {
+        PlayerCache.clear(ctx)
+        recentlyWatched.clear()
+        prefs.edit().remove("recent_live_ids").apply()
+        // Remove cached channel and VOD catalogs without affecting accounts or favorites.
+        cacheFile.delete()
+        ctx.filesDir.listFiles()?.filter { it.name.startsWith("vod_") && it.name.endsWith(".json") }?.forEach { it.delete() }
+        prefs.edit().apply {
+            prefs.all.keys.filter { it.startsWith("vod_time_") }.forEach { remove(it) }
+        }.apply()
+        refreshCache()
+    }
 
     fun back() {
         when {
