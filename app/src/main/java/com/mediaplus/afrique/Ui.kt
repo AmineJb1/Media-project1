@@ -8,6 +8,11 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -72,10 +77,11 @@ fun Header(showAccount: Boolean, expiryEpochSeconds: Long?, onAccount: () -> Uni
                     1L -> "1 jour restant"
                     else -> "$days jours restants"
                 },
-                fontSize = 10.sp,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
                 color = if (days != null && days <= 7L) Color(0xFFB45309) else c.onSurfaceVariant,
                 maxLines = 2,
-                lineHeight = 12.sp
+                lineHeight = 17.sp
             )
         }
         Spacer(Modifier.width(10.dp))
@@ -166,7 +172,8 @@ fun ItemList(
     list: List<Item>, group: String?, query: String, favUrls: Set<String>, flat: Boolean,
     onGroup: (String) -> Unit, onPick: (Item) -> Unit, onFav: (Item) -> Unit, modifier: Modifier = Modifier,
     categories: List<String> = emptyList(), newestFirst: Boolean = false,
-    specialGroups: Map<String, List<Item>> = emptyMap()
+    specialGroups: Map<String, List<Item>> = emptyMap(),
+    savedPositions: MutableMap<String, Pair<Int, Int>>? = null
 ) {
     val sorted = remember(list, newestFirst) {
         if (newestFirst) list.sortedWith(compareByDescending<Item> { it.modifiedAt }.thenBy { it.name.lowercase() }) else list
@@ -177,7 +184,14 @@ fun ItemList(
         if (query.isNotBlank()) sorted.filter { it.name.contains(query, true) || it.group.contains(query, true) }
         else if (flat) sorted else emptyList()
     }
-    LazyColumn(modifier) {
+    val positionKey = if (group == null) "__categories__" else group
+    val initial = savedPositions?.get(positionKey) ?: (0 to 0)
+    val scrollState = androidx.compose.runtime.key(positionKey) { rememberLazyListState(initial.first, initial.second) }
+    LaunchedEffect(positionKey, scrollState, savedPositions) {
+        snapshotFlow { scrollState.firstVisibleItemIndex to scrollState.firstVisibleItemScrollOffset }
+            .distinctUntilChanged().collectLatest { pos -> savedPositions?.set(positionKey, pos) }
+    }
+    LazyColumn(modifier, state = scrollState) {
         if (flat || query.isNotBlank()) {
             itemsIndexed(found, key = { i, x -> "$i${x.url}" }) { _, x -> ItemRow(x, x.url in favUrls, { onFav(x) }) { onPick(x) } }
         } else if (group == null) {
