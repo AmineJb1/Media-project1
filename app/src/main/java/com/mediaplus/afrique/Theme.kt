@@ -92,10 +92,10 @@ fun AfricaTheme(content: @Composable () -> Unit) {
                     bitmap = premiumBackground,
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize().graphicsLayer {
-                        // Zoom slightly and bring Côte d’Ivoire (left of image center) to screen center.
-                        scaleX = 1.20f
-                        scaleY = 1.20f
-                        translationX = size.width * 0.21f
+                        // Enlarge Africa while keeping Côte d’Ivoire near the screen center.
+                        scaleX = 1.32f
+                        scaleY = 1.32f
+                        translationX = size.width * 0.24f
                     },
                     contentScale = ContentScale.Fit
                 )
