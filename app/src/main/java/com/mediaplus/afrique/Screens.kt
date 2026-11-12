@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -36,7 +37,7 @@ fun LoginScreen(s: AppState) {
     val c = MaterialTheme.colorScheme
     val field = RoundedCornerShape(16.dp)
     val f = Modifier.fillMaxWidth().padding(top = 10.dp)
-    LaunchedEffect(Unit) { s.refreshCache() }
+    var showPassword by remember { mutableStateOf(false) }
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val wide = maxWidth >= 700.dp
@@ -84,9 +85,10 @@ fun LoginScreen(s: AppState) {
                     }
                     if (s.mode == 0) {
                         OutlinedTextField(s.user, { s.user = it }, f, singleLine = true, shape = field, label = { Text("Nom d'utilisateur") })
-                        OutlinedTextField(s.pass, { s.pass = it }, f, singleLine = true, shape = field, label = { Text("Mot de passe") }, visualTransformation = PasswordVisualTransformation())
+                        OutlinedTextField(s.pass, { s.pass = it }, f, singleLine = true, shape = field, label = { Text("Mot de passe") }, visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(), trailingIcon = { TextButton(onClick = { showPassword = !showPassword }) { Text(if (showPassword) "Masquer" else "Voir") } })
                     } else {
-                        OutlinedTextField(s.mac, { s.mac = it }, f, singleLine = true, shape = field, label = { Text("Adresse MAC") })
+                        OutlinedTextField(s.mac, { s.mac = it }, f, singleLine = true, shape = field, label = { Text("Adresse MAC") }, leadingIcon = { Text("▣") })
+                        Text("Clé MAC : ${s.macDisplayKey()} · Renouvellement tous les 30 jours", modifier = Modifier.padding(top = 12.dp), color = c.primary)
                     }
                     Button(
                         onClick = { s.connect() },
@@ -100,9 +102,6 @@ fun LoginScreen(s: AppState) {
                 }
             }
             Spacer(Modifier.height(18.dp))
-            Text("Cache vidéo : ${s.cacheMb} Mo", color = c.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
-            OutlinedButton({ s.clearCache() }, Modifier.padding(top = 6.dp), shape = RoundedCornerShape(14.dp)) { Text("Vider le cache") }
-            Text("Serveur : ${Config.SERVER}", Modifier.padding(top = 16.dp), color = c.onSurfaceVariant, style = MaterialTheme.typography.labelSmall)
         }
     }
 }
