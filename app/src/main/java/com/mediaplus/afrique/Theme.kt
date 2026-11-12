@@ -81,7 +81,7 @@ fun AfricaTheme(content: @Composable () -> Unit) {
             val ctx = LocalContext.current
             val premiumBackground = remember {
                 try {
-                    ctx.assets.open("bg_premium.jpg").use { stream ->
+                    ctx.assets.open("bg_cote_ivoire_3d.jpg").use { stream ->
                         BitmapFactory.decodeStream(stream)?.asImageBitmap()
                     }
                 } catch (_: Exception) { null }
@@ -91,7 +91,7 @@ fun AfricaTheme(content: @Composable () -> Unit) {
                     bitmap = premiumBackground,
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Fit
                 )
             } else {
                 Image(
