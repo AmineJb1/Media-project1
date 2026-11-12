@@ -21,7 +21,7 @@ fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Mod
     val ctx = LocalContext.current
     val player = remember {
         ExoPlayer.Builder(ctx)
-            .setMediaSourceFactory(DefaultMediaSourceFactory(PlayerCache.factory(ctx)))
+            .setMediaSourceFactory(DefaultMediaSourceFactory(if (showControls) PlayerCache.factory(ctx) else PlayerCache.liveFactory()))
             .setLoadControl(DefaultLoadControl.Builder().setBufferDurationsMs(15000, 50000, 1500, 3000).build())
             .build()
     }
