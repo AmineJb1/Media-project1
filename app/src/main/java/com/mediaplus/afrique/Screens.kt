@@ -100,7 +100,12 @@ fun LoginScreen(s: AppState) {
                     Text("DIRECT · FILMS · SÉRIES", color = c.secondary, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                 }
             }
-            Text("Version 2.1.11", fontSize = 10.sp, color = c.onSurfaceVariant.copy(alpha = .7f))
+            val appContext = LocalContext.current
+            val installedVersion = remember(appContext) {
+                try { appContext.packageManager.getPackageInfo(appContext.packageName, 0).versionName ?: "inconnue" }
+                catch (_: Exception) { "inconnue" }
+            }
+            Text("Version $installedVersion", fontSize = 10.sp, color = c.onSurfaceVariant.copy(alpha = .7f))
             Spacer(Modifier.height(if (wide) 14.dp else 9.dp))
             Card(
                 Modifier.fillMaxWidth().widthIn(max = 560.dp).animateContentSize(),
