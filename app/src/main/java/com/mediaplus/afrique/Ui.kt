@@ -297,7 +297,7 @@ fun ItemList(
             }
         } else {
             val l = specialGroups[group] ?: groups[group] ?: emptyList()
-            itemsIndexed(l, key = { i, x -> "$i${x.url}" }) { _, x -> ItemRow(x, x.url in favUrls, { onFav(x) }) { onPick(x) } }
+            itemsIndexed(l, key = { i, x -> "$i${x.url}" }) { _, x -> ItemRow(x, x.url in favUrls, { onFav(x) }, { onPick(x) }) }
         }
     }
 }
