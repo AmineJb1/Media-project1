@@ -114,16 +114,16 @@ fun LoginScreen(s: AppState) {
                 Image(
                     painter = painterResource(R.drawable.media_plus_brand),
                     contentDescription = "Media+ Côte d’Ivoire",
-                    modifier = Modifier.size(if (tvLayout) 68.dp else if (wide) 96.dp else 78.dp).clip(RoundedCornerShape(12.dp)),
+                    modifier = Modifier.size(if (tvLayout) 112.dp else if (wide) 96.dp else 78.dp).clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Fit
                 )
-                Text("🇨🇮", fontSize = 15.sp, modifier = Modifier.offset(x = (-15).dp, y = (-30).dp))
+                Text("🇨🇮", fontSize = if (tvLayout) 21.sp else 15.sp, modifier = Modifier.offset(x = (-15).dp, y = if (tvLayout) (-43).dp else (-30).dp))
                 Spacer(Modifier.width(6.dp))
                 Column(Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Media+", color = c.onSurface, fontSize = if (wide) 25.sp else 20.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
+                        Text("Media+", color = c.onSurface, fontSize = if (tvLayout) 30.sp else if (wide) 25.sp else 20.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
                         Spacer(Modifier.width(5.dp))
-                        Text("Côte d’Ivoire", color = c.onSurface, fontSize = if (wide) 17.sp else 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                        Text("Côte d’Ivoire", color = c.onSurface, fontSize = if (tvLayout) 19.sp else if (wide) 17.sp else 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
                     }
                     Text("DIRECT · FILMS · SÉRIES", color = c.secondary, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                 }
@@ -133,19 +133,21 @@ fun LoginScreen(s: AppState) {
                 try { appContext.packageManager.getPackageInfo(appContext.packageName, 0).versionName ?: "inconnue" }
                 catch (_: Exception) { "inconnue" }
             }
-            Text("Version $installedVersion", fontSize = 10.sp, color = c.onSurfaceVariant.copy(alpha = .7f))
+            Text("Version $installedVersion", fontSize = if (tvLayout) 12.sp else 10.sp,
+                color = c.onSurfaceVariant.copy(alpha = .85f),
+                modifier = Modifier.widthIn(max = if (tvLayout) 520.dp else 900.dp))
             Spacer(Modifier.height(if (tvLayout) 8.dp else if (wide) 14.dp else 9.dp))
             Card(
                 Modifier.widthIn(max = if (tvLayout) 520.dp else 560.dp).fillMaxWidth().animateContentSize()
                     .shadow(16.dp, RoundedCornerShape(26.dp), ambientColor = Color(0x223B4540), spotColor = Color(0x33475045)),
                 shape = RoundedCornerShape(26.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = .88f)),
+                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = if (tvLayout) .97f else .88f)),
                 border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = .95f)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
                 Column(Modifier.fillMaxWidth().padding(if (tvLayout) 18.dp else if (wide) 22.dp else 16.dp)) {
-                    Text("Bienvenue", fontSize = 23.sp, fontWeight = FontWeight.Bold, color = c.onSurface, modifier = Modifier.align(Alignment.CenterHorizontally))
-                    Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, fontSize = 13.sp, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp, bottom = 18.dp))
+                    Text("Bienvenue", fontSize = if (tvLayout) 27.sp else 23.sp, fontWeight = FontWeight.Bold, color = c.onSurface, modifier = Modifier.align(Alignment.CenterHorizontally))
+                    Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, fontSize = if (tvLayout) 15.sp else 13.sp, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp, bottom = 18.dp))
                     Text("Identifiants", color = c.onSurface, fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 4.dp))
                     OutlinedTextField(s.user, { s.saveUsername(it) }, f, singleLine = true,
@@ -181,7 +183,7 @@ fun LoginScreen(s: AppState) {
                     Spacer(Modifier.height(10.dp))
                     OutlinedButton(
                         onClick = { showMacAccess = true },
-                        modifier = Modifier.fillMaxWidth().height(46.dp),
+                        modifier = Modifier.fillMaxWidth().height(if (tvLayout) 52.dp else 46.dp),
                         shape = RoundedCornerShape(22.dp)
                     ) { Text("Connexion avec Adresse MAC", color = c.primary, fontWeight = FontWeight.SemiBold) }
                     AnimatedVisibility(s.status.startsWith("Erreur", ignoreCase = true) || s.status == "Abonnement Expiré") {
