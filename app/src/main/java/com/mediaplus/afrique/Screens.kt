@@ -252,7 +252,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
             if (!useSideRail) Text("Vos chaînes et vos contenus", color = c.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium)
             Spacer(Modifier.height(5.dp))
-            if (s.group != null) {
+            if (s.group != null && s.section != 4) {
                 TextButton({ s.group = null }) {
                     Text(if (landscapeCompact) "‹  Bouquets" else "‹  Retour aux catégories", color = c.secondary, fontWeight = FontWeight.SemiBold, fontSize = if (landscapeCompact) 12.sp else 14.sp)
                 }
@@ -326,7 +326,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
             } else if (s.section == 0 && wide) {
                 Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     Box(Modifier.weight(if (landscapeCompact) 0.58f else 0.54f).fillMaxHeight()) {
-                        ItemList(list, s.group, s.query, favUrls, false,
+                        ItemList(list, if (s.section == 4) null else s.group, s.query, favUrls, s.section == 4,
                             { s.requestGroup(it) }, { item ->
                                 if (s.section == 0) s.selectPlaybackBouquet(s.group, specialGroups[s.group] ?: list.filter { it.group == s.group })
                                 s.requestAdultItem(item) { s.pick(item) }
@@ -340,7 +340,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 }
             } else {
                 if (s.section == 0 && s.previewChannelId != null) LivePreviewPanel(s, compact = true)
-                ItemList(list, s.group, s.query, favUrls, false,
+                ItemList(list, if (s.section == 4) null else s.group, s.query, favUrls, s.section == 4,
                     { s.requestGroup(it) }, { item ->
                                 if (s.section == 0) s.selectPlaybackBouquet(s.group, specialGroups[s.group] ?: list.filter { it.group == s.group })
                                 s.requestAdultItem(item) { s.pick(item) }
