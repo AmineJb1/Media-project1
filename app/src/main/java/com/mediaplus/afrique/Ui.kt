@@ -20,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -119,12 +120,14 @@ fun Header(showAccount: Boolean, expiryEpochSeconds: Long?, compact: Boolean = f
 fun Tile(onClick: () -> Unit, content: @Composable RowScope.() -> Unit) {
     var focused by remember { mutableStateOf(false) }
     val c = MaterialTheme.colorScheme
-    val shape = RoundedCornerShape(18.dp)
-    val bg by animateColorAsState(if (focused) Color.White.copy(alpha = 0.70f) else Color.White.copy(alpha = 0.48f), label = "tile-background")
+    val shape = RoundedCornerShape(25.dp)
+    val bg by animateColorAsState(if (focused) Color(0xFFFFF0E0) else Color.White.copy(alpha = 0.96f), label = "tile-background")
     Row(
-        Modifier.fillMaxWidth().padding(vertical = 5.dp).clip(shape)
+        Modifier.fillMaxWidth().padding(vertical = 5.dp)
+            .shadow(if (focused) 10.dp else 5.dp, shape)
+            .clip(shape)
             .background(bg)
-            .border(if (focused) 2.dp else 1.dp, if (focused) c.secondary.copy(alpha = 0.95f) else Color(0xFF777F85).copy(alpha = 0.72f), shape)
+            .border(if (focused) 2.dp else 1.dp, if (focused) c.primary else Color(0xFFDDE0E2), shape)
             .onFocusChanged { focused = it.isFocused }
             .clickable { onClick() }.padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
