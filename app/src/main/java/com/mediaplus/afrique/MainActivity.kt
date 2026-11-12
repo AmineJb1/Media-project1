@@ -23,6 +23,7 @@ fun App() {
     val activity = ctx as? Activity
     val scope = rememberCoroutineScope()
     val s = remember { AppState(ctx.applicationContext, scope) }
+    DisposableEffect(s) { onDispose { if (s.isLivePlayerInitialized()) s.livePlayer.release() } }
     var confirmExit by remember { mutableStateOf(false) }
     var settingsOpen by remember { mutableStateOf(false) }
     var settingsPage by remember { mutableStateOf<String?>(null) }
