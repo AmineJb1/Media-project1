@@ -1,7 +1,5 @@
 package com.mediaplus.afrique
 
-import android.content.Context
-import android.graphics.BitmapFactory
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,18 +11,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
 val Africa = lightColorScheme(
@@ -35,15 +29,6 @@ val Africa = lightColorScheme(
     surfaceVariant = Color(0xFFF3F3F3), onSurfaceVariant = Color(0xFF606660),
     outline = Color(0xFFD9DCDD)
 )
-
-private fun loadBackground(ctx: Context): ImageBitmap? = try {
-    val o = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-    ctx.assets.open("bg.jpg").use { BitmapFactory.decodeStream(it, null, o) }
-    var s = 1
-    while (o.outWidth / s > 1600) s *= 2
-    val o2 = BitmapFactory.Options().apply { inSampleSize = s }
-    ctx.assets.open("bg.jpg").use { BitmapFactory.decodeStream(it, null, o2) }?.asImageBitmap()
-} catch (e: Exception) { null }
 
 // Decorative, translucent 3D-inspired Côte d’Ivoire ribbons shared by every screen.
 @Composable
@@ -85,20 +70,17 @@ fun IvoireRibbons(modifier: Modifier = Modifier) {
 
 @Composable
 fun AfricaTheme(content: @Composable () -> Unit) {
-    val ctx = LocalContext.current
-    val bg = remember { loadBackground(ctx) }
     MaterialTheme(colorScheme = Africa) {
         Box(Modifier.fillMaxSize().background(
             Brush.verticalGradient(listOf(Color.White, Color(0xFFFCFCFC), Color.White))
         )) {
-            if (bg != null) {
-                Image(bg, null, Modifier.fillMaxSize().graphicsLayer {
-                    scaleX = 1.10f
-                    scaleY = 1.10f
-                    translationY = -size.height * 0.065f
-                }, contentScale = ContentScale.Crop)
-                Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.58f)))
-            }
+            Image(
+                painter = painterResource(R.drawable.africa_3d_white),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Fit
+            )
+            Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.13f)))
             Surface(Modifier.fillMaxSize(), color = Color.Transparent) { content() }
         }
     }
