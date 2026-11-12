@@ -81,6 +81,28 @@ class Xtream(server: String, user: String, pass: String) {
         Item(0, id, o.optString("name"), g, "$base/live/$auth/$id.m3u8", o.optString("stream_icon"))
     }
 
+    data class VodDetails(val description: String, val rating: String, val backdrop: String, val trailer: String,
+        val genre: String, val releaseDate: String)
+
+    fun vodDetails(item: Item): VodDetails {
+        val action = if (item.kind == 2) "get_series_info&series_id=" else "get_vod_info&vod_id="
+        val root = JSONObject(httpGet("$api&action=$action"+enc(item.id)))
+        val info = root.optJSONObject("info") ?: root
+        val movie = root.optJSONObject("movie_data")
+        val backgrounds = info.optJSONArray("backdrop_path")
+        val backdrop = backgrounds?.optString(0).orEmpty().ifBlank {
+            info.optString("cover_big").ifBlank { info.optString("movie_image").ifBlank { item.logo } }
+        }
+        return VodDetails(
+            description = info.optString("plot").ifBlank { info.optString("description") },
+            rating = info.optString("rating").ifBlank { info.optString("rating_5based") },
+            backdrop = backdrop,
+            trailer = info.optString("youtube_trailer"),
+            genre = info.optString("genre"),
+            releaseDate = info.optString("releaseDate").ifBlank { info.optString("releasedate") }
+        )
+    }
+
     fun movies() = movieCatalog().items
     fun series() = seriesCatalog().items
 
