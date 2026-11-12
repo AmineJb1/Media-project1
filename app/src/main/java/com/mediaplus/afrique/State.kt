@@ -251,7 +251,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     init {
         prefs.getString("pass", null)?.let { old ->
             pass = old
-            secure.put("pass", old)
+            if (prefs.getBoolean("remember_password", false)) secure.put("pass", old)
             prefs.edit().remove("pass").apply()
         }
         prefs.getString("accounts", null)?.let { old ->
@@ -300,10 +300,10 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
                 }
                 live = l; movies = null; series = null; episodes = null; movieCategories = emptyList(); seriesCategories = emptyList()
                 section = 0; group = null; query = ""; selectPlaybackBouquet(null, emptyList())
-                if (mode == 0 && biometricOptIn && pass.isNotBlank()) {
+                if (mode == 0 && rememberPassword && biometricOptIn && pass.isNotBlank()) {
                     secure.put("biometric_pass", pass)
                     prefs.edit().putString("biometric_saved_user", user).putBoolean("biometric_opt_in", true).apply()
-                } else if (mode == 0 && !biometricOptIn) {
+                } else if (mode == 0) {
                     secure.remove("biometric_pass")
                     prefs.edit().remove("biometric_saved_user").putBoolean("biometric_opt_in", false).apply()
                 }
