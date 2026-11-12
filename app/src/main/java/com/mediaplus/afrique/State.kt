@@ -23,6 +23,7 @@ private fun decode(l: String): Item? {
 
 class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     private val prefs = ctx.getSharedPreferences("p", 0)
+    private val secure = SecureStore(ctx)
     private val cacheFile = File(ctx.cacheDir, "live.tsv")
     private var stalker: Stalker? = null
     // Display-only code; not used for login or authentication.
@@ -174,7 +175,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     private fun saveAccounts() {
         val array = JSONArray()
         accounts.forEach { a -> array.put(JSONObject().put("name", a.name).put("mode", a.mode).put("user", a.user).put("pass", a.pass).put("mac", a.mac)) }
-        prefs.edit().putString("accounts", array.toString()).apply()
+        if (secure.put("accounts", array.toString())) prefs.edit().remove("accounts").apply()
     }
     fun addAccount(name: String, mode: Int, user: String, pass: String, mac: String): Boolean {
         if (name.isBlank() || (mode == 0 && (user.isBlank() || pass.isBlank())) || (mode == 1 && mac.isBlank())) return false
@@ -185,6 +186,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         playing = null; playingChannel = null; clearPreview(); adultUnlocked = false
         group = null; section = 0; query = ""; episodes = null
         pass = ""
+        secure.remove("pass")
         prefs.edit().remove("pass").remove("biometric_saved_user").apply()
         cacheFile.delete()
         live = emptyList(); movies = null; series = null
@@ -202,7 +204,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     fun saveUsername(value: String) { user = value; prefs.edit().putString("user", value).apply() }
     fun hasSavedBiometricAccount(): Boolean = mode == 0 && user.isNotBlank() && pass.isNotBlank() &&
         prefs.getString("biometric_saved_user", "") == user
-    var pass by mutableStateOf(prefs.getString("pass", "") ?: "")
+    var pass by mutableStateOf(secure.get("pass") ?: "")
     var mac by mutableStateOf(prefs.getString("mac", null) ?: randomMac().also { prefs.edit().putString("mac", it).apply() })
     var live by mutableStateOf(emptyList<Item>())
     var movies by mutableStateOf<List<Item>?>(null)
@@ -240,8 +242,14 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     }
 
     init {
+        prefs.getString("pass", null)?.let { old ->
+            if (secure.put("pass", old)) { pass = old; prefs.edit().remove("pass").apply() }
+        }
+        prefs.getString("accounts", null)?.let { old ->
+            if (secure.put("accounts", old)) prefs.edit().remove("accounts").apply()
+        }
         runCatching {
-            val array = JSONArray(prefs.getString("accounts", "[]") ?: "[]")
+            val array = JSONArray(secure.get("accounts") ?: prefs.getString("accounts", "[]") ?: "[]")
             for (i in 0 until array.length()) {
                 val a = array.getJSONObject(i)
                 accounts.add(Account(a.optString("name"), a.optInt("mode"), a.optString("user"), a.optString("pass"), a.optString("mac")))
@@ -263,7 +271,8 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
 
     fun connect() {
         section = 0; group = null; episodes = null; query = ""; clearPreview(); playing = null
-        prefs.edit().putInt("mode", mode).putString("user", user).putString("pass", pass).putString("mac", mac).apply()
+        prefs.edit().putInt("mode", mode).putString("user", user).putString("mac", mac).remove("pass").apply()
+        if (pass.isNotBlank()) secure.put("pass", pass) else secure.remove("pass")
         status = "Connexion…"
         scope.launch {
             try {
