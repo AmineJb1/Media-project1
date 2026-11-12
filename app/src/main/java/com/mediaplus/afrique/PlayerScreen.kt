@@ -15,6 +15,7 @@ import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.PlayerView
+import androidx.media3.ui.AspectRatioFrameLayout
 
 @Composable
 fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Modifier.fillMaxSize(), showControls: Boolean = true, onVideoResolution: (Int, Int) -> Unit = { _, _ -> }, sharedPlayer: ExoPlayer? = null) {
@@ -41,7 +42,13 @@ fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Mod
         player.playWhenReady = true
     }
     AndroidView(
-        factory = { PlayerView(it).apply { this.player = player; keepScreenOn = true; useController = showControls } },
+        factory = { PlayerView(it).apply {
+            this.player = player
+            keepScreenOn = true
+            useController = showControls
+            resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+            layoutParams = android.widget.FrameLayout.LayoutParams(-1, -1)
+        } },
         modifier = modifier
     )
 }
