@@ -176,7 +176,7 @@ fun LoginScreen(s: AppState) {
                         modifier = Modifier.fillMaxWidth().height(46.dp),
                         shape = RoundedCornerShape(22.dp)
                     ) { Text("Connexion avec Adresse MAC", color = c.primary, fontWeight = FontWeight.SemiBold) }
-                    AnimatedVisibility(s.status.startsWith("Erreur", ignoreCase = true) || s.status.contains("indisponible", ignoreCase = true)) {
+                    AnimatedVisibility(s.status.startsWith("Erreur", ignoreCase = true) || s.status == "Abonnement Expiré") {
                         Text(s.status, Modifier.padding(top = 12.dp), color = c.secondary, style = MaterialTheme.typography.bodySmall)
                     }
                 }
