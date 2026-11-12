@@ -17,10 +17,10 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.PlayerView
 
 @Composable
-fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Modifier.fillMaxSize(), showControls: Boolean = true, onVideoResolution: (Int, Int) -> Unit = { _, _ -> }) {
+fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Modifier.fillMaxSize(), showControls: Boolean = true, onVideoResolution: (Int, Int) -> Unit = { _, _ -> }, sharedPlayer: ExoPlayer? = null) {
     val ctx = LocalContext.current
-    val player = remember {
-        ExoPlayer.Builder(ctx)
+    val player = remember(sharedPlayer) {
+        sharedPlayer ?: ExoPlayer.Builder(ctx)
             .setMediaSourceFactory(DefaultMediaSourceFactory(if (showControls) PlayerCache.factory(ctx) else PlayerCache.liveFactory()))
             .setLoadControl(DefaultLoadControl.Builder().setBufferDurationsMs(15000, 50000, 1500, 3000).build())
             .build()
@@ -31,11 +31,13 @@ fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Mod
             override fun onPlayerError(error: PlaybackException) { onError(error.message ?: "erreur") }
         }
         player.addListener(l)
-        onDispose { player.removeListener(l); player.release() }
+        onDispose { player.removeListener(l); if (sharedPlayer == null) player.release() }
     }
     LaunchedEffect(url) {
-        player.setMediaItem(MediaItem.fromUri(url))
-        player.prepare()
+        if (player.currentMediaItem?.localConfiguration?.uri?.toString() != url) {
+            player.setMediaItem(MediaItem.fromUri(url))
+            player.prepare()
+        }
         player.playWhenReady = true
     }
     AndroidView(
