@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -50,6 +51,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
     var accountMode by remember { mutableIntStateOf(0) }
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var showAccountPassword by remember { mutableStateOf(false) }
     var mac by remember { mutableStateOf("") }
     var deleteIndex by remember { mutableIntStateOf(-1) }
     var confirmDisconnect by remember { mutableStateOf(false) }
@@ -59,7 +61,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
         if (page == null) {
             Text("Paramètres", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             Text("Sélectionnez une rubrique.")
-            listOf("Mon compte", "Informations d’abonnement", "Contrôle parental", "Lecture et stockage", "À propos").forEach { section ->
+            listOf("Mon compte", "Informations d’abonnement", "Contrôle parental", "À propos").forEach { section ->
                 OutlinedCard(onClick = { onPage(section); message = "" }, modifier = Modifier.fillMaxWidth()) {
                     Text("›   $section", modifier = Modifier.padding(18.dp), style = MaterialTheme.typography.titleMedium)
                 }
@@ -120,7 +122,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                     }
                     if (accountMode == 0) {
                         OutlinedTextField(username, { username = it }, label = { Text("Nom d’utilisateur") }, singleLine = true)
-                        OutlinedTextField(password, { password = it }, label = { Text("Mot de passe") }, visualTransformation = PasswordVisualTransformation(), singleLine = true)
+                        OutlinedTextField(password, { password = it }, label = { Text("Mot de passe") }, visualTransformation = if (showAccountPassword) VisualTransformation.None else PasswordVisualTransformation(), singleLine = true, trailingIcon = { TextButton(onClick = { showAccountPassword = !showAccountPassword }) { Text(if (showAccountPassword) "Masquer" else "Voir") } })
                     } else OutlinedTextField(mac, { mac = it }, label = { Text("Adresse MAC") }, singleLine = true)
                     Button(onClick = {
                         if (s.addAccount(name, accountMode, username, password, mac)) {
@@ -129,11 +131,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                         } else message = "Complétez tous les champs"
                     }) { Text("Enregistrer le compte") }
                 }
-                "Lecture et stockage" -> {
-                    Text("Cache vidéo : ${s.cacheMb} Mo")
-                    OutlinedButton(onClick = { s.clearCache() }) { Text("Vider le cache") }
-                }
-                "À propos" -> Text("Media+ Afrique · Version 2.1.1")
+                "À propos" -> Text("Media+ Afrique · Version 2.1.3")
             }
             if (message.isNotEmpty()) Text(message, color = MaterialTheme.colorScheme.primary)
         }
