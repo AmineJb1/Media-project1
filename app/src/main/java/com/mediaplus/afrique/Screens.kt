@@ -65,14 +65,14 @@ fun LoginScreen(s: AppState) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
                     painter = painterResource(R.drawable.media_plus_brand),
-                    contentDescription = "Media+ Afrique",
+                    contentDescription = "Media+ Côte d’Ivoire",
                     modifier = Modifier.size(if (wide) 82.dp else 64.dp).clip(RoundedCornerShape(16.dp)),
                     contentScale = ContentScale.Fit
                 )
                 Spacer(Modifier.width(14.dp))
                 Column {
-                    Text("Media+ Afrique", color = c.onSurface, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
-                    Text("🇹🇳 🇩🇿 🇲🇦 🇪🇬 🇸🇦 🇦🇪", color = c.secondary, style = MaterialTheme.typography.bodyMedium)
+                    Text("Media+ Côte d’Ivoire", color = c.onSurface, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
+                    Text("🇨🇮", color = c.secondary, style = MaterialTheme.typography.bodyMedium)
                     Text("DIRECT · FILMS · SÉRIES", color = c.secondary, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                 }
             }
