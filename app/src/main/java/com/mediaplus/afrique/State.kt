@@ -234,6 +234,16 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     var status by mutableStateOf("")
     var playing by mutableStateOf<String?>(null)
     var playingChannel by mutableStateOf<Item?>(null)
+    // Shared ExoPlayer keeps the live stream running when the preview expands.
+    private val livePlayerDelegate = lazy {
+        androidx.media3.exoplayer.ExoPlayer.Builder(ctx)
+            .setMediaSourceFactory(androidx.media3.exoplayer.source.DefaultMediaSourceFactory(PlayerCache.liveFactory()))
+            .setLoadControl(androidx.media3.exoplayer.DefaultLoadControl.Builder()
+                .setBufferDurationsMs(15000, 50000, 1500, 3000).build())
+            .build()
+    }
+    val livePlayer get() = livePlayerDelegate.value
+    fun isLivePlayerInitialized() = livePlayerDelegate.isInitialized()
     var previewUrl by mutableStateOf<String?>(null)
     var previewChannelId by mutableStateOf<String?>(null)
     var previewChannelName by mutableStateOf("")
@@ -343,7 +353,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     fun selectLive(i: Item) {
         rememberLive(i)
         if (previewChannelId == i.id && previewUrl != null) {
-            playLive(i)
+            playLive(i, fromPreview = true)
             return
         }
         clearPreview()
@@ -362,18 +372,21 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     }
 
     private var liveRequestId = 0L
-    fun playLive(i: Item) {
+    fun playLive(i: Item, fromPreview: Boolean = false) {
         val request = ++liveRequestId
         rememberLive(i)
         playingChannel = i
         playing = null
-        clearPreview()
+        if (!fromPreview) clearPreview()
         scope.launch {
             try {
                 val resolved = if (mode == 1) withContext(Dispatchers.IO) {
                     (stalker ?: Stalker(Config.PORTAL, mac.trim().uppercase()).also { stalker = it }).resolve(i.url)
                 } else i.url
-                if (request == liveRequestId) playing = resolved
+                if (request == liveRequestId) {
+                    playing = resolved
+                    if (fromPreview) clearPreview()
+                }
             } catch (e: Exception) {
                 if (request == liveRequestId) { playingChannel = null; status = "Erreur chaîne : ${e.message}" }
             }
