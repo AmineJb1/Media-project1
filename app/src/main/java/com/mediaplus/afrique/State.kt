@@ -251,6 +251,20 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     var cacheMb by mutableStateOf(0L)
     val favs = mutableStateListOf<Item>()
     val recentlyWatched = mutableStateListOf<String>()
+    val continueWatching = mutableStateListOf<Item>()
+    private var currentSeriesForResume: Item? = null
+    private fun rememberVod(item: Item) {
+        val selected = if (item.kind == 3) currentSeriesForResume ?: return else item
+        if (selected.kind !in 1..2) return
+        continueWatching.removeAll { it.kind == selected.kind && it.id == selected.id }
+        continueWatching.add(0, selected)
+        while (continueWatching.size > 30) continueWatching.removeAt(continueWatching.lastIndex)
+        prefs.edit().putString("continue_watching", JSONArray().apply {
+            continueWatching.forEach { put(JSONObject().put("kind", it.kind).put("id", it.id)
+                .put("name", it.name).put("group", it.group).put("url", it.url)
+                .put("logo", it.logo)) }
+        }.toString()).apply()
+    }
     private fun rememberLive(i: Item) {
         recentlyWatched.remove(i.id)
         recentlyWatched.add(0, i.id)
@@ -277,6 +291,14 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         }
         recentlyWatched.addAll((prefs.getString("recent_live_ids", "") ?: "").split("\n").filter { it.isNotBlank() }.take(10))
         favs.addAll(prefs.getStringSet("favs", emptySet())?.mapNotNull { decode(it) } ?: emptyList())
+        runCatching {
+            val saved = JSONArray(prefs.getString("continue_watching", "[]") ?: "[]")
+            for (index in 0 until minOf(saved.length(), 30)) {
+                val o = saved.getJSONObject(index)
+                continueWatching.add(Item(o.getInt("kind"), o.getString("id"), o.getString("name"),
+                    o.optString("group"), o.getString("url"), o.optString("logo")))
+            }
+        }
         // Resume only sessions whose credentials were explicitly saved securely.
         val savedPassword = if (rememberPassword) secure.get("pass") else null
         if (prefs.getBoolean("session_active", false) && (mode == 1 || (mode == 0 && !savedPassword.isNullOrBlank()))) {
@@ -421,8 +443,11 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         clearPreview()
         playingChannel = null
         if (i.kind == 2) {
+            currentSeriesForResume = i
+            rememberVod(i)
             fetch { episodes = withContext(Dispatchers.IO) { xt().episodes(i.url) }; group = null; query = "" }
         } else {
+            if (i.kind == 1 || i.kind == 3) rememberVod(i)
             scope.launch {
                 try {
                     playing = if (mode == 1 && i.kind == 0) withContext(Dispatchers.IO) { stalker!!.resolve(i.url) } else i.url
@@ -453,7 +478,8 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     fun clearCache() {
         PlayerCache.clear(ctx)
         recentlyWatched.clear()
-        prefs.edit().remove("recent_live_ids").apply()
+        continueWatching.clear()
+        prefs.edit().remove("recent_live_ids").remove("continue_watching").apply()
         // Remove cached channel and VOD catalogs without affecting accounts or favorites.
         cacheFile.delete()
         ctx.filesDir.listFiles()?.filter { it.name.startsWith("vod_") && it.name.endsWith(".json") }?.forEach { it.delete() }
