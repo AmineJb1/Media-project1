@@ -67,6 +67,8 @@ fun TvPlayer(s: AppState) {
             .build()
     }
     var menuVisible by remember { mutableStateOf(false) }
+    var bouquetDropdown by remember { mutableStateOf(false) }
+    var selectedBouquet by remember { mutableStateOf<String?>(null) }
     var settingsVisible by remember { mutableStateOf(false) }
     var infoVisible by remember { mutableStateOf(true) }
     var resizeMode by remember {
@@ -95,6 +97,20 @@ fun TvPlayer(s: AppState) {
         val bouquet = channel?.group
         if (bouquet == null) s.live else s.live.filter { it.group == bouquet }
     }
+    val bouquets = remember(s.live, s.adultUnlocked) {
+        s.live.asSequence().map { it.group }.filter { it.isNotBlank() }
+            .filter { !s.isAdultGroup(it) || s.adultUnlocked }.distinct().sorted().toList()
+    }
+    val initialBouquet = s.playbackBouquetName?.takeIf { name ->
+        s.playbackBouquetChannels.any { it.id == channel?.id } && name in bouquets
+    } ?: channel?.group
+    LaunchedEffect(channel?.id) {
+        if (!menuVisible) selectedBouquet = initialBouquet
+    }
+    val drawerBouquet = selectedBouquet ?: initialBouquet
+    val drawerChannels = if (drawerBouquet == initialBouquet && s.playbackBouquetChannels.any { it.id == channel?.id }) {
+        s.playbackBouquetChannels
+    } else s.live.filter { it.group == drawerBouquet }
     val now = System.currentTimeMillis()
     val current = epg.firstOrNull { now in it.start until it.end }
     val next = epg.firstOrNull { it.start >= (current?.end ?: now) }
@@ -144,7 +160,7 @@ fun TvPlayer(s: AppState) {
                     Key.DirectionDown -> { if (menuVisible) false else { changeChannel(1); true } }
                     Key.DirectionLeft -> { if (menuVisible) false else { audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI); true } }
                     Key.DirectionRight -> { if (menuVisible) false else { audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI); true } }
-                    Key.DirectionCenter, Key.Enter, Key.NumPadEnter -> { infoVisible = true; menuVisible = !menuVisible; true }
+                    Key.DirectionCenter, Key.Enter, Key.NumPadEnter -> { settingsVisible = false; infoVisible = true; menuVisible = !menuVisible; selectedBouquet = initialBouquet; true }
                     Key.Back, Key.Escape -> { if (settingsVisible) { settingsVisible = false; true } else if (menuVisible) { menuVisible = false; true } else false }
                     else -> false
                 }
@@ -155,7 +171,10 @@ fun TvPlayer(s: AppState) {
             update = { it.resizeMode = resizeMode },
             modifier = Modifier.fillMaxSize()
         )
-        Box(Modifier.fillMaxSize().clickable { infoVisible = !infoVisible })
+        Box(Modifier.fillMaxSize().clickable {
+            if (settingsVisible) settingsVisible = false
+            else { menuVisible = !menuVisible; selectedBouquet = initialBouquet; infoVisible = true }
+        })
         if (infoVisible) {
             Row(
                 Modifier.align(Alignment.BottomCenter).fillMaxWidth()
@@ -257,22 +276,59 @@ fun TvPlayer(s: AppState) {
             }
         }
         if (menuVisible) {
+            Box(Modifier.fillMaxSize().clickable { menuVisible = false; bouquetDropdown = false })
             Surface(
-                Modifier.align(Alignment.CenterStart).fillMaxHeight().fillMaxWidth(0.72f),
-                color = Color(0xF0152119), shape = RoundedCornerShape(topEnd = 18.dp, bottomEnd = 18.dp)
+                Modifier.align(Alignment.CenterStart).fillMaxHeight(0.88f).fillMaxWidth(0.54f),
+                color = Color(0xCC17221E),
+                shape = RoundedCornerShape(topEnd = 18.dp, bottomEnd = 18.dp)
             ) {
-                Column(Modifier.padding(14.dp)) {
+                Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(s.playbackBouquetName?.takeIf { s.playbackBouquetChannels.any { item -> item.id == channel?.id } }
-                            ?: channel?.group?.takeIf { it.isNotBlank() } ?: "Chaînes en direct", color = Color.White, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                        TextButton(onClick = { menuVisible = false }) { Text("Fermer") }
+                        Box(Modifier.weight(1f)) {
+                            TextButton(onClick = { bouquetDropdown = true }) {
+                                Text((drawerBouquet ?: "Bouquets") + "  ▾",
+                                    color = Color.White, fontWeight = FontWeight.Bold, maxLines = 1)
+                            }
+                            DropdownMenu(
+                                expanded = bouquetDropdown,
+                                onDismissRequest = { bouquetDropdown = false }
+                            ) {
+                                bouquets.forEach { name ->
+                                    DropdownMenuItem(
+                                        text = { Text(name, maxLines = 1) },
+                                        onClick = { selectedBouquet = name; bouquetDropdown = false }
+                                    )
+                                }
+                            }
+                        }
+                        TextButton(onClick = { menuVisible = false }) {
+                            Text("✕", color = Color.White)
+                        }
                     }
+                    Text("${drawerChannels.size} chaînes", color = Color.LightGray,
+                        style = MaterialTheme.typography.labelSmall)
                     LazyColumn {
-                        items(channels, key = { it.id + it.url }) { item ->
-                            Text(
-                                item.name, color = if (item.id == channel?.id) Color(0xFFFFA629) else Color.White,
-                                modifier = Modifier.fillMaxWidth().clickable { s.playLive(item); menuVisible = false }.padding(vertical = 12.dp)
-                            )
+                        items(drawerChannels, key = { it.id + it.url }) { item ->
+                            Row(
+                                Modifier.fillMaxWidth()
+                                    .background(if (item.id == channel?.id) Color(0x553D8064) else Color.Transparent,
+                                        RoundedCornerShape(10.dp))
+                                    .clickable {
+                                        s.selectPlaybackBouquet(drawerBouquet, drawerChannels)
+                                        s.playLive(item)
+                                        menuVisible = false
+                                    }
+                                    .padding(horizontal = 8.dp, vertical = 7.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(9.dp)
+                            ) {
+                                if (item.logo.startsWith("http")) {
+                                    AsyncImage(model = item.logo, contentDescription = null,
+                                        modifier = Modifier.size(32.dp), contentScale = ContentScale.Fit)
+                                }
+                                Text(item.name, color = if (item.id == channel?.id) Color(0xFFFFBA62) else Color.White,
+                                    style = MaterialTheme.typography.bodyMedium, maxLines = 2)
+                            }
                         }
                     }
                 }
