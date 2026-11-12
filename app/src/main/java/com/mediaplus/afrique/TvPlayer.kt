@@ -41,9 +41,6 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.PlayerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @Composable
 fun TvPlayer(s: AppState) {
@@ -82,14 +79,6 @@ fun TvPlayer(s: AppState) {
     val current = epg.firstOrNull { now in it.start until it.end }
     val next = epg.firstOrNull { it.start >= (current?.end ?: now) }
     val quality = if (videoSize.width > 0 && videoSize.height > 0) "${videoSize.width} × ${videoSize.height}" else "Résolution…"
-    /* val qualityLabel = when {
-        videoSize.height >= 2160 -> "4K"
-        videoSize.height >= 1080 -> "Full HD"
-        videoSize.height >= 720 -> "HD"
-        videoSize.height > 0 -> "SD"
-        else -> "Qualité en attente"
-    } */
-    val time = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
 
     DisposableEffect(player) {
         val listener = object : Player.Listener {
@@ -169,7 +158,8 @@ fun TvPlayer(s: AppState) {
             }
         }
         if (settingsVisible) {
-            val availableGroups = player.currentTracks.groups
+            val observedTracksRevision = tracksRevision
+            val availableGroups = remember(observedTracksRevision) { player.currentTracks.groups }
             val audioGroups = availableGroups.filter { it.type == C.TRACK_TYPE_AUDIO }
             val textGroups = availableGroups.filter { it.type == C.TRACK_TYPE_TEXT }
             Surface(
@@ -188,7 +178,7 @@ fun TvPlayer(s: AppState) {
                         "Ajuster" to AspectRatioFrameLayout.RESIZE_MODE_FIT,
                         "Remplir" to AspectRatioFrameLayout.RESIZE_MODE_FILL,
                         "Zoom" to AspectRatioFrameLayout.RESIZE_MODE_ZOOM,
-                        "Original" to AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH
+                        "Largeur fixe" to AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH
                     ).forEach { (name, value) ->
                         TextButton(onClick = { resizeMode = value }) {
                             Text((if (resizeMode == value) "✓ " else "") + name, color = Color.White)
