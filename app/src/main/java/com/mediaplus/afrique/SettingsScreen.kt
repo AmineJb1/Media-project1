@@ -62,6 +62,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
     var mac by remember { mutableStateOf("") }
     var deleteIndex by remember { mutableIntStateOf(-1) }
     var confirmDisconnect by remember { mutableStateOf(false) }
+    var confirmClearCache by remember { mutableStateOf(false) }
 
     Column(modifier.verticalScroll(rememberScrollState()).padding(horizontal = 10.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -74,6 +75,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                 Triple("Mon compte", "Gérer vos profils et connexions", "♙"),
                 Triple("Informations d’abonnement", "Validité, expiration et accès", "◷"),
                 Triple("Contrôle parental", "Sécuriser l’accès aux contenus", "◈"),
+                Triple("Vider le cache", "Effacer l’historique récent et les données temporaires", "⌫"),
                 Triple("À propos", "Version et informations de l’application", "ⓘ")
             )
             sections.forEach { (section, subtitle, symbol) ->
@@ -202,6 +204,17 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                         }, modifier = Modifier.fillMaxWidth()) { Text("Enregistrer le compte") }
                     }
                 }
+                "Vider le cache" -> {
+                    SettingsPanel {
+                        Text("Nettoyer les données temporaires", style = MaterialTheme.typography.titleMedium,
+                            color = Color(0xFF193D30), fontWeight = FontWeight.SemiBold)
+                        Text("Supprime l’historique des chaînes récemment regardées, les caches des films et séries ainsi que le cache vidéo. Vos favoris et vos comptes restent conservés.",
+                            style = MaterialTheme.typography.bodyMedium, color = Color(0xFF56675D))
+                        Button(onClick = { confirmClearCache = true }, modifier = Modifier.fillMaxWidth()) {
+                            Text("Vider le cache")
+                        }
+                    }
+                }
                 "À propos" -> {
                     SettingsPanel {
                         Text("Media+ Côte d’Ivoire", style = MaterialTheme.typography.titleLarge,
@@ -221,6 +234,17 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
         text = { Text("L’abonnement enregistré sera supprimé de l’application.") },
         confirmButton = { TextButton(onClick = { s.removeAccount(deleteIndex); deleteIndex = -1 }) { Text("Supprimer") } },
         dismissButton = { TextButton(onClick = { deleteIndex = -1 }) { Text("Annuler") } }
+    )
+    if (confirmClearCache) AlertDialog(
+        onDismissRequest = { confirmClearCache = false },
+        title = { Text("Vider le cache ?") },
+        text = { Text("L’historique récent et les fichiers temporaires seront supprimés. Vos favoris et vos comptes ne seront pas effacés.") },
+        confirmButton = { TextButton(onClick = {
+            s.clearCache()
+            confirmClearCache = false
+            message = "Cache et historique récent supprimés"
+        }) { Text("Effacer") } },
+        dismissButton = { TextButton(onClick = { confirmClearCache = false }) { Text("Annuler") } }
     )
     if (confirmDisconnect) AlertDialog(
         onDismissRequest = { confirmDisconnect = false },
