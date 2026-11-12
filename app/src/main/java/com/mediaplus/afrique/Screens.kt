@@ -122,7 +122,7 @@ fun LoginScreen(s: AppState) {
                             modifier = Modifier.size(116.dp),
                             contentScale = ContentScale.Fit
                         )
-                        Text("🇨🇮", fontSize = 20.sp, modifier = Modifier.padding(start = 4.dp))
+                        Text("🇨🇮", fontSize = 18.sp, modifier = Modifier.offset(x = (-18).dp, y = (-30).dp))
                     }
                     Text("DIRECT  ·  FILMS  ·  SÉRIES",
                         color = c.onSurface, fontSize = 13.sp,
@@ -220,11 +220,14 @@ fun LoginScreen(s: AppState) {
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 9.dp)
                     ) { Text("▶  Se connecter", fontSize = 15.sp, fontWeight = FontWeight.SemiBold) }
                     Spacer(Modifier.height(10.dp))
-                    OutlinedButton(
+                    Button(
                         onClick = { showMacAccess = true },
-                        modifier = Modifier.fillMaxWidth().height(if (tvLayout) 52.dp else 46.dp),
-                        shape = RoundedCornerShape(22.dp)
-                    ) { Text("Connexion avec Adresse MAC", color = c.primary, fontWeight = FontWeight.SemiBold) }
+                        modifier = Modifier.fillMaxWidth().height(if (tvLayout) 52.dp else if (wide) 52.dp else 48.dp),
+                        shape = RoundedCornerShape(28.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F2F1), contentColor = c.onSurface),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 9.dp)
+                    ) { Text("▶  Connexion avec Adresse MAC", fontSize = 15.sp, fontWeight = FontWeight.SemiBold) }
                     AnimatedVisibility(s.status.startsWith("Erreur", ignoreCase = true) || s.status == "Abonnement Expiré") {
                         Text(s.status, Modifier.padding(top = 12.dp), color = c.secondary, style = MaterialTheme.typography.bodySmall)
                     }
