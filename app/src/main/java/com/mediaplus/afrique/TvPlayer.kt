@@ -25,7 +25,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.media3.common.C
+import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.MediaItem
+import androidx.media3.ui.AspectRatioFrameLayout
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import androidx.media3.common.Player
 import androidx.media3.common.VideoSize
 import androidx.media3.exoplayer.ExoPlayer
@@ -49,6 +56,14 @@ fun TvPlayer(s: AppState) {
             .build()
     }
     var menuVisible by remember { mutableStateOf(false) }
+    var settingsVisible by remember { mutableStateOf(false) }
+    var infoVisible by remember { mutableStateOf(true) }
+    var resizeMode by remember { mutableIntStateOf(AspectRatioFrameLayout.RESIZE_MODE_FIT) }
+    var tracksRevision by remember { mutableIntStateOf(0) }
+    LaunchedEffect(s.playingChannel?.id) { infoVisible = true }
+    LaunchedEffect(infoVisible, settingsVisible, menuVisible, s.playingChannel?.id) {
+        if (infoVisible && !settingsVisible && !menuVisible) { delay(5000); infoVisible = false }
+    }
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) { focusRequester.requestFocus() }
     var videoSize by remember { mutableStateOf(VideoSize.UNKNOWN) }
@@ -66,18 +81,20 @@ fun TvPlayer(s: AppState) {
     val now = System.currentTimeMillis()
     val current = epg.firstOrNull { now in it.start until it.end }
     val next = epg.firstOrNull { it.start >= (current?.end ?: now) }
-    val quality = when {
+    val quality = if (videoSize.width > 0 && videoSize.height > 0) "${videoSize.width} × ${videoSize.height}" else "Résolution…"
+    /* val qualityLabel = when {
         videoSize.height >= 2160 -> "4K"
         videoSize.height >= 1080 -> "Full HD"
         videoSize.height >= 720 -> "HD"
         videoSize.height > 0 -> "SD"
         else -> "Qualité en attente"
-    }
+    } */
     val time = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
 
     DisposableEffect(player) {
         val listener = object : Player.Listener {
             override fun onVideoSizeChanged(size: VideoSize) { videoSize = size }
+            override fun onTracksChanged(tracks: androidx.media3.common.Tracks) { tracksRevision++ }
             override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
                 s.onPlayerError(error.message ?: "Erreur vidéo")
             }
@@ -113,32 +130,111 @@ fun TvPlayer(s: AppState) {
                     Key.DirectionDown -> { if (menuVisible) false else { changeChannel(1); true } }
                     Key.DirectionLeft -> { if (menuVisible) false else { audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI); true } }
                     Key.DirectionRight -> { if (menuVisible) false else { audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI); true } }
-                    Key.DirectionCenter, Key.Enter, Key.NumPadEnter -> { menuVisible = !menuVisible; true }
-                    Key.Back, Key.Escape -> { if (menuVisible) { menuVisible = false; true } else false }
+                    Key.DirectionCenter, Key.Enter, Key.NumPadEnter -> { infoVisible = true; menuVisible = !menuVisible; true }
+                    Key.Back, Key.Escape -> { if (settingsVisible) { settingsVisible = false; true } else if (menuVisible) { menuVisible = false; true } else false }
                     else -> false
                 }
             }.focusRequester(focusRequester).focusable()
     ) {
         AndroidView(
-            factory = { PlayerView(it).apply { this.player = player; useController = false; keepScreenOn = true } },
+            factory = { PlayerView(it).apply { this.player = player; useController = false; keepScreenOn = true; resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT } },
+            update = { it.resizeMode = resizeMode },
             modifier = Modifier.fillMaxSize()
         )
-        Box(Modifier.fillMaxSize().clickable { menuVisible = !menuVisible })
-        Column(
-            Modifier.align(Alignment.BottomCenter).fillMaxWidth()
-                .background(Color(0xD9000000)).padding(14.dp)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(channel?.name ?: "Lecture", color = Color.White, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                Text(quality, color = Color(0xFFFFA629), fontWeight = FontWeight.Bold)
+        Box(Modifier.fillMaxSize().clickable { infoVisible = !infoVisible })
+        if (infoVisible) {
+            Row(
+                Modifier.align(Alignment.BottomCenter).fillMaxWidth()
+                    .background(Color(0xD9000000)).padding(horizontal = 14.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                val logo = channel?.logo.orEmpty()
+                if (logo.startsWith("http")) {
+                    AsyncImage(model = logo, contentDescription = "Logo de la chaîne",
+                        modifier = Modifier.size(48.dp), contentScale = ContentScale.Fit)
+                } else {
+                    Text("◉", color = Color.White, fontSize = 26.sp)
+                }
+                Column(Modifier.weight(1f)) {
+                    Text(channel?.name ?: "Direct", color = Color.White,
+                        fontWeight = FontWeight.SemiBold, maxLines = 1)
+                    Text(if (current != null) current.title else "EPG indisponible",
+                        color = Color.LightGray, style = MaterialTheme.typography.bodySmall, maxLines = 2)
+                }
+                Text(quality, color = Color.White, style = MaterialTheme.typography.labelSmall)
+                TextButton(onClick = { settingsVisible = true; infoVisible = true }) {
+                    Text("⚙", color = Color.White, fontSize = 24.sp)
+                }
             }
-            Text(
-                if (current != null) "En cours  ${time.format(Date(current.start))}–${time.format(Date(current.end))}  ${current.title}"
-                else if (epgError) "EPG indisponible" else "Programme EPG non disponible",
-                color = Color.White
-            )
-            if (next != null) Text("À suivre  ${time.format(Date(next.start))}  ${next.title}", color = Color.LightGray)
-            Text("OK : chaînes  ·  ↑ ↓ : changer  ·  ← → : volume", color = Color.LightGray, style = MaterialTheme.typography.labelSmall)
+        }
+        if (settingsVisible) {
+            val availableGroups = player.currentTracks.groups
+            val audioGroups = availableGroups.filter { it.type == C.TRACK_TYPE_AUDIO }
+            val textGroups = availableGroups.filter { it.type == C.TRACK_TYPE_TEXT }
+            Surface(
+                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().fillMaxWidth(0.82f),
+                color = Color(0xF0152119),
+                shape = RoundedCornerShape(topStart = 18.dp, bottomStart = 18.dp)
+            ) {
+                Column(Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(14.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("Paramètres du lecteur", color = Color.White,
+                            fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                        TextButton(onClick = { settingsVisible = false }) { Text("Fermer") }
+                    }
+                    Text("Format d'image", color = Color.White, fontWeight = FontWeight.Bold)
+                    listOf(
+                        "Ajuster" to AspectRatioFrameLayout.RESIZE_MODE_FIT,
+                        "Remplir" to AspectRatioFrameLayout.RESIZE_MODE_FILL,
+                        "Zoom" to AspectRatioFrameLayout.RESIZE_MODE_ZOOM,
+                        "Original" to AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH
+                    ).forEach { (name, value) ->
+                        TextButton(onClick = { resizeMode = value }) {
+                            Text((if (resizeMode == value) "✓ " else "") + name, color = Color.White)
+                        }
+                    }
+                    Text("Audio disponible", color = Color.White, fontWeight = FontWeight.Bold)
+                    if (audioGroups.isEmpty()) Text("Aucune piste audio détectée", color = Color.LightGray)
+                    audioGroups.forEach { group ->
+                        for (index in 0 until group.length) {
+                            if (group.isTrackSupported(index)) {
+                                val format = group.getTrackFormat(index)
+                                val title = listOfNotNull(format.language?.takeUnless { it == "und" },
+                                    format.label).joinToString(" · ").ifBlank { "Audio ${index + 1}" }
+                                TextButton(onClick = {
+                                    player.trackSelectionParameters = player.trackSelectionParameters.buildUpon()
+                                        .setOverrideForType(TrackSelectionOverride(group.mediaTrackGroup, index)).build()
+                                }) {
+                                    Text((if (group.isTrackSelected(index)) "✓ " else "") + title, color = Color.White)
+                                }
+                            }
+                        }
+                    }
+                    Text("Sous-titres", color = Color.White, fontWeight = FontWeight.Bold)
+                    TextButton(onClick = {
+                        player.trackSelectionParameters = player.trackSelectionParameters.buildUpon()
+                            .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true).build()
+                    }) { Text("Désactivés", color = Color.White) }
+                    if (textGroups.isEmpty()) Text("Aucun sous-titre disponible", color = Color.LightGray)
+                    textGroups.forEach { group ->
+                        for (index in 0 until group.length) {
+                            if (group.isTrackSupported(index)) {
+                                val format = group.getTrackFormat(index)
+                                val title = listOfNotNull(format.language?.takeUnless { it == "und" },
+                                    format.label).joinToString(" · ").ifBlank { "Sous-titre ${index + 1}" }
+                                TextButton(onClick = {
+                                    player.trackSelectionParameters = player.trackSelectionParameters.buildUpon()
+                                        .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
+                                        .setOverrideForType(TrackSelectionOverride(group.mediaTrackGroup, index)).build()
+                                }) {
+                                    Text((if (group.isTrackSelected(index)) "✓ " else "") + title, color = Color.White)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         if (menuVisible) {
             Surface(
