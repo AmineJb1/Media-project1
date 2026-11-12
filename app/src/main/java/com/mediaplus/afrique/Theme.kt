@@ -27,12 +27,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 val Africa = lightColorScheme(
-    primary = Color(0xFF08723A), onPrimary = Color.White,
-    secondary = Color(0xFFBD5900), tertiary = Color(0xFFFF8A00),
-    primaryContainer = Color(0xFFE2F3E9), onPrimaryContainer = Color(0xFF064729),
+    primary = Color(0xFFDE6A12), onPrimary = Color.White,
+    secondary = Color(0xFFCE5B09), tertiary = Color(0xFFFF8A00),
+    primaryContainer = Color(0xFFFFEBDD), onPrimaryContainer = Color(0xFF72350D),
     background = Color(0xFFFFFEFB), surface = Color(0xFFFFFFFF), onSurface = Color(0xFF17241D),
-    surfaceVariant = Color(0xFFF2F5F1), onSurfaceVariant = Color(0xFF58645C),
-    outline = Color(0xFFCDD9CF)
+    surfaceVariant = Color(0xFFF3F3F3), onSurfaceVariant = Color(0xFF606660),
+    outline = Color(0xFFD9DCDD)
 )
 
 private fun loadBackground(ctx: Context): ImageBitmap? = try {
