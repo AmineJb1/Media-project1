@@ -18,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.Image
 import androidx.compose.material.icons.Icons
@@ -115,11 +116,12 @@ fun LoginScreen(s: AppState) {
             Text("Version $installedVersion", fontSize = 10.sp, color = c.onSurfaceVariant.copy(alpha = .7f))
             Spacer(Modifier.height(if (wide) 14.dp else 9.dp))
             Card(
-                Modifier.fillMaxWidth().widthIn(max = 560.dp).animateContentSize(),
-                shape = RoundedCornerShape(38.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = .98f)),
-                border = androidx.compose.foundation.BorderStroke(1.dp, c.outline),
-                elevation = CardDefaults.cardElevation(defaultElevation = 13.dp)
+                Modifier.fillMaxWidth().widthIn(max = 560.dp).animateContentSize()
+                    .shadow(22.dp, RoundedCornerShape(32.dp), ambientColor = Color(0x553B4540), spotColor = Color(0x66475045)),
+                shape = RoundedCornerShape(32.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = .78f)),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = .82f)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(Modifier.fillMaxWidth().padding(if (wide) 22.dp else 16.dp)) {
                     Text("Bienvenue", fontSize = 25.sp, fontWeight = FontWeight.Bold, color = c.onSurface, modifier = Modifier.align(Alignment.CenterHorizontally))
@@ -131,6 +133,11 @@ fun LoginScreen(s: AppState) {
                     if (s.mode == 0) {
                         OutlinedTextField(s.user, { if (rememberUsername) s.saveUsername(it) else s.user = it }, f, singleLine = true, shape = field, label = { Text("Nom d'utilisateur") })
                         OutlinedTextField(s.pass, { s.pass = it }, f.onFocusChanged { if (it.isFocused) requestBiometric() }, singleLine = true, shape = field, label = { Text("Mot de passe") }, visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(), trailingIcon = { TextButton(onClick = { showPassword = !showPassword }) { Text(if (showPassword) "◉ Masquer" else "◉ Voir") } })
+                        if (biometricReady && s.hasSavedBiometricAccount()) {
+                            TextButton(onClick = { requestBiometric() }, modifier = Modifier.align(Alignment.End)) {
+                                Text("◉  Connexion par empreinte", color = c.primary, fontSize = 12.sp)
+                            }
+                        }
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 6.dp)) {
                             Checkbox(checked = rememberUsername, onCheckedChange = { rememberUsername = it; if (it) s.saveUsername(s.user) })
                             Text("Mémoriser le nom d’utilisateur", fontSize = 12.sp, color = c.onSurfaceVariant)
@@ -148,7 +155,7 @@ fun LoginScreen(s: AppState) {
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 9.dp)
                     ) { Text("▶  Se connecter", fontSize = 15.sp, fontWeight = FontWeight.SemiBold) }
-                    AnimatedVisibility(s.status.isNotEmpty()) {
+                    AnimatedVisibility(s.status.startsWith("Erreur", ignoreCase = true) || s.status.contains("indisponible", ignoreCase = true)) {
                         Text(s.status, Modifier.padding(top = 12.dp), color = c.secondary, style = MaterialTheme.typography.bodySmall)
                     }
                 }
