@@ -217,6 +217,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     var movies by mutableStateOf<List<Item>?>(null)
     var series by mutableStateOf<List<Item>?>(null)
     var episodes by mutableStateOf<List<Item>?>(null)
+    var episodeSeries by mutableStateOf<Item?>(null)
     var movieCategories by mutableStateOf(emptyList<String>())
     var seriesCategories by mutableStateOf(emptyList<String>())
     var newestFirst by mutableStateOf(true)
@@ -366,7 +367,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     }
 
     fun pickSection(s: Int) {
-        section = s; group = null; query = ""; episodes = null; status = ""
+        section = s; group = null; query = ""; closeEpisodes(); status = ""
         selectPlaybackBouquet(null, emptyList())
         if (s != 0) clearPreview()
         if ((s == 2 || s == 3) && mode != 0) { status = "Films et séries : connexion par identifiants requise"; return }
@@ -455,6 +456,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         }
     }
     fun closeVodDetails() { selectedVod = null; selectedVodDetails = null }
+    fun closeEpisodes() { episodes = null; episodeSeries = null; status = "" }
     fun launchSelectedVod() {
         val item = selectedVod ?: return
         closeVodDetails()
@@ -468,7 +470,13 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         if (i.kind == 2) {
             currentSeriesForResume = i
             rememberVod(i)
-            fetch { episodes = withContext(Dispatchers.IO) { xt().episodes(i.url) }; group = null; query = "" }
+            episodeSeries = i
+            episodes = emptyList()
+            group = null; query = ""
+            fetch {
+                val loaded = withContext(Dispatchers.IO) { xt().episodes(i.url) }
+                if (episodeSeries?.id == i.id) episodes = loaded
+            }
         } else {
             if (i.kind == 1 || i.kind == 3) rememberVod(i)
             scope.launch {
@@ -518,7 +526,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
             selectedVod != null -> closeVodDetails()
             previewChannelId != null -> clearPreview()
             query.isNotEmpty() -> query = ""
-            episodes != null -> { episodes = null; group = null }
+            episodes != null -> { closeEpisodes(); group = null }
             group != null -> group = null
             !showLogin -> showLogin = true
         }
