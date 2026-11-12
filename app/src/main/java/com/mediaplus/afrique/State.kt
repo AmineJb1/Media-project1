@@ -220,7 +220,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     var movieCategories by mutableStateOf(emptyList<String>())
     var seriesCategories by mutableStateOf(emptyList<String>())
     var newestFirst by mutableStateOf(true)
-    var vodSort by mutableIntStateOf(0)
+    var vodSort by mutableIntStateOf(1)
     var section by mutableStateOf(0) // 0 direct, 1 guide, 2 films, 3 séries, 4 favoris
     var group by mutableStateOf<String?>(null)
     val bouquetPositions = mutableStateMapOf<String, Pair<Int, Int>>()
