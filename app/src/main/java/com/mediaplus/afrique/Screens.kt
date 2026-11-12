@@ -88,10 +88,11 @@ fun LoginScreen(s: AppState) {
                 Image(
                     painter = painterResource(R.drawable.media_plus_brand),
                     contentDescription = "Media+ Côte d’Ivoire",
-                    modifier = Modifier.size(if (wide) 82.dp else 64.dp).clip(RoundedCornerShape(16.dp)),
+                    modifier = Modifier.size(if (wide) 76.dp else 62.dp).clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Fit
                 )
-                Spacer(Modifier.width(10.dp))
+                Text("🇨🇮", fontSize = 13.sp)
+                Spacer(Modifier.width(6.dp))
                 Column(Modifier.weight(1f)) {
                     Text("Media+ Côte d’Ivoire", color = c.onSurface, fontSize = if (wide) 22.sp else 17.sp, lineHeight = if (wide) 26.sp else 21.sp, fontWeight = FontWeight.ExtraBold, maxLines = 2)
                     Text("DIRECT · FILMS · SÉRIES", color = c.secondary, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
@@ -101,7 +102,7 @@ fun LoginScreen(s: AppState) {
             Card(
                 Modifier.fillMaxWidth().widthIn(max = 560.dp).animateContentSize(),
                 shape = RoundedCornerShape(22.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = .95f)),
                 border = androidx.compose.foundation.BorderStroke(1.dp, c.outline),
                 elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
             ) {
