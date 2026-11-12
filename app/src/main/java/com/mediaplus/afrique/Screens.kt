@@ -680,9 +680,9 @@ private fun VodDetailsPage(s: AppState) {
     val favorite = s.favs.any { it.url == item.url }
     Dialog(onDismissRequest = { s.closeVodDetails() },
         properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        Surface(Modifier.fillMaxSize(), color = Color(0xFFF8FAF8)) {
+        Surface(Modifier.fillMaxSize(), color = Color(0xFFFAFCFA)) {
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-                Box(Modifier.fillMaxWidth().height(255.dp)) {
+                Box(Modifier.fillMaxWidth().height(230.dp)) {
                     AsyncImage(
                         model = info?.backdrop?.takeIf { it.startsWith("http") } ?: item.logo,
                         contentDescription = item.name,
@@ -691,7 +691,7 @@ private fun VodDetailsPage(s: AppState) {
                     )
                     Box(Modifier.fillMaxSize().background(
                         Brush.verticalGradient(listOf(Color.Black.copy(alpha = .16f),
-                            Color.Transparent, Color(0xFF143B2D).copy(alpha = .78f)))))
+                            Color.Transparent, Color(0xFF143B2D).copy(alpha = .88f)))))
                     IconButton(onClick = { s.closeVodDetails() },
                         modifier = Modifier.align(Alignment.TopStart).padding(12.dp)
                             .background(Color.White.copy(alpha = .94f), RoundedCornerShape(50))) {
@@ -701,8 +701,9 @@ private fun VodDetailsPage(s: AppState) {
                         fontSize = 24.sp, fontWeight = FontWeight.Bold,
                         color = Color.White, maxLines = 3, lineHeight = 28.sp)
                 }
-                Column(Modifier.fillMaxWidth().padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                Column(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(if (item.kind == 2) "SÉRIE" else "FILM", color = Color(0xFFCB651B), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     val metadata = listOfNotNull(
                         info?.rating?.takeIf { it.isNotBlank() }?.let { "★ $it" },
                         info?.releaseDate?.takeIf { it.isNotBlank() },
@@ -711,6 +712,7 @@ private fun VodDetailsPage(s: AppState) {
                     if (metadata.isNotEmpty()) Text(metadata, color = c.primary,
                         fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
                     Button(onClick = { s.launchSelectedVod() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF15523B)),
                         modifier = Modifier.fillMaxWidth().height(52.dp),
                         shape = RoundedCornerShape(16.dp)) {
                         Icon(Icons.Filled.PlayArrow, contentDescription = null)
@@ -718,6 +720,7 @@ private fun VodDetailsPage(s: AppState) {
                         Text(if (item.kind == 2) "Voir les épisodes" else "Lancer le film")
                     }
                     OutlinedButton(onClick = { s.toggleFav(item) },
+                        border = BorderStroke(1.dp, Color(0xFFB7D3C3)),
                         modifier = Modifier.fillMaxWidth().height(48.dp),
                         shape = RoundedCornerShape(16.dp)) {
                         Icon(Icons.Filled.Star, contentDescription = null,
@@ -741,7 +744,7 @@ private fun VodDetailsPage(s: AppState) {
                             Text("Voir la bande-annonce")
                         }
                     }
-                    Text("Résumé", fontWeight = FontWeight.Bold, fontSize = 19.sp,
+                    Text("Synopsis", fontWeight = FontWeight.Bold, fontSize = 19.sp,
                         color = c.onSurface)
                     Text(
                         if (s.vodDetailsLoading) "Chargement de la description…"
