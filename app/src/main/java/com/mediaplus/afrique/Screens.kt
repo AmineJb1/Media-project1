@@ -183,10 +183,11 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
     }
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val wide = maxWidth >= 700.dp
-        Column(Modifier.fillMaxSize().padding(horizontal = if (wide) 30.dp else 16.dp)) {
-            Spacer(Modifier.height(14.dp))
-            Header(false, s.subscriptionExpirySeconds) { }
-            Spacer(Modifier.height(5.dp))
+        val landscapeCompact = maxWidth > maxHeight && maxHeight < 560.dp
+        Column(Modifier.fillMaxSize().padding(horizontal = if (landscapeCompact) 12.dp else if (wide) 30.dp else 16.dp)) {
+            Spacer(Modifier.height(if (landscapeCompact) 2.dp else 14.dp))
+            Header(false, s.subscriptionExpirySeconds, compact = landscapeCompact) { }
+            Spacer(Modifier.height(if (landscapeCompact) 1.dp else 5.dp))
             if (settingsOpen) {
                 SettingsScreen(s, settingsPage, onSettingsPage, Modifier.weight(1f))
             } else {
@@ -194,13 +195,13 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
             Box(Modifier.weight(1f)) { Text(
                 when (s.section) { 2 -> "Films"; 3 -> "Séries"; else -> "TV en direct" },
                 color = c.onSurface,
-                style = if (wide) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineMedium,
+                style = if (landscapeCompact) MaterialTheme.typography.titleMedium else if (wide) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.ExtraBold
             ) }
             IconButton(onClick = { searchOpen = !searchOpen; if (!searchOpen) s.query = "" }) { Icon(if (searchOpen) Icons.Filled.Close else Icons.Filled.Search, contentDescription = "Rechercher", tint = c.primary, modifier = Modifier.size(25.dp)) }
             }
             if (searchOpen) OutlinedTextField(s.query, { s.query = it }, Modifier.fillMaxWidth(), singleLine = true, placeholder = { Text("Rechercher une chaîne ou un bouquet") })
-            Text("Vos chaînes et vos contenus", color = c.onSurfaceVariant,
+            if (!landscapeCompact) Text("Vos chaînes et vos contenus", color = c.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium)
             Spacer(Modifier.height(5.dp))
             if (s.group != null) {
@@ -249,9 +250,17 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     specialGroups = specialGroups, savedPositions = s.bouquetPositions)
             }
             }
-            Spacer(Modifier.height(5.dp))
-            Spacer(Modifier.height(4.dp))
-            NavigationBar(
+            Spacer(Modifier.height(2.dp))
+            if (landscapeCompact) {
+                Row(Modifier.fillMaxWidth().height(44.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
+                    listOf(0 to "Direct", 2 to "Films", 3 to "Séries", 5 to "Paramètres").forEach { (section, title) ->
+                        TextButton(onClick = {
+                            if (section == 5) { onSettingsOpen(true); s.clearPreview() }
+                            else { onSettingsOpen(false); onSettingsPage(null); s.pickSection(section) }
+                        }) { Text(title, fontSize = 12.sp) }
+                    }
+                }
+            } else NavigationBar(
                 containerColor = Color.White,
                 contentColor = c.onSurface,
                 tonalElevation = 0.dp,
