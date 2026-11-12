@@ -247,6 +247,7 @@ fun LoginScreen(s: AppState) {
 fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSettingsOpen: (Boolean) -> Unit, onSettingsPage: (String?) -> Unit) {
     val c = MaterialTheme.colorScheme
     val list = s.current()
+    if (s.selectedVod != null) VodDetailsPage(s)
     val favUrls = s.favs.map { it.url }.toSet()
     var searchOpen by remember { mutableStateOf(false) }
     val recent = s.recentlyWatched.mapNotNull { id -> s.live.firstOrNull { it.id == id } }
@@ -325,15 +326,15 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
             if (s.section == 2 || s.section == 3) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = { s.refreshCatalog() }) { Text("↻ Actualiser") }
+                    OutlinedButton(onClick = { s.refreshCatalog() }, contentPadding = PaddingValues(horizontal = 12.dp)) { Text("↻ Actualiser", maxLines = 1) }
                     var sortOpen by remember { mutableStateOf(false) }
                     Box {
                         OutlinedButton(onClick = { sortOpen = true }) {
-                            Text("Trier : " + when (s.vodSort) {
+                            Text(when (s.vodSort) {
                                 1 -> "Récemment ajouté"
                                 2 -> "A-Z"
                                 else -> "Par défaut"
-                            })
+                            }, maxLines = 1, fontSize = 12.sp)
                         }
                         DropdownMenu(expanded = sortOpen, onDismissRequest = { sortOpen = false }) {
                             listOf("Par défaut", "Récemment ajouté", "A-Z").forEachIndexed { index, label ->
@@ -387,7 +388,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     } else {
                         items(displayed, key = { it.kind.toString() + ":" + it.id }) { item ->
                             VodIconTile(item.name, item.logo, false) {
-                                s.requestAdultItem(item) { s.pick(item) }
+                                s.requestAdultItem(item) { s.openVodDetails(item) }
                             }
                         }
                     }
@@ -624,8 +625,92 @@ private fun VodIconTile(title: String, poster: String, isBouquet: Boolean, isCon
         }
         Spacer(Modifier.height(6.dp))
         Text(title, color = c.onSurface, fontWeight = FontWeight.SemiBold,
-            fontSize = 12.sp, maxLines = 2, overflow = TextOverflow.Ellipsis,
+            fontSize = 11.sp, maxLines = 2, overflow = TextOverflow.Ellipsis,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
             lineHeight = 15.sp)
+    }
+}
+
+@Composable
+private fun VodDetailsPage(s: AppState) {
+    val item = s.selectedVod ?: return
+    val info = s.selectedVodDetails
+    val ctx = LocalContext.current
+    val c = MaterialTheme.colorScheme
+    val favorite = s.favs.any { it.url == item.url }
+    Dialog(onDismissRequest = { s.closeVodDetails() },
+        properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(Modifier.fillMaxSize(), color = Color(0xFFF8FAF8)) {
+            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                Box(Modifier.fillMaxWidth().height(255.dp)) {
+                    AsyncImage(
+                        model = info?.backdrop?.takeIf { it.startsWith("http") } ?: item.logo,
+                        contentDescription = item.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    Box(Modifier.fillMaxSize().background(
+                        Brush.verticalGradient(listOf(Color.Black.copy(alpha = .16f),
+                            Color.Transparent, Color(0xFF143B2D).copy(alpha = .78f)))))
+                    IconButton(onClick = { s.closeVodDetails() },
+                        modifier = Modifier.align(Alignment.TopStart).padding(12.dp)
+                            .background(Color.White.copy(alpha = .94f), RoundedCornerShape(50))) {
+                        Icon(Icons.Filled.Close, contentDescription = "Retour")
+                    }
+                    Text(item.name, Modifier.align(Alignment.BottomStart).padding(20.dp),
+                        fontSize = 24.sp, fontWeight = FontWeight.Bold,
+                        color = Color.White, maxLines = 3, lineHeight = 28.sp)
+                }
+                Column(Modifier.fillMaxWidth().padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    val metadata = listOfNotNull(
+                        info?.rating?.takeIf { it.isNotBlank() }?.let { "★ $it" },
+                        info?.releaseDate?.takeIf { it.isNotBlank() },
+                        info?.genre?.takeIf { it.isNotBlank() }
+                    ).joinToString("   ·   ")
+                    if (metadata.isNotEmpty()) Text(metadata, color = c.primary,
+                        fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                    Button(onClick = { s.launchSelectedVod() },
+                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                        shape = RoundedCornerShape(16.dp)) {
+                        Icon(Icons.Filled.PlayArrow, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text(if (item.kind == 2) "Voir les épisodes" else "Lancer le film")
+                    }
+                    OutlinedButton(onClick = { s.toggleFav(item) },
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        shape = RoundedCornerShape(16.dp)) {
+                        Icon(Icons.Filled.Star, contentDescription = null,
+                            tint = if (favorite) c.secondary else c.primary)
+                        Spacer(Modifier.width(8.dp))
+                        Text(if (favorite) "Retirer des favoris" else "Ajouter aux favoris")
+                    }
+                    if (!info?.trailer.isNullOrBlank()) {
+                        OutlinedButton(onClick = {
+                            val raw = info!!.trailer.trim()
+                            val url = if (raw.startsWith("https://") || raw.startsWith("http://"))
+                                raw else "https://www.youtube.com/watch?v=" + raw
+                            runCatching {
+                                ctx.startActivity(android.content.Intent(
+                                    android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)))
+                            }
+                        }, modifier = Modifier.fillMaxWidth().height(48.dp),
+                            shape = RoundedCornerShape(16.dp)) {
+                            Icon(Icons.Filled.PlayArrow, contentDescription = null)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Voir la bande-annonce")
+                        }
+                    }
+                    Text("Résumé", fontWeight = FontWeight.Bold, fontSize = 19.sp,
+                        color = c.onSurface)
+                    Text(
+                        if (s.vodDetailsLoading) "Chargement de la description…"
+                        else info?.description?.takeIf { it.isNotBlank() }
+                            ?: "Aucun résumé disponible pour ce titre.",
+                        fontSize = 14.sp, color = c.onSurfaceVariant, lineHeight = 21.sp
+                    )
+                }
+            }
+        }
     }
 }
