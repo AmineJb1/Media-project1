@@ -98,7 +98,7 @@ fun TvPlayer(s: AppState) {
         if (bouquet == null) s.live else s.live.filter { it.group == bouquet }
     }
     val bouquets = remember(s.live, s.adultUnlocked) {
-        s.live.asSequence().map { it.group }.filter { it.isNotBlank() }
+        (s.live.asSequence().map { it.group } + sequenceOf(s.playbackBouquetName.orEmpty())).filter { it.isNotBlank() }
             .filter { !s.isAdultGroup(it) || s.adultUnlocked }.distinct().sorted().toList()
     }
     val initialBouquet = s.playbackBouquetName?.takeIf { name ->
@@ -109,8 +109,8 @@ fun TvPlayer(s: AppState) {
     }
     val drawerBouquet = selectedBouquet ?: initialBouquet
     val drawerChannels = if (drawerBouquet == initialBouquet && s.playbackBouquetChannels.any { it.id == channel?.id }) {
-        s.playbackBouquetChannels
-    } else s.live.filter { it.group == drawerBouquet }
+        s.playbackBouquetChannels.filter { !s.isAdultGroup(it.group) || s.adultUnlocked }
+    } else s.live.filter { it.group == drawerBouquet && (!s.isAdultGroup(it.group) || s.adultUnlocked) }
     val now = System.currentTimeMillis()
     val current = epg.firstOrNull { now in it.start until it.end }
     val next = epg.firstOrNull { it.start >= (current?.end ?: now) }
