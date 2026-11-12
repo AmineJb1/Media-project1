@@ -320,7 +320,25 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 }
             } else {
                 if (s.section == 0 && s.previewChannelId != null) LivePreviewPanel(s, compact = true)
-                ItemList(list, s.group, s.query, favUrls, false,
+                if (s.section == 0 && s.group == null && s.query.isBlank()) {
+                    val groups = (specialGroups.keys + list.map { it.group }).filter { it.isNotBlank() }.distinct()
+                    LazyVerticalGrid(columns = GridCells.Adaptive(132.dp), modifier = Modifier.weight(1f),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        contentPadding = PaddingValues(8.dp)) {
+                        items(groups) { name ->
+                            Surface(modifier = Modifier.fillMaxWidth().clickable { s.requestGroup(name) },
+                                shape = RoundedCornerShape(16.dp), color = Color.White.copy(alpha = 0.94f),
+                                shadowElevation = 5.dp) {
+                                Column(Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(bouquetIcon(name), fontSize = 28.sp)
+                                    Text(name, fontSize = 12.sp, color = c.onSurface,
+                                        fontWeight = FontWeight.SemiBold, maxLines = 2)
+                                }
+                            }
+                        }
+                    }
+                } else ItemList(list, s.group, s.query, favUrls, false,
                     { s.requestGroup(it) }, { item ->
                                 if (s.section == 0) s.selectPlaybackBouquet(s.group, specialGroups[s.group] ?: list.filter { it.group == s.group })
                                 s.requestAdultItem(item) { s.pick(item) }
