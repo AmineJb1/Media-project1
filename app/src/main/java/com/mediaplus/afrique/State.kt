@@ -345,6 +345,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     }
 
     fun clearPreview() {
+        if (playing == null && isLivePlayerInitialized()) livePlayer.stop()
         previewUrl = null
         previewChannelId = null
         previewChannelName = ""
@@ -372,6 +373,18 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     }
 
     private var liveRequestId = 0L
+    fun stopLivePlayback() {
+        ++liveRequestId // Cancel any pending channel URL resolution.
+        if (isLivePlayerInitialized()) {
+            livePlayer.playWhenReady = false
+            livePlayer.stop()
+            livePlayer.clearMediaItems()
+        }
+        playing = null
+        playingChannel = null
+        clearPreview()
+    }
+
     fun playLive(i: Item, fromPreview: Boolean = false) {
         val request = ++liveRequestId
         rememberLive(i)
@@ -442,7 +455,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
 
     fun back() {
         when {
-            playing != null -> { playing = null; playingChannel = null }
+            playing != null -> stopLivePlayback()
             previewChannelId != null -> clearPreview()
             query.isNotEmpty() -> query = ""
             episodes != null -> { episodes = null; group = null }
