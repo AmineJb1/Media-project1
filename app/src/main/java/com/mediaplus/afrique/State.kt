@@ -340,21 +340,27 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         }
     }
 
+    private var liveRequestId = 0L
     fun playLive(i: Item) {
+        val request = ++liveRequestId
         rememberLive(i)
         playingChannel = i
+        playing = null
         clearPreview()
         scope.launch {
             try {
-                playing = if (mode == 1) withContext(Dispatchers.IO) {
+                val resolved = if (mode == 1) withContext(Dispatchers.IO) {
                     (stalker ?: Stalker(Config.PORTAL, mac.trim().uppercase()).also { stalker = it }).resolve(i.url)
                 } else i.url
-            } catch (e: Exception) { status = "Erreur chaîne : ${e.message}" }
+                if (request == liveRequestId) playing = resolved
+            } catch (e: Exception) {
+                if (request == liveRequestId) { playingChannel = null; status = "Erreur chaîne : ${e.message}" }
+            }
         }
     }
 
     fun pick(i: Item) {
-        if (section == 0 && i.kind == 0) { selectLive(i); return }
+        if (section == 0 && i.kind == 0) { playLive(i); return }
         clearPreview()
         playingChannel = null
         if (i.kind == 2) {
