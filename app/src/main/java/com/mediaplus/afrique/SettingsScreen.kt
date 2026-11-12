@@ -167,7 +167,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                         } else message = "Complétez tous les champs"
                     }) { Text("Enregistrer le compte") }
                 }
-                "À propos" -> Text("Media+ Côte d’Ivoire · Version ${BuildConfig.VERSION_NAME}")
+                "À propos" -> Text("Media+ Côte d’Ivoire · Version 2.3.11")
             }
             if (message.isNotEmpty()) Text(message, color = MaterialTheme.colorScheme.primary)
         }
