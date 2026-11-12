@@ -3,6 +3,8 @@
 package com.mediaplus.afrique
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -46,9 +48,10 @@ fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Mod
             this.player = player
             keepScreenOn = true
             useController = showControls
-            resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+            resizeMode = if (showControls) AspectRatioFrameLayout.RESIZE_MODE_ZOOM else AspectRatioFrameLayout.RESIZE_MODE_FIT
+            setBackgroundColor(android.graphics.Color.BLACK)
             layoutParams = android.widget.FrameLayout.LayoutParams(-1, -1)
         } },
-        modifier = modifier
+        modifier = modifier.background(Color.Black).fillMaxSize()
     )
 }
