@@ -4,6 +4,11 @@ import android.app.Activity
 import android.os.Bundle
 import android.content.pm.ActivityInfo
 import android.view.View
+import android.graphics.drawable.ColorDrawable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -70,6 +75,7 @@ fun App() {
     val vodFullscreen = p != null && s.playingChannel == null
     DisposableEffect(activity, vodFullscreen) {
         if (activity != null && vodFullscreen) {
+            activity.window.setBackgroundDrawable(ColorDrawable(android.graphics.Color.BLACK))
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
             activity.window.decorView.systemUiVisibility =
                 View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
@@ -78,13 +84,16 @@ fun App() {
         }
         onDispose {
             if (activity != null && vodFullscreen) {
+                activity.window.setBackgroundDrawable(ColorDrawable(android.graphics.Color.WHITE))
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                 activity.window.decorView.systemUiVisibility = 0
             }
         }
     }
     if (p != null) {
-        if (s.playingChannel != null) TvPlayer(s) else VideoPlayer(p) { s.onPlayerError(it) }
+        if (s.playingChannel != null) TvPlayer(s) else Box(Modifier.fillMaxSize().background(Color.Black)) {
+            VideoPlayer(p, { s.onPlayerError(it) }, modifier = Modifier.fillMaxSize())
+        }
     } else if (s.showLogin) {
         LoginScreen(s)
     } else {
