@@ -317,7 +317,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
             Spacer(Modifier.height(5.dp))
             if (s.group != null && s.section != 4) {
                 TextButton({ s.group = null }) {
-                    Text(if (landscapeCompact) "‹  Bouquets" else "‹  Retour aux catégories", color = c.secondary, fontWeight = FontWeight.SemiBold, fontSize = if (landscapeCompact) 12.sp else 14.sp)
+                    Text(if (landscapeCompact) "‹  Bouquets" else "‹  Retour aux catégories", color = Color(0xFF154A36), fontWeight = FontWeight.SemiBold, fontSize = if (landscapeCompact) 12.sp else 14.sp)
                 }
             }
             if (s.status.isNotEmpty()) {
@@ -326,7 +326,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
             if (s.section == 2 || s.section == 3) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = { s.refreshCatalog() }, contentPadding = PaddingValues(horizontal = 12.dp)) { Text("↻ Actualiser", maxLines = 1) }
+                    OutlinedButton(onClick = { s.refreshCatalog() }, contentPadding = PaddingValues(horizontal = 10.dp)) { Text("↻ Actualiser", color = Color(0xFF154A36), maxLines = 1, fontSize = 12.sp) }
                     var sortOpen by remember { mutableStateOf(false) }
                     Box {
                         OutlinedButton(onClick = { sortOpen = true }) {
@@ -334,7 +334,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                 1 -> "Récemment ajouté"
                                 2 -> "A-Z"
                                 else -> "Par défaut"
-                            }, maxLines = 1, fontSize = 12.sp)
+                            }, maxLines = 1, fontSize = 12.sp, color = Color(0xFF154A36))
                         }
                         DropdownMenu(expanded = sortOpen, onDismissRequest = { sortOpen = false }) {
                             listOf("Par défaut", "Récemment ajouté", "A-Z").forEachIndexed { index, label ->
@@ -592,42 +592,53 @@ private fun LivePreviewPanel(s: AppState, compact: Boolean) {
 private fun VodIconTile(title: String, poster: String, isBouquet: Boolean, isContinue: Boolean = false, onClick: () -> Unit) {
     val c = MaterialTheme.colorScheme
     Column(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(13.dp))
-            .background(Color.White.copy(alpha = 0.88f))
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(15.dp))
+            .background(Color.White.copy(alpha = .95f))
             .clickable(onClick = onClick).padding(7.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(Modifier.fillMaxWidth().aspectRatio(if (isBouquet) 1.15f else 0.75f)
-            .clip(RoundedCornerShape(10.dp))
-            .background(Brush.linearGradient(
-                if (isContinue) listOf(Color(0xFF103F32), Color(0xFF218568))
-                else if (isBouquet) listOf(Color(0xFF183D51), Color(0xFF4A8996))
-                else listOf(Color(0xFFE4EBE8), Color(0xFFCADBD2))
-            )), contentAlignment = Alignment.Center) {
-            if (!isBouquet && poster.startsWith("http")) {
-                AsyncImage(model = poster, contentDescription = title,
-                    contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
-            } else {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        if (isContinue) Icons.Filled.PlayArrow
-                        else if (isBouquet) Icons.Filled.List
-                        else Icons.Filled.PlayArrow,
-                        contentDescription = null,
-                        tint = if (isBouquet) Color.White else c.primary,
-                        modifier = Modifier.size(42.dp)
-                    )
-                    if (isBouquet) Text(if (isContinue) "REPRENDRE" else "COLLECTION",
-                        fontSize = 9.sp, fontWeight = FontWeight.Bold,
-                        color = Color.White.copy(alpha = .9f))
+        if (isBouquet) {
+            Column(
+                Modifier.fillMaxWidth().aspectRatio(.82f)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFF4F8F5))
+                    .border(1.dp, Color(0xFFD6E6DC), RoundedCornerShape(12.dp))
+                    .padding(horizontal = 7.dp, vertical = 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Icon(if (isContinue) Icons.Filled.PlayArrow else Icons.Filled.List,
+                    contentDescription = null, tint = Color(0xFF15523B),
+                    modifier = Modifier.size(30.dp))
+                Text(title, color = Color(0xFF163C2E), fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp, maxLines = 3, overflow = TextOverflow.Ellipsis,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    lineHeight = 15.sp)
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp))
+                        .background(Color(0xFF15523B)).padding(vertical = 6.dp)) {
+                    Text("Explorer  ›", color = Color.White,
+                        fontWeight = FontWeight.SemiBold, fontSize = 11.sp, maxLines = 1)
                 }
             }
+        } else {
+            Box(Modifier.fillMaxWidth().aspectRatio(.75f)
+                .clip(RoundedCornerShape(10.dp))
+                .background(Color(0xFFE7EEE9)), contentAlignment = Alignment.Center) {
+                if (poster.startsWith("http")) {
+                    AsyncImage(model = poster, contentDescription = title,
+                        contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+                } else {
+                    Icon(Icons.Filled.PlayArrow, contentDescription = null,
+                        tint = c.primary, modifier = Modifier.size(38.dp))
+                }
+            }
+            Spacer(Modifier.height(7.dp))
+            Text(title, color = Color(0xFF173D2E), fontWeight = FontWeight.SemiBold,
+                fontSize = 12.sp, maxLines = 2, overflow = TextOverflow.Ellipsis,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center, lineHeight = 16.sp)
         }
-        Spacer(Modifier.height(6.dp))
-        Text(title, color = c.onSurface, fontWeight = FontWeight.SemiBold,
-            fontSize = 11.sp, maxLines = 2, overflow = TextOverflow.Ellipsis,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-            lineHeight = 15.sp)
     }
 }
 
