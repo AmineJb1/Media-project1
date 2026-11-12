@@ -24,6 +24,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -48,6 +49,8 @@ import kotlinx.coroutines.withContext
 @Composable
 fun TvPlayer(s: AppState) {
     val ctx = LocalContext.current
+    val configuration = LocalConfiguration.current
+    val portrait = configuration.screenHeightDp > configuration.screenWidthDp
     val audio = remember { ctx.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
     val view = LocalView.current
     DisposableEffect(view) {
@@ -67,7 +70,7 @@ fun TvPlayer(s: AppState) {
             .build()
     }
     var menuVisible by remember { mutableStateOf(false) }
-    var bouquetDropdown by remember { mutableStateOf(false) }
+    var drawerTab by remember { mutableIntStateOf(1) }
     var selectedBouquet by remember { mutableStateOf<String?>(null) }
     var settingsVisible by remember { mutableStateOf(false) }
     var infoVisible by remember { mutableStateOf(true) }
@@ -160,7 +163,7 @@ fun TvPlayer(s: AppState) {
                     Key.DirectionDown -> { if (menuVisible) false else { changeChannel(1); true } }
                     Key.DirectionLeft -> { if (menuVisible) false else { audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI); true } }
                     Key.DirectionRight -> { if (menuVisible) false else { audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI); true } }
-                    Key.DirectionCenter, Key.Enter, Key.NumPadEnter -> { settingsVisible = false; infoVisible = true; menuVisible = !menuVisible; selectedBouquet = initialBouquet; true }
+                    Key.DirectionCenter, Key.Enter, Key.NumPadEnter -> { settingsVisible = false; infoVisible = true; menuVisible = !menuVisible; selectedBouquet = initialBouquet; drawerTab = 1; true }
                     Key.Back, Key.Escape -> { if (settingsVisible) { settingsVisible = false; true } else if (menuVisible) { menuVisible = false; true } else false }
                     else -> false
                 }
@@ -173,7 +176,7 @@ fun TvPlayer(s: AppState) {
         )
         Box(Modifier.fillMaxSize().clickable {
             if (settingsVisible) settingsVisible = false
-            else { menuVisible = !menuVisible; selectedBouquet = initialBouquet; infoVisible = true }
+            else { menuVisible = !menuVisible; selectedBouquet = initialBouquet; drawerTab = 1; infoVisible = true }
         })
         if (infoVisible) {
             Row(
@@ -276,62 +279,91 @@ fun TvPlayer(s: AppState) {
             }
         }
         if (menuVisible) {
-            Box(Modifier.fillMaxSize().clickable { menuVisible = false; bouquetDropdown = false })
+            Box(Modifier.fillMaxSize().clickable { menuVisible = false })
             Surface(
-                Modifier.align(Alignment.CenterStart).fillMaxHeight(0.84f).fillMaxWidth(0.42f).widthIn(min = 220.dp),
-                color = Color(0xCC17221E),
-                shape = RoundedCornerShape(topEnd = 18.dp, bottomEnd = 18.dp)
+                modifier = Modifier.align(Alignment.CenterStart)
+                    .fillMaxHeight(if (portrait) 0.78f else 0.82f)
+                    .fillMaxWidth(if (portrait) 0.82f else 0.43f)
+                    .widthIn(max = 400.dp),
+                color = Color(0xE9192421),
+                shape = RoundedCornerShape(topEnd = 22.dp, bottomEnd = 22.dp),
+                shadowElevation = 14.dp
             ) {
-                Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
+                Column(Modifier.fillMaxSize().padding(horizontal = 12.dp, vertical = 12.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(Modifier.weight(1f)) {
-                            TextButton(onClick = { bouquetDropdown = true }) {
-                                Text((drawerBouquet ?: "Bouquets") + "  ▾",
-                                    color = Color.White, fontWeight = FontWeight.Bold, maxLines = 1)
-                            }
-                        }
+                        Text("Chaînes TV", color = Color.White,
+                            fontWeight = FontWeight.Bold, fontSize = 17.sp,
+                            modifier = Modifier.weight(1f))
                         TextButton(onClick = { menuVisible = false }) {
-                            Text("✕", color = Color.White)
+                            Text("✕", color = Color.White, fontSize = 18.sp)
                         }
                     }
-                    Text("${drawerChannels.size} chaînes", color = Color.LightGray,
-                        style = MaterialTheme.typography.labelSmall)
-                    if (bouquetDropdown) {
-                        Text("Choisir un bouquet", color = Color.LightGray,
-                            style = MaterialTheme.typography.labelSmall)
-                        LazyColumn(Modifier.fillMaxHeight(0.38f)) {
-                            items(bouquets) { name ->
-                                Text(name,
-                                    color = if (name == drawerBouquet) Color(0xFFFFBA62) else Color.White,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    modifier = Modifier.fillMaxWidth()
-                                        .clickable { selectedBouquet = name; bouquetDropdown = false }
-                                        .padding(horizontal = 8.dp, vertical = 8.dp),
-                                    maxLines = 2)
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf("Bouquets" to 0, "Chaînes" to 1).forEach { (title, tab) ->
+                            Surface(
+                                modifier = Modifier.weight(1f).clickable { drawerTab = tab },
+                                color = if (drawerTab == tab) Color(0xFFDF792D) else Color(0x553D5047),
+                                shape = RoundedCornerShape(13.dp)
+                            ) {
+                                Text(title, modifier = Modifier.padding(vertical = 11.dp),
+                                    color = Color.White, fontWeight = FontWeight.SemiBold,
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                    maxLines = 1)
                             }
                         }
                     }
-                    LazyColumn {
-                        items(drawerChannels, key = { it.id + it.url }) { item ->
-                            Row(
-                                Modifier.fillMaxWidth()
-                                    .background(if (item.id == channel?.id) Color(0x553D8064) else Color.Transparent,
-                                        RoundedCornerShape(10.dp))
-                                    .clickable {
-                                        s.selectPlaybackBouquet(drawerBouquet, drawerChannels)
-                                        s.playLive(item)
-                                        menuVisible = false
-                                    }
-                                    .padding(horizontal = 8.dp, vertical = 7.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(9.dp)
-                            ) {
-                                if (item.logo.startsWith("http")) {
-                                    AsyncImage(model = item.logo, contentDescription = null,
-                                        modifier = Modifier.size(32.dp), contentScale = ContentScale.Fit)
+                    Spacer(Modifier.height(10.dp))
+                    Text(
+                        if (drawerTab == 0) "${bouquets.size} bouquets"
+                        else "${drawerBouquet ?: "Toutes les chaînes"} · ${drawerChannels.size} chaînes",
+                        color = Color(0xFFE2E5E2), fontSize = 12.sp, maxLines = 1
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    if (drawerTab == 0) {
+                        LazyColumn(modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            items(bouquets) { name ->
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth().clickable {
+                                        selectedBouquet = name
+                                        drawerTab = 1
+                                    },
+                                    color = if (name == drawerBouquet) Color(0x554D8B72) else Color.Transparent,
+                                    shape = RoundedCornerShape(11.dp)
+                                ) {
+                                    Text(name, color = if (name == drawerBouquet) Color(0xFFFFC18C) else Color.White,
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+                                        maxLines = 2)
                                 }
-                                Text(item.name, color = if (item.id == channel?.id) Color(0xFFFFBA62) else Color.White,
-                                    style = MaterialTheme.typography.bodyMedium, maxLines = 2)
+                            }
+                        }
+                    } else {
+                        LazyColumn(modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            items(drawerChannels, key = { it.id + it.url }) { item ->
+                                Row(
+                                    Modifier.fillMaxWidth()
+                                        .background(
+                                            if (item.id == channel?.id) Color(0x554D8B72) else Color.Transparent,
+                                            RoundedCornerShape(11.dp)
+                                        )
+                                        .clickable {
+                                            s.selectPlaybackBouquet(drawerBouquet, drawerChannels)
+                                            s.playLive(item)
+                                            menuVisible = false
+                                        }
+                                        .padding(horizontal = 9.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    if (item.logo.startsWith("http")) {
+                                        AsyncImage(model = item.logo, contentDescription = null,
+                                            modifier = Modifier.size(36.dp), contentScale = ContentScale.Fit)
+                                    }
+                                    Text(item.name, color = if (item.id == channel?.id) Color(0xFFFFC18C) else Color.White,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        maxLines = 2, modifier = Modifier.weight(1f))
+                                }
                             }
                         }
                     }
