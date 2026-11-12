@@ -195,6 +195,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         showLogin = true; status = "Appuyez sur Se connecter pour activer ${a.name}"
     }
     var user by mutableStateOf(prefs.getString("user", "") ?: "")
+    fun saveUsername(value: String) { user = value; prefs.edit().putString("user", value).apply() }
     var pass by mutableStateOf(prefs.getString("pass", "") ?: "")
     var mac by mutableStateOf(prefs.getString("mac", null) ?: randomMac().also { prefs.edit().putString("mac", it).apply() })
     var live by mutableStateOf(emptyList<Item>())
@@ -260,6 +261,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     }
 
     fun connect() {
+        section = 0; group = null; episodes = null; query = ""; clearPreview(); playing = null
         prefs.edit().putInt("mode", mode).putString("user", user).putString("pass", pass).putString("mac", mac).apply()
         status = "Connexion…"
         scope.launch {
