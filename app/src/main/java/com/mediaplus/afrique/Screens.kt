@@ -42,7 +42,7 @@ import java.util.Locale
 fun LoginScreen(s: AppState) {
     val c = MaterialTheme.colorScheme
     val field = RoundedCornerShape(16.dp)
-    val f = Modifier.fillMaxWidth().padding(top = 10.dp)
+    val f = Modifier.fillMaxWidth().padding(top = 6.dp)
     var showPassword by remember { mutableStateOf(false) }
     val host = LocalContext.current as? FragmentActivity
     val biometricReady = host != null && BiometricManager.from(host).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
@@ -93,21 +93,21 @@ fun LoginScreen(s: AppState) {
                 )
                 Spacer(Modifier.width(10.dp))
                 Column(Modifier.weight(1f)) {
-                    Text("Media+ Côte d’Ivoire", color = c.onSurface, fontSize = if (wide) 25.sp else 20.sp, lineHeight = if (wide) 29.sp else 23.sp, fontWeight = FontWeight.ExtraBold, maxLines = 2)
+                    Text("Media+ Côte d’Ivoire", color = c.onSurface, fontSize = if (wide) 22.sp else 17.sp, lineHeight = if (wide) 26.sp else 21.sp, fontWeight = FontWeight.ExtraBold, maxLines = 2)
                     Text("DIRECT · FILMS · SÉRIES", color = c.secondary, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                 }
             }
-            Spacer(Modifier.height(if (wide) 20.dp else 14.dp))
+            Spacer(Modifier.height(if (wide) 14.dp else 9.dp))
             Card(
                 Modifier.fillMaxWidth().widthIn(max = 560.dp).animateContentSize(),
-                shape = RoundedCornerShape(28.dp),
+                shape = RoundedCornerShape(22.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 border = androidx.compose.foundation.BorderStroke(1.dp, c.outline),
-                elevation = CardDefaults.cardElevation(defaultElevation = 14.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
             ) {
-                Column(Modifier.fillMaxWidth().padding(if (wide) 30.dp else 20.dp)) {
-                    Text("Bienvenue", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = c.onSurface, modifier = Modifier.align(Alignment.CenterHorizontally))
-                    Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 5.dp, bottom = 20.dp))
+                Column(Modifier.fillMaxWidth().padding(if (wide) 22.dp else 16.dp)) {
+                    Text("Bienvenue", fontSize = 21.sp, fontWeight = FontWeight.SemiBold, color = c.onSurface, modifier = Modifier.align(Alignment.CenterHorizontally))
+                    Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 3.dp, bottom = 12.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         OutlinedButton(onClick = { s.mode = 0 }, modifier = Modifier.weight(1f), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (s.mode == 0) Color(0xFFEDEDED) else Color.White)) { Text("Identifiants", color = c.onSurface, fontSize = 13.sp) }
                         OutlinedButton(onClick = { s.mode = 1 }, modifier = Modifier.weight(1f), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (s.mode == 1) Color(0xFFEDEDED) else Color.White)) { Text("MAC", color = c.onSurface, fontSize = 13.sp) }
@@ -122,12 +122,12 @@ fun LoginScreen(s: AppState) {
                     }
                     Button(
                         onClick = { s.connect() },
-                        modifier = Modifier.fillMaxWidth().padding(top = 18.dp).height(if (wide) 60.dp else 54.dp),
+                        modifier = Modifier.fillMaxWidth().padding(top = 12.dp).height(if (wide) 52.dp else 48.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F2F1), contentColor = c.onSurface),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 5.dp)
-                    ) { Text("▶  Se connecter", fontWeight = FontWeight.Bold) }
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp)
+                    ) { Text("Se connecter", fontSize = 14.sp, fontWeight = FontWeight.SemiBold) }
                     AnimatedVisibility(s.status.isNotEmpty()) {
                         Text(s.status, Modifier.padding(top = 12.dp), color = c.secondary, style = MaterialTheme.typography.bodySmall)
                     }
