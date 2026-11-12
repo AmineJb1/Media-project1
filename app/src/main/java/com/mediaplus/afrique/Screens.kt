@@ -28,6 +28,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
+import androidx.fragment.app.FragmentActivity
+import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -38,6 +43,8 @@ fun LoginScreen(s: AppState) {
     val field = RoundedCornerShape(16.dp)
     val f = Modifier.fillMaxWidth().padding(top = 10.dp)
     var showPassword by remember { mutableStateOf(false) }
+    val host = LocalContext.current as? FragmentActivity
+    val biometricReady = host != null && BiometricManager.from(host).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val wide = maxWidth >= 700.dp
@@ -97,6 +104,27 @@ fun LoginScreen(s: AppState) {
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = c.primary)
                     ) { Text("Se connecter", fontWeight = FontWeight.Bold) }
+                    if (s.mode == 0 && biometricReady && s.user.isNotBlank() && s.pass.isNotBlank()) {
+                        OutlinedButton(onClick = {
+                            val activity = host ?: return@OutlinedButton
+                            val prompt = BiometricPrompt(activity, ContextCompat.getMainExecutor(activity),
+                                object : BiometricPrompt.AuthenticationCallback() {
+                                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                                        super.onAuthenticationSucceeded(result)
+                                        s.connect()
+                                    }
+                                })
+                            val info = BiometricPrompt.PromptInfo.Builder()
+                                .setTitle("Media+ Afrique")
+                                .setSubtitle("Connexion par empreinte")
+                                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+                                .setNegativeButtonText("Annuler")
+                                .build()
+                            prompt.authenticate(info)
+                        }, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                            Text("Connexion par empreinte")
+                        }
+                    }
                     AnimatedVisibility(s.status.isNotEmpty()) {
                         Text(s.status, Modifier.padding(top = 12.dp), color = c.secondary, style = MaterialTheme.typography.bodySmall)
                     }
