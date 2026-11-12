@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="960dp" android:height="620dp"
+    android:viewportWidth="960" android:viewportHeight="620">
+    <!-- White 3D relief of Africa, designed as a clean scalable application background. -->
+    <path android:fillColor="#120C1820" android:pathData="M301,80 C361,51 458,56 512,79 L573,70 626,94 656,128 635,155 652,192 614,224 597,267 571,300 550,343 528,375 513,418 488,444 475,490 450,527 427,554 410,538 402,497 377,464 365,430 346,396 333,353 301,332 285,299 264,279 245,243 230,211 246,173 264,146 267,116 Z"/>
+    <path android:fillColor="#FFD7DCE0" android:pathData="M293,68 C353,39 450,44 504,67 L565,58 618,82 648,116 627,143 644,180 606,212 589,255 563,288 542,331 520,363 505,406 480,432 467,478 442,515 419,542 402,526 394,485 369,452 357,418 338,384 325,341 293,320 277,287 256,267 237,231 222,199 238,161 256,134 259,104 Z"/>
+    <path android:fillColor="#FFF9FAFC" android:strokeColor="#FFADB8C2" android:strokeWidth="2"
+        android:pathData="M293,54 C353,25 450,30 504,53 L565,44 618,68 648,102 627,129 644,166 606,198 589,241 563,274 542,317 520,349 505,392 480,418 467,464 442,501 419,528 402,512 394,471 369,438 357,404 338,370 325,327 293,306 277,273 256,253 237,217 222,185 238,147 256,120 259,90 Z"/>
+    <!-- Embossed country-boundary contours. -->
+    <path android:fillColor="#00000000" android:strokeColor="#FFCED4D9" android:strokeWidth="2"
+        android:pathData="M251,174 L370,173 390,205 462,207 517,188 611,191 M274,239 L361,240 393,269 473,260 579,255 M330,97 L352,178 349,238 369,319 402,381 435,425 M462,70 L459,207 473,260 449,331 467,407 M520,118 L515,189 534,250 542,316 M320,315 L383,315 449,331 542,316 M369,319 L338,370 M403,380 L449,331 M473,260 L515,189"/>
+    <!-- Côte d'Ivoire raised extrusion shadow and side walls. -->
+    <path android:fillColor="#45000000" android:pathData="M326,277 L360,273 382,291 377,324 346,338 316,325 311,296 Z"/>
+    <path android:fillColor="#FFCB6500" android:pathData="M316,284 L346,281 346,329 316,316 Z"/>
+    <path android:fillColor="#FFE9E9E9" android:pathData="M346,281 L359,277 362,326 346,329 Z"/>
+    <path android:fillColor="#FF006B39" android:pathData="M359,277 L375,289 370,316 362,326 Z"/>
+    <path android:fillColor="#FFFF8A00" android:pathData="M316,272 L346,269 346,316 316,304 Z"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M346,269 L359,265 362,314 346,316 Z"/>
+    <path android:fillColor="#FF079C53" android:pathData="M359,265 L375,277 370,304 362,314 Z"/>
+    <path android:fillColor="#00000000" android:strokeColor="#FFFC9A36" android:strokeWidth="2"
+        android:pathData="M316,272 L346,269 359,265 375,277 370,304 362,314 346,316 316,304 Z"/>
+    <!-- Delicate orange halo behind raised country. -->
+    <path android:fillColor="#00000000" android:strokeColor="#66FF9A21" android:strokeWidth="3"
+        android:pathData="M246,348 C270,385 353,390 408,357"/>
+</vector>
