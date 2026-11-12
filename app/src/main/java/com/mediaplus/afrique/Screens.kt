@@ -34,9 +34,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.autofill.ContentType
-import androidx.compose.ui.semantics.contentType
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -140,8 +137,8 @@ fun LoginScreen(s: AppState) {
                         OutlinedButton(onClick = { s.mode = 1 }, modifier = Modifier.weight(1f), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (s.mode == 1) Color(0xFFEDEDED) else Color.White)) { Text("MAC", color = c.onSurface, fontSize = 13.sp) }
                     }
                     if (s.mode == 0) {
-                        OutlinedTextField(s.user, { s.saveUsername(it) }, f.semantics { contentType = ContentType.Username }, singleLine = true, shape = field, label = { Text("Nom d'utilisateur") })
-                        OutlinedTextField(s.pass, { s.pass = it }, f.semantics { contentType = ContentType.Password }.onFocusChanged { if (it.isFocused && s.hasSavedBiometricAccount()) requestBiometric() }, singleLine = true, shape = field, label = { Text("Mot de passe") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(), trailingIcon = { TextButton(onClick = { showPassword = !showPassword }) { Text(if (showPassword) "◉ Masquer" else "◉ Voir") } })
+                        OutlinedTextField(s.user, { s.saveUsername(it) }, f, singleLine = true, shape = field, label = { Text("Nom d'utilisateur") })
+                        OutlinedTextField(s.pass, { s.pass = it }, f.onFocusChanged { if (it.isFocused && s.hasSavedBiometricAccount()) requestBiometric() }, singleLine = true, shape = field, label = { Text("Mot de passe") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(), trailingIcon = { TextButton(onClick = { showPassword = !showPassword }) { Text(if (showPassword) "◉ Masquer" else "◉ Voir") } })
                         if (biometricReady) {
                             TextButton(onClick = {
                                 if (s.hasSavedBiometricAccount()) requestBiometric()
