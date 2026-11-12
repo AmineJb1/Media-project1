@@ -25,8 +25,8 @@ val Africa = lightColorScheme(
     primary = Color(0xFFDE6A12), onPrimary = Color.White,
     secondary = Color(0xFFCE5B09), tertiary = Color(0xFFFF8A00),
     primaryContainer = Color(0xFFFFEBDD), onPrimaryContainer = Color(0xFF72350D),
-    background = Color.White, surface = Color.White, onSurface = Color(0xFF17241D),
-    surfaceVariant = Color(0xFFF3F3F3), onSurfaceVariant = Color(0xFF606660),
+    background = Color.White, surface = Color.White, onSurface = Color(0xFF103D2B),
+    surfaceVariant = Color(0xFFFFF8F2), onSurfaceVariant = Color(0xFF606660),
     outline = Color(0xFFD9DCDD)
 )
 
@@ -72,7 +72,7 @@ fun IvoireRibbons(modifier: Modifier = Modifier) {
 fun AfricaTheme(content: @Composable () -> Unit) {
     MaterialTheme(colorScheme = Africa) {
         Box(Modifier.fillMaxSize().background(
-            Brush.verticalGradient(listOf(Color.White, Color(0xFFFCFCFC), Color.White))
+            Brush.verticalGradient(listOf(Color.White, Color(0xFFFFFBF7), Color.White))
         )) {
             Image(
                 painter = painterResource(R.drawable.africa_3d_white),
@@ -80,7 +80,7 @@ fun AfricaTheme(content: @Composable () -> Unit) {
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Fit
             )
-            Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.13f)))
+            Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.08f)))
             Surface(Modifier.fillMaxSize(), color = Color.Transparent) { content() }
         }
     }
