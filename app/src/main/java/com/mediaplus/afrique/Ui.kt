@@ -85,9 +85,10 @@ fun Header(showAccount: Boolean, expiryEpochSeconds: Long?, onAccount: () -> Uni
             )
         }
         Spacer(Modifier.width(10.dp))
-        Text("Media+ Côte d’Ivoire 🇨🇮", Modifier.weight(1f), color = c.onSurface,
-            style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold,
-            maxLines = 1)
+        Column(Modifier.weight(1f)) {
+            Text("Media+", color = c.onSurface, fontSize = 21.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
+            Text("Côte d’Ivoire", color = c.onSurface, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+        }
         if (false && showAccount) TextButton(onClick = onAccount) {
             Text("Compte", color = c.secondary, fontWeight = FontWeight.Bold)
         }
