@@ -43,16 +43,16 @@ fun Pill(text: String, selected: Boolean, modifier: Modifier = Modifier, onClick
     val c = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(50)
     val bg by animateColorAsState(
-        targetValue = if (selected) c.primary else if (focused) c.surfaceVariant.copy(alpha = 0.95f) else c.surface,
+        targetValue = if (selected) Color(0xFFECEDEF) else if (focused) c.surfaceVariant.copy(alpha = 0.95f) else c.surface,
         label = "tab-background"
     )
     Box(
         modifier.clip(shape).background(bg)
-            .border(if (focused) 2.dp else 1.dp, if (focused) c.secondary else if (selected) c.primary else c.outline, shape)
+            .border(if (focused) 2.dp else 1.dp, if (focused) c.secondary else if (selected) Color(0xFFB6B9BC) else c.outline, shape)
             .onFocusChanged { focused = it.isFocused }
             .clickable { onClick() }.padding(vertical = 11.dp, horizontal = 18.dp),
         contentAlignment = Alignment.Center
-    ) { Text(text, color = if (selected) c.onPrimary else c.onSurface, fontWeight = FontWeight.SemiBold, fontSize = 14.sp) }
+    ) { Text(text, color = c.onSurface, fontWeight = FontWeight.SemiBold, fontSize = 14.sp) }
 }
 
 @Composable
@@ -99,11 +99,11 @@ fun Tile(onClick: () -> Unit, content: @Composable RowScope.() -> Unit) {
     var focused by remember { mutableStateOf(false) }
     val c = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(18.dp)
-    val bg by animateColorAsState(if (focused) Color(0xFFE8F3EA) else Color.White, label = "tile-background")
+    val bg by animateColorAsState(if (focused) Color(0xFFF0F0F0) else Color.White, label = "tile-background")
     Row(
         Modifier.fillMaxWidth().padding(vertical = 5.dp).clip(shape)
             .background(bg)
-            .border(if (focused) 2.dp else 1.dp, if (focused) c.primary else c.outline, shape)
+            .border(if (focused) 2.dp else 1.dp, if (focused) c.secondary else c.outline, shape)
             .onFocusChanged { focused = it.isFocused }
             .clickable { onClick() }.padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -185,8 +185,8 @@ fun GroupRow(name: String, count: Int, onClick: () -> Unit) {
     Tile(onClick) {
         Box(
             Modifier.size(54.dp).clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFF4F8F2))
-                .border(1.dp, Color(0xFFDCE8D9), RoundedCornerShape(16.dp)),
+                .background(Color(0xFFF6F6F6))
+                .border(1.dp, Color(0xFFE1E1E1), RoundedCornerShape(16.dp)),
             contentAlignment = Alignment.Center
         ) {
             val football = listOf("foot", "football", "soccer", "ligue", "champions league", "premier league", "sport").any { name.contains(it, ignoreCase = true) }
