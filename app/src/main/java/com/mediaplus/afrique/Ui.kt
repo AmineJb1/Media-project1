@@ -62,7 +62,7 @@ fun Header(showAccount: Boolean, expiryEpochSeconds: Long?, onAccount: () -> Uni
         Column(horizontalAlignment = Alignment.Start) {
             Image(
                 painter = painterResource(R.drawable.media_plus_brand),
-                contentDescription = "Logo Media+ Afrique",
+                contentDescription = "Logo Media+ Côte d’Ivoire",
                 modifier = Modifier.width(116.dp).height(82.dp).clip(RoundedCornerShape(12.dp)),
                 contentScale = ContentScale.Fit
             )
@@ -85,7 +85,7 @@ fun Header(showAccount: Boolean, expiryEpochSeconds: Long?, onAccount: () -> Uni
             )
         }
         Spacer(Modifier.width(10.dp))
-        Text("Media+ Afrique 🇨🇮", Modifier.weight(1f), color = c.onSurface,
+        Text("Media+ Côte d’Ivoire 🇨🇮", Modifier.weight(1f), color = c.onSurface,
             style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold,
             maxLines = 1)
         if (false && showAccount) TextButton(onClick = onAccount) {
@@ -131,6 +131,35 @@ fun Logo(item: Item) {
     }
 }
 
+private fun bouquetCountryFlag(name: String): String? {
+    val n = name.lowercase(Locale.ROOT)
+    val countries = listOf(
+        "🇹🇳" to listOf("tunisie", "tunisia", "tunisian", "tounes"),
+        "🇩🇿" to listOf("algérie", "algerie", "algeria", "algerian"),
+        "🇲🇦" to listOf("maroc", "morocco", "marocain", "moroccan"),
+        "🇪🇬" to listOf("égypte", "egypte", "egypt", "egyptian"),
+        "🇸🇦" to listOf("arabie saoudite", "saudi", "ksa"),
+        "🇦🇪" to listOf("émirats", "emirats", "uae", "united arab emirates"),
+        "🇶🇦" to listOf("qatar", "qatari"),
+        "🇰🇼" to listOf("koweït", "koweit", "kuwait"),
+        "🇧🇭" to listOf("bahreïn", "bahrein", "bahrain"),
+        "🇴🇲" to listOf("oman", "omani"),
+        "🇯🇴" to listOf("jordanie", "jordan"),
+        "🇱🇧" to listOf("liban", "lebanon"),
+        "🇸🇾" to listOf("syrie", "syria"),
+        "🇮🇶" to listOf("irak", "iraq"),
+        "🇵🇸" to listOf("palestine", "palestinian"),
+        "🇾🇪" to listOf("yémen", "yemen"),
+        "🇱🇾" to listOf("libye", "libya"),
+        "🇸🇩" to listOf("soudan", "sudan"),
+        "🇲🇷" to listOf("mauritanie", "mauritania"),
+        "🇸🇴" to listOf("somalie", "somalia"),
+        "🇩🇯" to listOf("djibouti"),
+        "🇰🇲" to listOf("comores", "comoros")
+    )
+    return countries.firstOrNull { (_, aliases) -> aliases.any { n.contains(it) } }?.first
+}
+
 @Composable
 fun GroupRow(name: String, count: Int, onClick: () -> Unit) {
     val c = MaterialTheme.colorScheme
@@ -142,7 +171,10 @@ fun GroupRow(name: String, count: Int, onClick: () -> Unit) {
             contentAlignment = Alignment.Center
         ) {
             val football = listOf("foot", "football", "soccer", "ligue", "champions league", "premier league", "sport").any { name.contains(it, ignoreCase = true) }
-            if (football) {
+            val countryFlag = bouquetCountryFlag(name)
+            if (countryFlag != null) {
+                Text(countryFlag, fontSize = 34.sp)
+            } else if (football) {
                 Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(Color(0xFF087D45), Color(0xFF1AB86B)))), contentAlignment = Alignment.Center) {
                     Text("⚽", fontSize = 32.sp)
                 }
