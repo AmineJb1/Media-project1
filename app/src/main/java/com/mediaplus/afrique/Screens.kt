@@ -16,6 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.Image
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -145,7 +150,7 @@ fun MainScreen(s: AppState, onExit: () -> Unit = {}) {
                 style = if (wide) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.ExtraBold
             ) }
-            TextButton(onClick = { searchOpen = !searchOpen; if (!searchOpen) s.query = "" }) { Text("🔎", style = MaterialTheme.typography.titleLarge) }
+            IconButton(onClick = { searchOpen = !searchOpen; if (!searchOpen) s.query = "" }) { Icon(if (searchOpen) Icons.Filled.Close else Icons.Filled.Search, contentDescription = "Rechercher", tint = c.primary, modifier = Modifier.size(25.dp)) }
             }
             if (searchOpen) OutlinedTextField(s.query, { s.query = it }, Modifier.fillMaxWidth(), singleLine = true, placeholder = { Text("Rechercher une chaîne ou un bouquet") })
             Text("Vos chaînes et vos contenus", color = c.onSurfaceVariant,
@@ -177,7 +182,7 @@ fun MainScreen(s: AppState, onExit: () -> Unit = {}) {
                             { s.requestGroup(it) }, { item ->
                                 if (s.section == 0) s.selectPlaybackBouquet(s.group, specialGroups[s.group] ?: list.filter { it.group == s.group })
                                 s.requestAdultItem(item) { s.pick(item) }
-                            }, { s.toggleFav(it) }, Modifier.fillMaxSize(), specialGroups = specialGroups)
+                            }, { s.toggleFav(it) }, Modifier.fillMaxSize(), specialGroups = specialGroups, savedPositions = s.bouquetPositions)
                     }
                     if (s.previewChannelId != null) {
                         Box(Modifier.weight(0.46f).fillMaxHeight()) {
@@ -194,7 +199,7 @@ fun MainScreen(s: AppState, onExit: () -> Unit = {}) {
                             }, { s.toggleFav(it) }, Modifier.weight(1f),
                     categories = when (s.section) { 2 -> s.movieCategories; 3 -> s.seriesCategories; else -> emptyList() },
                     newestFirst = (s.section == 2 || s.section == 3) && s.newestFirst,
-                    specialGroups = specialGroups)
+                    specialGroups = specialGroups, savedPositions = s.bouquetPositions)
             }
             }
             Spacer(Modifier.height(5.dp))
@@ -209,8 +214,8 @@ fun MainScreen(s: AppState, onExit: () -> Unit = {}) {
                     NavigationBarItem(
                         selected = if (section == 5) settingsOpen else !settingsOpen && s.section == section,
                         onClick = { if (section == 5) { settingsOpen = true; s.clearPreview() } else { settingsOpen = false; s.pickSection(section) } },
-                        icon = { Text(when (section) { 0 -> "◉"; 2 -> "▶"; 3 -> "▣"; else -> "⚙" }, fontSize = androidx.compose.ui.unit.TextUnit.Unspecified) },
-                        label = { Text(title, fontWeight = FontWeight.Bold) },
+                        icon = { if (section == 5) Icon(Icons.Filled.Settings, contentDescription = "Paramètres", modifier = Modifier.size(23.dp)) else Text(when (section) { 0 -> "◉"; 2 -> "▶"; else -> "▣" }, fontSize = 20.sp) },
+                        label = { Text(title, fontWeight = FontWeight.SemiBold, fontSize = 10.sp, maxLines = 1, softWrap = false) },
                         alwaysShowLabel = true,
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = c.primary,
