@@ -187,9 +187,11 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val wide = maxWidth >= 700.dp
         val landscapeCompact = maxWidth > maxHeight && maxHeight < 560.dp
+        val tvWide = maxWidth >= 900.dp && maxHeight >= 560.dp
+        val useSideRail = landscapeCompact || tvWide
         Row(Modifier.fillMaxSize()) {
-            if (landscapeCompact) {
-                Column(Modifier.width(76.dp).fillMaxHeight().background(Color.White.copy(alpha = 0.60f))
+            if (useSideRail) {
+                Column(Modifier.width(if (tvWide) 92.dp else 76.dp).fillMaxHeight().background(Color.White.copy(alpha = 0.60f))
                     .padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     listOf(0 to "Direct", 2 to "Films", 3 to "Séries", 5 to "Réglages").forEach { (section, title) ->
@@ -210,9 +212,9 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 }
             }
             Column(Modifier.weight(1f).fillMaxHeight()
-                .padding(horizontal = if (landscapeCompact) 9.dp else if (wide) 30.dp else 16.dp)) {
+                .padding(horizontal = if (useSideRail) 12.dp else if (wide) 30.dp else 16.dp)) {
             Spacer(Modifier.height(if (landscapeCompact) 2.dp else 14.dp))
-            Header(false, s.subscriptionExpirySeconds, compact = landscapeCompact) { }
+            Header(false, s.subscriptionExpirySeconds, compact = useSideRail) { }
             Spacer(Modifier.height(if (landscapeCompact) 1.dp else 5.dp))
             if (settingsOpen) {
                 SettingsScreen(s, settingsPage, onSettingsPage, Modifier.weight(1f))
@@ -221,13 +223,13 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
             Box(Modifier.weight(1f)) { Text(
                 when (s.section) { 2 -> "Films"; 3 -> "Séries"; else -> "TV en direct" },
                 color = c.onSurface,
-                style = if (landscapeCompact) MaterialTheme.typography.titleMedium else if (wide) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineMedium,
+                style = if (useSideRail) MaterialTheme.typography.titleMedium else if (wide) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.ExtraBold
             ) }
             IconButton(onClick = { searchOpen = !searchOpen; if (!searchOpen) s.query = "" }) { Icon(if (searchOpen) Icons.Filled.Close else Icons.Filled.Search, contentDescription = "Rechercher", tint = c.primary, modifier = Modifier.size(25.dp)) }
             }
             if (searchOpen) OutlinedTextField(s.query, { s.query = it }, Modifier.fillMaxWidth(), singleLine = true, placeholder = { Text("Rechercher une chaîne ou un bouquet") })
-            if (!landscapeCompact) Text("Vos chaînes et vos contenus", color = c.onSurfaceVariant,
+            if (!useSideRail) Text("Vos chaînes et vos contenus", color = c.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium)
             Spacer(Modifier.height(5.dp))
             if (s.group != null) {
@@ -249,9 +251,9 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 Text("Tri par date disponible selon les informations du serveur", color = c.onSurfaceVariant,
                     style = MaterialTheme.typography.labelSmall)
             }
-            if (s.section == 0 && landscapeCompact) {
+            if (s.section == 0 && useSideRail) {
                 Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Box(Modifier.weight(if (s.previewChannelId != null) 0.62f else 1f).fillMaxHeight()) {
+                    Box(Modifier.weight(if (s.previewChannelId != null) 0.64f else 1f).fillMaxHeight()) {
                         val visibleItems = if (s.query.isNotBlank()) {
                             list.filter { it.name.contains(s.query, ignoreCase = true) || it.group.contains(s.query, ignoreCase = true) }
                         } else if (s.group == null) emptyList()
@@ -296,7 +298,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                         }
                     }
                     if (s.previewChannelId != null) {
-                        Box(Modifier.weight(0.38f).fillMaxHeight()) {
+                        Box(Modifier.weight(0.36f).fillMaxHeight()) {
                             LivePreviewPanel(s, compact = false)
                         }
                     }
@@ -329,7 +331,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
             }
             }
             Spacer(Modifier.height(2.dp))
-            if (!landscapeCompact) NavigationBar(
+            if (!useSideRail) NavigationBar(
                 containerColor = Color.White,
                 contentColor = c.onSurface,
                 tonalElevation = 0.dp,
