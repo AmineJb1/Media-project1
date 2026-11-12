@@ -26,6 +26,13 @@ fun App() {
     var confirmExit by remember { mutableStateOf(false) }
     var settingsOpen by remember { mutableStateOf(false) }
     var settingsPage by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(s.showLogin) {
+        if (!s.showLogin) {
+            settingsOpen = false
+            settingsPage = null
+            s.pickSection(0)
+        }
+    }
 
     BackHandler(enabled = confirmExit) { confirmExit = false }
     BackHandler(enabled = !confirmExit && (s.playing != null || !s.showLogin)) {
