@@ -91,8 +91,8 @@ fun AfricaTheme(content: @Composable () -> Unit) {
             Brush.verticalGradient(listOf(Color(0xFFFFFFFF), Color(0xFFFAFAF8), Color(0xFFFFFFFF)))
         )) {
             if (bg != null) {
-                Image(bg, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-                Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.97f)))
+                Image(bg, null, Modifier.fillMaxSize(), contentScale = ContentScale.Fit)
+                Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.30f)))
             }
             Surface(Modifier.fillMaxSize(), color = Color.Transparent) { content() }
         }
