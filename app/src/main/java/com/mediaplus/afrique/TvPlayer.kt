@@ -99,7 +99,7 @@ fun TvPlayer(s: AppState) {
     }
     val bouquets = remember(s.live, s.adultUnlocked) {
         (s.live.asSequence().map { it.group } + sequenceOf(s.playbackBouquetName.orEmpty())).filter { it.isNotBlank() }
-            .filter { !s.isAdultGroup(it) || s.adultUnlocked }.distinct().sorted().toList()
+            .filter { !s.isAdultGroup(it) || s.adultUnlocked }.distinct().toList()
     }
     val initialBouquet = s.playbackBouquetName?.takeIf { name ->
         s.playbackBouquetChannels.any { it.id == channel?.id } && name in bouquets
@@ -278,7 +278,7 @@ fun TvPlayer(s: AppState) {
         if (menuVisible) {
             Box(Modifier.fillMaxSize().clickable { menuVisible = false; bouquetDropdown = false })
             Surface(
-                Modifier.align(Alignment.CenterStart).fillMaxHeight(0.88f).fillMaxWidth(0.54f),
+                Modifier.align(Alignment.CenterStart).fillMaxHeight(0.84f).fillMaxWidth(0.42f).widthIn(min = 220.dp),
                 color = Color(0xCC17221E),
                 shape = RoundedCornerShape(topEnd = 18.dp, bottomEnd = 18.dp)
             ) {
@@ -289,17 +289,6 @@ fun TvPlayer(s: AppState) {
                                 Text((drawerBouquet ?: "Bouquets") + "  ▾",
                                     color = Color.White, fontWeight = FontWeight.Bold, maxLines = 1)
                             }
-                            DropdownMenu(
-                                expanded = bouquetDropdown,
-                                onDismissRequest = { bouquetDropdown = false }
-                            ) {
-                                bouquets.forEach { name ->
-                                    DropdownMenuItem(
-                                        text = { Text(name, maxLines = 1) },
-                                        onClick = { selectedBouquet = name; bouquetDropdown = false }
-                                    )
-                                }
-                            }
                         }
                         TextButton(onClick = { menuVisible = false }) {
                             Text("✕", color = Color.White)
@@ -307,6 +296,21 @@ fun TvPlayer(s: AppState) {
                     }
                     Text("${drawerChannels.size} chaînes", color = Color.LightGray,
                         style = MaterialTheme.typography.labelSmall)
+                    if (bouquetDropdown) {
+                        Text("Choisir un bouquet", color = Color.LightGray,
+                            style = MaterialTheme.typography.labelSmall)
+                        LazyColumn(Modifier.fillMaxHeight(0.38f)) {
+                            items(bouquets) { name ->
+                                Text(name,
+                                    color = if (name == drawerBouquet) Color(0xFFFFBA62) else Color.White,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.fillMaxWidth()
+                                        .clickable { selectedBouquet = name; bouquetDropdown = false }
+                                        .padding(horizontal = 8.dp, vertical = 8.dp),
+                                    maxLines = 2)
+                            }
+                        }
+                    }
                     LazyColumn {
                         items(drawerChannels, key = { it.id + it.url }) { item ->
                             Row(
