@@ -56,14 +56,14 @@ fun Pill(text: String, selected: Boolean, modifier: Modifier = Modifier, onClick
 }
 
 @Composable
-fun Header(showAccount: Boolean, expiryEpochSeconds: Long?, onAccount: () -> Unit) {
+fun Header(showAccount: Boolean, expiryEpochSeconds: Long?, compact: Boolean = false, onAccount: () -> Unit) {
     val c = MaterialTheme.colorScheme
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Column(horizontalAlignment = Alignment.Start) {
             Image(
                 painter = painterResource(R.drawable.media_plus_brand),
                 contentDescription = "Logo Media+ Côte d’Ivoire",
-                modifier = Modifier.width(116.dp).height(82.dp).clip(RoundedCornerShape(12.dp)),
+                modifier = Modifier.width(if (compact) 58.dp else 116.dp).height(if (compact) 43.dp else 82.dp).clip(RoundedCornerShape(12.dp)),
                 contentScale = ContentScale.Fit
             )
             val days = expiryEpochSeconds?.let { expiry ->
@@ -77,7 +77,7 @@ fun Header(showAccount: Boolean, expiryEpochSeconds: Long?, onAccount: () -> Uni
                     1L -> "1 jour restant"
                     else -> "$days jours restants"
                 },
-                fontSize = 14.sp,
+                fontSize = if (compact) 10.sp else 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (days != null && days <= 7L) Color(0xFFB45309) else c.onSurfaceVariant,
                 maxLines = 2,
@@ -86,8 +86,8 @@ fun Header(showAccount: Boolean, expiryEpochSeconds: Long?, onAccount: () -> Uni
         }
         Spacer(Modifier.width(10.dp))
         Column(Modifier.weight(1f)) {
-            Text("Media+", color = c.onSurface, fontSize = 21.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
-            Text("Côte d’Ivoire", color = c.onSurface, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+            Text("Media+", color = c.onSurface, fontSize = if (compact) 16.sp else 21.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
+            Text("Côte d’Ivoire", color = c.onSurface, fontSize = if (compact) 11.sp else 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
         }
         if (false && showAccount) TextButton(onClick = onAccount) {
             Text("Compte", color = c.secondary, fontWeight = FontWeight.Bold)
