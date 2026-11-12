@@ -63,12 +63,7 @@ fun TvPlayer(s: AppState) {
         onDispose { decor?.systemUiVisibility = previous }
     }
     val displayPrefs = remember { ctx.getSharedPreferences("player_display", Context.MODE_PRIVATE) }
-    val player = remember {
-        ExoPlayer.Builder(ctx)
-            .setMediaSourceFactory(DefaultMediaSourceFactory(PlayerCache.liveFactory()))
-            .setLoadControl(DefaultLoadControl.Builder().setBufferDurationsMs(15000, 50000, 1500, 3000).build())
-            .build()
-    }
+    val player = remember(s) { s.livePlayer }
     var menuVisible by remember { mutableStateOf(false) }
     var drawerTab by remember { mutableIntStateOf(1) }
     var selectedBouquet by remember { mutableStateOf<String?>(null) }
@@ -133,14 +128,14 @@ fun TvPlayer(s: AppState) {
             }
         }
         player.addListener(listener)
-        onDispose { player.removeListener(listener); player.release() }
+        onDispose { player.removeListener(listener) }
     }
     LaunchedEffect(url) {
         if (url != null) {
-            player.stop()
-            player.clearMediaItems()
-            player.setMediaItem(MediaItem.fromUri(url))
-            player.prepare()
+            if (player.currentMediaItem?.localConfiguration?.uri?.toString() != url) {
+                player.setMediaItem(MediaItem.fromUri(url))
+                player.prepare()
+            }
             player.playWhenReady = true
         }
     }
