@@ -140,7 +140,14 @@ fun GroupRow(name: String, count: Int, onClick: () -> Unit) {
                 .background(Color(0xFFF4F8F2))
                 .border(1.dp, Color(0xFFDCE8D9), RoundedCornerShape(16.dp)),
             contentAlignment = Alignment.Center
-        ) { Text(bouquetIcon(name), fontSize = 26.sp) }
+        ) {
+            val football = listOf("foot", "football", "soccer", "ligue", "champions league", "premier league", "sport").any { name.contains(it, ignoreCase = true) }
+            if (football) {
+                Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(Color(0xFF087D45), Color(0xFF1AB86B)))), contentAlignment = Alignment.Center) {
+                    Text("⚽", fontSize = 32.sp)
+                }
+            } else Text(bouquetIcon(name), fontSize = 26.sp)
+        }
         Spacer(Modifier.width(14.dp))
         Text(name, Modifier.weight(1f), color = c.onSurface, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold,
             maxLines = 2, overflow = TextOverflow.Ellipsis)
