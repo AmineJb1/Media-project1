@@ -14,6 +14,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.*
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -170,37 +172,10 @@ fun LoginScreen(s: AppState) {
                     ) { Text("▶  Se connecter", fontSize = 15.sp, fontWeight = FontWeight.SemiBold) }
                     Spacer(Modifier.height(10.dp))
                     OutlinedButton(
-                        onClick = { showMacAccess = !showMacAccess },
+                        onClick = { showMacAccess = true },
                         modifier = Modifier.fillMaxWidth().height(46.dp),
                         shape = RoundedCornerShape(22.dp)
                     ) { Text("Connexion avec Adresse MAC", color = c.primary, fontWeight = FontWeight.SemiBold) }
-                    AnimatedVisibility(visible = showMacAccess) {
-                        Column(
-                            Modifier.fillMaxWidth().padding(top = 10.dp)
-                                .clip(RoundedCornerShape(18.dp))
-                                .background(Color.White.copy(alpha = .80f))
-                                .padding(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(7.dp)
-                        ) {
-                            Text("Identifiant MAC de l’application", color = c.onSurface, fontWeight = FontWeight.Bold)
-                            Text("Adresse MAC virtuelle, propre à cette installation (l’adresse matérielle du téléphone n’est pas accessible aux applications Android récentes).",
-                                color = c.onSurfaceVariant, fontSize = 11.sp)
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(s.mac, Modifier.weight(1f), color = c.onSurface)
-                                TextButton(onClick = { clipboard.setText(AnnotatedString(s.mac)) }) { Text("Copier MAC") }
-                            }
-                            Text("Clé de l’application · renouvelée tous les 30 jours", color = c.onSurfaceVariant, fontSize = 12.sp)
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(s.macDisplayKey(), Modifier.weight(1f), color = c.primary, fontWeight = FontWeight.Bold)
-                                TextButton(onClick = { clipboard.setText(AnnotatedString(s.macDisplayKey())) }) { Text("Copier clé") }
-                            }
-                            Button(onClick = { s.mode = 1; s.connect() }, modifier = Modifier.fillMaxWidth()) {
-                                Text("Se connecter avec MAC")
-                            }
-                            Text("La clé est un identifiant d’affichage : elle ne remplace pas l’autorisation du serveur IPTV.",
-                                color = c.onSurfaceVariant, fontSize = 10.sp)
-                        }
-                    }
                     AnimatedVisibility(s.status.startsWith("Erreur", ignoreCase = true) || s.status.contains("indisponible", ignoreCase = true)) {
                         Text(s.status, Modifier.padding(top = 12.dp), color = c.secondary, style = MaterialTheme.typography.bodySmall)
                     }
@@ -209,6 +184,61 @@ fun LoginScreen(s: AppState) {
             Spacer(Modifier.height(18.dp))
         }
     }
+    if (showMacAccess) {
+        Dialog(onDismissRequest = { showMacAccess = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(.92f).widthIn(max = 520.dp)
+                    .verticalScroll(rememberScrollState()),
+                shape = RoundedCornerShape(24.dp),
+                color = Color.White,
+                shadowElevation = 16.dp
+            ) {
+                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("Connexion avec Adresse MAC",
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold, color = c.onSurface)
+                        IconButton(onClick = { showMacAccess = false }) {
+                            Icon(Icons.Filled.Close, contentDescription = "Fermer")
+                        }
+                    }
+                    Text("Identifiant MAC de cette installation", color = c.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(s.mac, modifier = Modifier.weight(1f),
+                            color = c.onSurface, fontWeight = FontWeight.SemiBold)
+                        TextButton(onClick = { clipboard.setText(AnnotatedString(s.mac)) }) {
+                            Text("Copier MAC")
+                        }
+                    }
+                    HorizontalDivider()
+                    Text("Clé d’application · renouvelée tous les 30 jours",
+                        color = c.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(s.macDisplayKey(), modifier = Modifier.weight(1f),
+                            color = c.primary, fontWeight = FontWeight.Bold)
+                        TextButton(onClick = { clipboard.setText(AnnotatedString(s.macDisplayKey())) }) {
+                            Text("Copier clé")
+                        }
+                    }
+                    Button(onClick = { s.mode = 1; s.connect() },
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        shape = RoundedCornerShape(24.dp)) {
+                        Text("Récupérer Ma Liste", fontWeight = FontWeight.SemiBold)
+                    }
+                    if (s.mode == 1 && (s.status == "Erreur de récupération" || s.status == "Abonnement Expiré")) {
+                        Text(s.status, color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium)
+                    }
+                    Text("L’accès nécessite une autorisation active du serveur IPTV.",
+                        color = c.onSurfaceVariant, style = MaterialTheme.typography.labelSmall)
+                }
+            }
+        }
+    }
+
 }
 
 @Composable
