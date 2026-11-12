@@ -187,7 +187,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         group = null; section = 0; query = ""; episodes = null
         pass = ""
         secure.remove("pass")
-        prefs.edit().remove("pass").remove("biometric_saved_user").apply()
+        prefs.edit().remove("pass").apply()
         cacheFile.delete()
         live = emptyList(); movies = null; series = null
         showLogin = true; status = ""
@@ -202,9 +202,14 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     }
     var user by mutableStateOf(prefs.getString("user", "") ?: "")
     fun saveUsername(value: String) { user = value; prefs.edit().putString("user", value).apply() }
-    fun hasSavedBiometricAccount(): Boolean = mode == 0 && user.isNotBlank() && pass.isNotBlank() &&
-        prefs.getString("biometric_saved_user", "") == user
-    var pass by mutableStateOf(secure.get("pass") ?: "")
+    fun hasSavedBiometricAccount(): Boolean = mode == 0 && user.isNotBlank() &&
+        prefs.getString("biometric_saved_user", "") == user && !secure.get("biometric_pass").isNullOrBlank()
+    fun connectWithBiometric() {
+        val saved = if (hasSavedBiometricAccount()) secure.get("biometric_pass") else null
+        if (!saved.isNullOrBlank()) { pass = saved; connect() }
+    }
+    var biometricOptIn by mutableStateOf(prefs.getBoolean("biometric_opt_in", true))
+    var pass by mutableStateOf("")
     var mac by mutableStateOf(prefs.getString("mac", null) ?: randomMac().also { prefs.edit().putString("mac", it).apply() })
     var live by mutableStateOf(emptyList<Item>())
     var movies by mutableStateOf<List<Item>?>(null)
@@ -286,7 +291,13 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
                 }
                 live = l; movies = null; series = null; episodes = null; movieCategories = emptyList(); seriesCategories = emptyList()
                 section = 0; group = null; query = ""; selectPlaybackBouquet(null, emptyList())
-                if (mode == 0) prefs.edit().putString("biometric_saved_user", user).apply()
+                if (mode == 0 && biometricOptIn && pass.isNotBlank()) {
+                    secure.put("biometric_pass", pass)
+                    prefs.edit().putString("biometric_saved_user", user).putBoolean("biometric_opt_in", true).apply()
+                } else if (mode == 0 && !biometricOptIn) {
+                    secure.remove("biometric_pass")
+                    prefs.edit().remove("biometric_saved_user").putBoolean("biometric_opt_in", false).apply()
+                }
                 status = "${l.size} chaînes"; showLogin = false
                 refreshSubscription()
                 loadVodCache()
