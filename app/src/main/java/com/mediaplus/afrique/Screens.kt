@@ -149,9 +149,12 @@ fun LoginScreen(s: AppState) {
                                 Text("Connectez-vous une première fois avec votre mot de passe pour activer l’empreinte.",
                                     color = c.onSurfaceVariant, fontSize = 11.sp)
                             }
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Checkbox(checked = s.biometricOptIn, onCheckedChange = { s.biometricOptIn = it })
-                                Text("Activer l’empreinte après connexion", fontSize = 12.sp, color = c.onSurfaceVariant)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 6.dp)) {
+                            Checkbox(checked = s.rememberPassword, onCheckedChange = { s.rememberPassword = it })
+                            Column(Modifier.weight(1f)) {
+                                Text("Enregistrer mon mot de passe", fontSize = 12.sp, color = c.onSurface)
+                                Text("Chiffré sur cet appareil · connexion automatique", fontSize = 10.sp, color = c.onSurfaceVariant)
                             }
                         }
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 6.dp)) {
