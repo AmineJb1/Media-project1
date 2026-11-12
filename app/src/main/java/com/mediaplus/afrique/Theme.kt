@@ -93,9 +93,9 @@ fun AfricaTheme(content: @Composable () -> Unit) {
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize().graphicsLayer {
                         // Enlarge Africa while keeping Côte d’Ivoire near the screen center.
-                        scaleX = 1.32f
-                        scaleY = 1.32f
-                        translationX = size.width * 0.24f
+                        scaleX = 1.48f
+                        scaleY = 1.48f
+                        translationX = size.width * 0.28f
                     },
                     contentScale = ContentScale.Fit
                 )
