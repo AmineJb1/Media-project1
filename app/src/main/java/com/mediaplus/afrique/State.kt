@@ -26,6 +26,83 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     private val cacheFile = File(ctx.cacheDir, "live.tsv")
     private var stalker: Stalker? = null
 
+    private val vodTtlMs = 24L * 60 * 60 * 1000
+    private val vodLoading = mutableSetOf<Int>()
+    private fun vodAccountKey(): String {
+        val raw = "$mode:$user:$pass:$mac"
+        return MessageDigest.getInstance("SHA-256").digest(raw.toByteArray())
+            .joinToString("") { "%02x".format(it) }.take(20)
+    }
+    private fun vodFile(kind: Int) = File(ctx.filesDir, "vod_${vodAccountKey()}_$kind.json")
+    private fun vodTimestamp(kind: Int) = prefs.getLong("vod_time_${vodAccountKey()}_$kind", 0L)
+    private fun readVod(kind: Int): Xtream.Catalog? = runCatching {
+        val root = JSONObject(vodFile(kind).readText())
+        val arr = root.getJSONArray("items")
+        val items = List(arr.length()) { index ->
+            val o = arr.getJSONObject(index)
+            Item(o.getInt("kind"), o.getString("id"), o.getString("name"),
+                o.getString("group"), o.getString("url"), o.optString("logo"), o.optLong("modifiedAt"))
+        }
+        val cats = root.getJSONArray("categories")
+        Xtream.Catalog(items, List(cats.length()) { cats.getString(it) })
+    }.getOrNull()
+    private fun saveVod(kind: Int, catalog: Xtream.Catalog, key: String) {
+        val root = JSONObject()
+        val arr = JSONArray()
+        catalog.items.forEach { item ->
+            arr.put(JSONObject().put("kind", item.kind).put("id", item.id)
+                .put("name", item.name).put("group", item.group).put("url", item.url)
+                .put("logo", item.logo).put("modifiedAt", item.modifiedAt))
+        }
+        val categories = JSONArray()
+        catalog.categories.forEach { categories.put(it) }
+        root.put("items", arr).put("categories", categories)
+        val target = File(ctx.filesDir, "vod_${key}_$kind.json")
+        val temp = File(ctx.filesDir, "vod_${key}_$kind.tmp")
+        temp.writeText(root.toString())
+        if (!temp.renameTo(target)) { target.writeText(temp.readText()); temp.delete() }
+        prefs.edit().putLong("vod_time_${key}_$kind", System.currentTimeMillis()).apply()
+    }
+    private fun loadVodCache() {
+        if (mode != 0) return
+        val key = vodAccountKey()
+        scope.launch {
+            val result = withContext(Dispatchers.IO) { readVod(2) to readVod(3) }
+            if (key != vodAccountKey()) return@launch
+            result.first?.let { movies = it.items; movieCategories = it.categories }
+            result.second?.let { series = it.items; seriesCategories = it.categories }
+            updateVod(2)
+            updateVod(3)
+        }
+    }
+    private fun updateVod(kind: Int, force: Boolean = false) {
+        if (mode != 0 || kind !in 2..3 || !vodLoading.add(kind)) return
+        val key = vodAccountKey()
+        if (!force && vodTimestamp(kind) > 0 &&
+            System.currentTimeMillis() - vodTimestamp(kind) < vodTtlMs) {
+            vodLoading.remove(kind)
+            return
+        }
+        val client = xt()
+        scope.launch {
+            try {
+                val catalog = withContext(Dispatchers.IO) {
+                    val c = if (kind == 2) client.movieCatalog() else client.seriesCatalog()
+                    saveVod(kind, c, key)
+                    c
+                }
+                if (key == vodAccountKey()) {
+                    if (kind == 2) { movies = catalog.items; movieCategories = catalog.categories }
+                    else { series = catalog.items; seriesCategories = catalog.categories }
+                }
+            } catch (e: Exception) {
+                if (key == vodAccountKey() && (if (kind == 2) movies == null else series == null))
+                    status = "Catalogue indisponible : ${e.message}"
+            } finally { vodLoading.remove(kind) }
+        }
+    }
+
+
     var mode by mutableStateOf(prefs.getInt("mode", 0)) // 0 = identifiants, 1 = MAC
     var subscriptionExpirySeconds by mutableStateOf(prefs.getLong("subscription_expiry_seconds", 0L).takeIf { it > 0L })
     fun refreshSubscription() {
@@ -161,6 +238,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
             if (live.isNotEmpty()) {
                 showLogin = false; status = "${live.size} chaînes"
                 if (mode == 1) stalker = Stalker(Config.PORTAL, mac.trim().uppercase())
+                else loadVodCache()
             }
         }
     }
@@ -186,6 +264,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
                 section = 0; group = null; query = ""; selectPlaybackBouquet(null, emptyList())
                 status = "${l.size} chaînes"; showLogin = false
                 refreshSubscription()
+                loadVodCache()
             } catch (e: Exception) { status = "Erreur : ${e.message}" }
         }
     }
@@ -202,20 +281,11 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         selectPlaybackBouquet(null, emptyList())
         if (s != 0) clearPreview()
         if ((s == 2 || s == 3) && mode != 0) { status = "Films et séries : connexion par identifiants requise"; return }
-        if (s == 2 && movies == null) refreshCatalog()
-        if (s == 3 && series == null) refreshCatalog()
+        if (s == 2 || s == 3) updateVod(s)
     }
 
     fun refreshCatalog() {
-        if (mode != 0 || (section != 2 && section != 3)) return
-        val requested = section
-        fetch {
-            val catalog = withContext(Dispatchers.IO) {
-                if (requested == 2) xt().movieCatalog() else xt().seriesCatalog()
-            }
-            if (requested == 2) { movies = catalog.items; movieCategories = catalog.categories }
-            else { series = catalog.items; seriesCategories = catalog.categories }
-        }
+        if (section == 2 || section == 3) updateVod(section, force = true)
     }
 
     fun clearPreview() {
