@@ -34,6 +34,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -53,7 +58,6 @@ fun LoginScreen(s: AppState) {
     val field = RoundedCornerShape(17.dp)
     val f = Modifier.fillMaxWidth().padding(top = 6.dp)
     var showPassword by remember { mutableStateOf(false) }
-    var rememberUsername by remember { mutableStateOf(true) }
     var showBiometricHelp by remember { mutableStateOf(false) }
     val host = LocalContext.current as? FragmentActivity
     val biometricReady = host != null && BiometricManager.from(host).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK) == BiometricManager.BIOMETRIC_SUCCESS
@@ -136,8 +140,8 @@ fun LoginScreen(s: AppState) {
                         OutlinedButton(onClick = { s.mode = 1 }, modifier = Modifier.weight(1f), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (s.mode == 1) Color(0xFFEDEDED) else Color.White)) { Text("MAC", color = c.onSurface, fontSize = 13.sp) }
                     }
                     if (s.mode == 0) {
-                        OutlinedTextField(s.user, { if (rememberUsername) s.saveUsername(it) else s.user = it }, f, singleLine = true, shape = field, label = { Text("Nom d'utilisateur") })
-                        OutlinedTextField(s.pass, { s.pass = it }, f.onFocusChanged { if (it.isFocused && s.hasSavedBiometricAccount()) requestBiometric() }, singleLine = true, shape = field, label = { Text("Mot de passe") }, visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(), trailingIcon = { TextButton(onClick = { showPassword = !showPassword }) { Text(if (showPassword) "◉ Masquer" else "◉ Voir") } })
+                        OutlinedTextField(s.user, { s.saveUsername(it) }, f.semantics { contentType = ContentType.Username }, singleLine = true, shape = field, label = { Text("Nom d'utilisateur") })
+                        OutlinedTextField(s.pass, { s.pass = it }, f.semantics { contentType = ContentType.Password }.onFocusChanged { if (it.isFocused && s.hasSavedBiometricAccount()) requestBiometric() }, singleLine = true, shape = field, label = { Text("Mot de passe") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(), trailingIcon = { TextButton(onClick = { showPassword = !showPassword }) { Text(if (showPassword) "◉ Masquer" else "◉ Voir") } })
                         if (biometricReady) {
                             TextButton(onClick = {
                                 if (s.hasSavedBiometricAccount()) requestBiometric()
@@ -149,17 +153,6 @@ fun LoginScreen(s: AppState) {
                                 Text("Connectez-vous une première fois avec votre mot de passe pour activer l’empreinte.",
                                     color = c.onSurfaceVariant, fontSize = 11.sp)
                             }
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 6.dp)) {
-                            Checkbox(checked = s.rememberPassword, onCheckedChange = { s.rememberPassword = it })
-                            Column(Modifier.weight(1f)) {
-                                Text("Enregistrer mon mot de passe", fontSize = 12.sp, color = c.onSurface)
-                                Text("Chiffré sur cet appareil · connexion automatique", fontSize = 10.sp, color = c.onSurfaceVariant)
-                            }
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 6.dp)) {
-                            Checkbox(checked = rememberUsername, onCheckedChange = { rememberUsername = it; if (it) s.saveUsername(s.user) })
-                            Text("Mémoriser le nom d’utilisateur", fontSize = 12.sp, color = c.onSurfaceVariant)
                         }
                     } else {
                         OutlinedTextField(s.mac, { s.mac = it }, f, singleLine = true, shape = field, label = { Text("Adresse MAC") }, leadingIcon = { Text("▣") })
