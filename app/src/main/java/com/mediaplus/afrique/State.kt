@@ -332,7 +332,9 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
                         throw IllegalStateException("Abonnement Expiré")
                     }
                     val r = if (mode == 0) xt().live() else Stalker(Config.PORTAL, mac.trim().uppercase()).also { stalker = it }.channels()
-                    cacheFile.writeText(r.joinToString("\n") { encode(it) })
+                    cacheFile.bufferedWriter().use { writer ->
+                        r.forEach { item -> writer.write(encode(item)); writer.newLine() }
+                    }
                     r
                 }
                 live = l; movies = null; series = null; episodes = null; movieCategories = emptyList(); seriesCategories = emptyList()
@@ -347,7 +349,8 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
                 prefs.edit().putBoolean("session_active", mode == 1 || savedSecurely).apply()
                 status = "${l.size} chaînes"; showLogin = false
                 refreshSubscription()
-                loadVodCache()
+                // Do not load films/series in the background while opening Live TV.
+                // Low-memory Android TV boxes should load these sections on demand.
             } catch (e: Exception) {
                 val msg = e.message.orEmpty()
                 status = if (msg == "Abonnement Expiré" ||
@@ -371,7 +374,10 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         selectPlaybackBouquet(null, emptyList())
         if (s != 0) clearPreview()
         if ((s == 2 || s == 3) && mode != 0) { status = "Films et séries : connexion par identifiants requise"; return }
-        if (s == 2 || s == 3) updateVod(s)
+        if (s == 2 || s == 3) {
+            loadVodCache()
+            updateVod(s)
+        }
     }
 
     fun refreshCatalog() {
