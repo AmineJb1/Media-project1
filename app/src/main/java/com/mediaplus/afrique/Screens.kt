@@ -305,17 +305,19 @@ fun LoginScreen(s: AppState) {
         Dialog(onDismissRequest = { showMacAccess = false },
             properties = DialogProperties(usePlatformDefaultWidth = false)) {
             Surface(
-                modifier = Modifier.fillMaxWidth(.92f).widthIn(max = 520.dp)
+                modifier = Modifier.fillMaxWidth(if (isTv) .72f else .90f)
+                    .widthIn(max = if (isTv) 420.dp else 480.dp)
+                    .heightIn(max = if (isTv) 420.dp else 540.dp)
                     .verticalScroll(rememberScrollState()),
                 shape = RoundedCornerShape(24.dp),
-                color = Color.White,
+                color = Color.White.copy(alpha = .94f),
                 shadowElevation = 16.dp
             ) {
-                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(Modifier.padding(if (isTv) 14.dp else 18.dp), verticalArrangement = Arrangement.spacedBy(if (isTv) 7.dp else 10.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("Connexion avec Adresse MAC",
                             modifier = Modifier.weight(1f),
-                            style = MaterialTheme.typography.titleLarge,
+                            style = if (isTv) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold, color = c.onSurface)
                         IconButton(onClick = { showMacAccess = false }) {
                             Icon(Icons.Filled.Close, contentDescription = "Fermer")
@@ -341,7 +343,7 @@ fun LoginScreen(s: AppState) {
                         }
                     }
                     Button(onClick = { s.mode = 1; s.connect() },
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        modifier = Modifier.fillMaxWidth().height(if (isTv) 40.dp else 48.dp),
                         shape = RoundedCornerShape(24.dp)) {
                         Text("Récupérer Ma Liste", fontWeight = FontWeight.SemiBold)
                     }
