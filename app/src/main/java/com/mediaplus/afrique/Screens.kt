@@ -737,15 +737,15 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 } else if (s.group == null) emptyList()
                 else specialGroups[s.group] ?: list.filter { it.group == s.group }
                 if (s.group != null) {
-                    Row(Modifier.fillMaxWidth().padding(bottom = 5.dp),
+                    Row(Modifier.fillMaxWidth().padding(bottom = 8.dp),
                         horizontalArrangement = Arrangement.End) {
                         Text(s.group.orEmpty(), color = Color(0xFF0B4F32),
                             fontSize = 18.sp, fontWeight = FontWeight.Bold,
                             maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
-                Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Box(Modifier.weight(if (s.group == null) 1f else 0.47f).fillMaxHeight()) {
+                Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Box(Modifier.weight(if (s.group == null) 1f else 0.48f).fillMaxHeight()) {
                         if (s.group == null && s.query.isBlank()) {
                             val groups = (specialGroups.keys + list.map { it.group }).filter { it.isNotBlank() }.distinct()
                             BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -822,7 +822,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                     var channelFocused by remember { mutableStateOf(false) }
                                     val previewSelected = s.previewChannelId == item.id
                                     Row(
-                                        Modifier.fillMaxWidth().height(if (tvWide) 73.dp else 62.dp)
+                                        Modifier.fillMaxWidth().height(if (tvWide) 65.dp else 58.dp)
                                             .onFocusChanged { channelFocused = it.isFocused }
                                             .clip(RoundedCornerShape(12.dp))
                                             .background(if (channelFocused) Color(0xFF0B4F32)
@@ -843,7 +843,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                                     ) {
-                                        Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) { Logo(item) }
+                                        Box(Modifier.size(if (tvWide) 42.dp else 40.dp), contentAlignment = Alignment.Center) { Logo(item) }
                                         Text(item.name, modifier = Modifier.weight(1f),
                                             color = if (channelFocused) Color.White else Color(0xFF17332B),
                                             fontSize = if (tvWide) 15.sp else 13.sp,
@@ -856,17 +856,32 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                         }
                     }
                     if (s.group != null) {
-                        Box(Modifier.weight(0.53f).fillMaxHeight()) {
+                        Box(Modifier.weight(0.52f).fillMaxHeight()) {
                             if (s.previewChannelId != null) {
                                 LivePreviewPanel(s, compact = false)
                             } else {
-                                Box(Modifier.fillMaxWidth().aspectRatio(16f / 9f)
-                                    .clip(RoundedCornerShape(14.dp))
-                                    .background(Color(0xFF102820)),
-                                    contentAlignment = Alignment.Center) {
-                                    Text("Sélectionnez une chaîne pour afficher l’aperçu et l’EPG",
-                                        color = Color.White, textAlign = TextAlign.Center,
-                                        modifier = Modifier.padding(18.dp))
+                                Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp))
+                                    .background(Color.White.copy(alpha = .80f))
+                                    .border(1.dp, Color(0xFFB2C9C3), RoundedCornerShape(16.dp))
+                                    .padding(10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                                    Box(Modifier.fillMaxWidth().aspectRatio(16f / 9f)
+                                        .clip(RoundedCornerShape(11.dp))
+                                        .background(Color(0xFF102820)),
+                                        contentAlignment = Alignment.Center) {
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            Icon(Icons.Filled.PlayArrow, contentDescription = null,
+                                                tint = Color.White.copy(alpha = .68f), modifier = Modifier.size(34.dp))
+                                            Text("Choisissez une chaîne à gauche",
+                                                color = Color.White, textAlign = TextAlign.Center,
+                                                fontSize = 14.sp)
+                                        }
+                                    }
+                                    Text("PROGRAMME EN DIRECT", color = Color(0xFF0B4F32),
+                                        fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                    Text("Le programme et les informations EPG apparaîtront ici.",
+                                        color = Color(0xFF476459), fontSize = 12.sp)
                                 }
                             }
                         }
