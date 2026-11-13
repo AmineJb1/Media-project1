@@ -1160,8 +1160,6 @@ private fun VodDetailsPage(s: AppState) {
     val info = s.selectedVodDetails
     val ctx = LocalContext.current
     val favorite = s.favs.any { it.url == item.url }
-    val screenHeight = ctx.resources.configuration.screenHeightDp.dp
-    val heroHeight = (screenHeight * 0.70f).coerceIn(280.dp, 570.dp)
     val description = if (s.vodDetailsLoading) "Chargement de la description…"
         else info?.description?.takeIf { it.isNotBlank() }
             ?: "Aucun résumé disponible pour ce titre."
@@ -1174,96 +1172,97 @@ private fun VodDetailsPage(s: AppState) {
     var favFocused by remember { mutableStateOf(false) }
     Dialog(onDismissRequest = { s.closeVodDetails() },
         properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        Surface(Modifier.fillMaxSize(), color = Color(0xFFF4F8F6)) {
-            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(Modifier.fillMaxWidth().height(heroHeight).clipToBounds()) {
-                    AsyncImage(
-                        model = info?.backdrop?.takeIf { it.startsWith("http") } ?: item.logo,
-                        contentDescription = item.name,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    Box(Modifier.fillMaxSize().background(
-                        Brush.verticalGradient(
-                            0f to Color.Black.copy(alpha = .28f),
-                            .30f to Color.Transparent,
-                            .57f to Color.Black.copy(alpha = .55f),
-                            1f to Color.Black.copy(alpha = .92f)
-                        )))
-                    IconButton(onClick = { s.closeVodDetails() },
-                        modifier = Modifier.align(Alignment.TopStart).padding(14.dp)
-                            .background(Color.White.copy(alpha = .94f), RoundedCornerShape(50))) {
-                        Icon(Icons.Filled.Close, contentDescription = "Retour")
-                    }
-                    Column(
-                        Modifier.align(Alignment.BottomStart).fillMaxWidth()
-                            .padding(horizontal = 26.dp, vertical = 20.dp),
-                        verticalArrangement = Arrangement.spacedBy(9.dp)
-                    ) {
-                        Text(item.name, fontSize = 27.sp, fontWeight = FontWeight.ExtraBold,
-                            color = Color.White, maxLines = 2, lineHeight = 31.sp,
-                            overflow = TextOverflow.Ellipsis)
-                        if (metadata.isNotEmpty()) {
-                            Text(metadata, color = Color(0xFFFFD7A4),
-                                fontWeight = FontWeight.SemiBold, fontSize = 14.sp,
-                                maxLines = 2, overflow = TextOverflow.Ellipsis)
-                        }
-                        Text(description, fontSize = 14.sp, color = Color.White,
-                            lineHeight = 20.sp, maxLines = 4,
-                            overflow = TextOverflow.Ellipsis)
-                    }
+        Box(Modifier.fillMaxSize().background(Color(0xFF091712))) {
+            AsyncImage(
+                model = info?.backdrop?.takeIf { it.startsWith("http") } ?: item.logo,
+                contentDescription = item.name,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+            Box(Modifier.fillMaxSize().background(
+                Brush.verticalGradient(
+                    0f to Color.Black.copy(alpha = .35f),
+                    .32f to Color.Black.copy(alpha = .22f),
+                    .65f to Color.Black.copy(alpha = .70f),
+                    1f to Color.Black.copy(alpha = .96f)
+                )))
+            IconButton(onClick = { s.closeVodDetails() },
+                modifier = Modifier.align(Alignment.TopStart).padding(14.dp)
+                    .background(Color.White.copy(alpha = .90f), RoundedCornerShape(50))) {
+                Icon(Icons.Filled.Close, contentDescription = "Retour")
+            }
+            Column(
+                Modifier.align(Alignment.BottomStart).fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(start = 30.dp, end = 30.dp, bottom = 26.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(item.name, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold,
+                    color = Color.White, maxLines = 2, lineHeight = 32.sp,
+                    overflow = TextOverflow.Ellipsis)
+                if (metadata.isNotEmpty()) {
+                    Text(metadata, color = Color(0xFFFFD7A4),
+                        fontWeight = FontWeight.SemiBold, fontSize = 14.sp,
+                        maxLines = 2, overflow = TextOverflow.Ellipsis)
                 }
+                Text(description, fontSize = 14.sp, color = Color.White,
+                    lineHeight = 20.sp, maxLines = 3,
+                    overflow = TextOverflow.Ellipsis)
                 Row(
-                    Modifier.fillMaxWidth().widthIn(max = 850.dp)
-                        .padding(horizontal = 22.dp, vertical = 14.dp),
+                    Modifier.padding(top = 7.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Button(onClick = { s.launchSelectedVod() },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF15523B)),
-                        modifier = Modifier.weight(1f).height(46.dp)
+                        modifier = Modifier.widthIn(min = 150.dp).height(40.dp)
                             .onFocusChanged { playFocused = it.isFocused }
                             .border(if (playFocused) 3.dp else 0.dp,
                                 if (playFocused) Color(0xFF46ED9D) else Color.Transparent,
-                                RoundedCornerShape(13.dp)),
-                        shape = RoundedCornerShape(13.dp),
-                        contentPadding = PaddingValues(horizontal = 8.dp)) {
+                                RoundedCornerShape(12.dp)),
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 15.dp)) {
                         Icon(Icons.Filled.PlayArrow, contentDescription = null,
-                            modifier = Modifier.size(20.dp))
+                            modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(5.dp))
                         Text(if (item.kind == 2) "Voir les épisodes" else "Lancer le film",
-                            fontSize = 13.sp, maxLines = 1)
+                            fontSize = 12.sp, maxLines = 1)
                     }
                     OutlinedButton(onClick = { s.toggleFav(item) },
                         border = BorderStroke(if (favFocused) 3.dp else 1.dp,
-                            if (favFocused) Color(0xFF1C995B) else Color(0xFFB7D3C3)),
-                        modifier = Modifier.weight(1f).height(46.dp)
+                            if (favFocused) Color(0xFF46ED9D) else Color.White.copy(alpha = .75f)),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = Color.Black.copy(alpha = .40f)),
+                        modifier = Modifier.height(40.dp)
                             .onFocusChanged { favFocused = it.isFocused },
-                        shape = RoundedCornerShape(13.dp),
-                        contentPadding = PaddingValues(horizontal = 8.dp)) {
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 14.dp)) {
                         Icon(Icons.Filled.Star, contentDescription = null,
-                            tint = if (favorite) Color(0xFFE89A00) else Color(0xFF15523B),
-                            modifier = Modifier.size(19.dp))
+                            tint = if (favorite) Color(0xFFE89A00) else Color.White,
+                            modifier = Modifier.size(17.dp))
                         Spacer(Modifier.width(5.dp))
                         Text(if (favorite) "Retirer des favoris" else "Ajouter aux favoris",
-                            color = Color(0xFF15523B), fontSize = 13.sp, maxLines = 1)
+                            color = Color.White, fontSize = 12.sp, maxLines = 1)
                     }
-                }
-                if (!info?.trailer.isNullOrBlank()) {
-                    OutlinedButton(onClick = {
-                        val raw = info!!.trailer.trim()
-                        val url = if (raw.startsWith("https://") || raw.startsWith("http://"))
-                            raw else "https://www.youtube.com/watch?v=" + raw
-                        runCatching {
-                            ctx.startActivity(android.content.Intent(
-                                android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)))
+                    if (!info?.trailer.isNullOrBlank()) {
+                        OutlinedButton(onClick = {
+                            val raw = info!!.trailer.trim()
+                            val url = if (raw.startsWith("https://") || raw.startsWith("http://"))
+                                raw else "https://www.youtube.com/watch?v=" + raw
+                            runCatching {
+                                ctx.startActivity(android.content.Intent(
+                                    android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)))
+                            }
+                        }, modifier = Modifier.height(40.dp),
+                            border = BorderStroke(1.dp, Color.White.copy(alpha = .75f)),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = Color.Black.copy(alpha = .40f)),
+                            shape = RoundedCornerShape(12.dp)) {
+                            Icon(Icons.Filled.PlayArrow, contentDescription = null,
+                                tint = Color.White, modifier = Modifier.size(17.dp))
+                            Spacer(Modifier.width(5.dp))
+                            Text("Bande-annonce", color = Color.White, fontSize = 12.sp)
                         }
-                    }, modifier = Modifier.padding(bottom = 14.dp).height(42.dp),
-                        shape = RoundedCornerShape(12.dp)) {
-                        Icon(Icons.Filled.PlayArrow, contentDescription = null)
-                        Spacer(Modifier.width(6.dp))
-                        Text("Voir la bande-annonce")
                     }
                 }
             }
