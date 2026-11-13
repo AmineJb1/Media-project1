@@ -83,16 +83,16 @@ fun Header(showAccount: Boolean, expiryEpochSeconds: Long?, compact: Boolean = f
         Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Media", color = Color(0xFF103D2B),
-                    fontSize = if (compact) 26.sp else 32.sp,
+                    fontSize = if (compact) 32.sp else 36.sp,
                     fontWeight = FontWeight.Black, maxLines = 1)
                 Text("+", color = Color(0xFFF28A16),
-                    fontSize = if (compact) 28.sp else 34.sp,
+                    fontSize = if (compact) 34.sp else 38.sp,
                     fontWeight = FontWeight.Black, maxLines = 1)
             }
             Text("Côte d’Ivoire", color = Color(0xFF146B48),
-                fontSize = if (compact) 17.sp else 21.sp,
-                fontWeight = FontWeight.ExtraBold, maxLines = 1)
-            Box(Modifier.width(if (compact) 118.dp else 155.dp).height(4.dp)
+                fontSize = if (compact) 21.sp else 25.sp,
+                fontWeight = FontWeight.Black, maxLines = 1)
+            Box(Modifier.width(if (compact) 150.dp else 175.dp).height(4.dp)
                 .clip(RoundedCornerShape(4.dp))
                 .background(Brush.horizontalGradient(listOf(Color(0xFFFF8A00), Color.White, Color(0xFF07964E)))))
         }
