@@ -131,7 +131,7 @@ fun LoginScreen(s: AppState) {
         ) {
             if (tvLayout) {
                 Column(
-                    Modifier.align(Alignment.BottomStart).padding(start = 4.dp, bottom = 34.dp),
+                    Modifier.align(Alignment.BottomStart).offset(x = (-42).dp).padding(bottom = 34.dp),
                     horizontalAlignment = Alignment.Start
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -194,9 +194,9 @@ fun LoginScreen(s: AppState) {
                 Modifier.fillMaxWidth().animateContentSize()
                     ,
                 shape = RoundedCornerShape(26.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = if (tvLayout) .77f else .88f)),
-                border = androidx.compose.foundation.BorderStroke(if (tvLayout) 2.dp else 1.dp, if (tvLayout) Color(0xFFDCEBE5) else Color.White.copy(alpha = .95f)),
-                elevation = CardDefaults.cardElevation(defaultElevation = if (tvLayout) 8.dp else 0.dp)
+                colors = CardDefaults.cardColors(containerColor = if (tvLayout) Color.Transparent else Color.White.copy(alpha = .88f)),
+                border = androidx.compose.foundation.BorderStroke(if (tvLayout) 0.dp else 1.dp, if (tvLayout) Color.Transparent else Color.White.copy(alpha = .95f)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Column(Modifier.fillMaxWidth().padding(if (tvLayout) 12.dp else if (wide) 22.dp else 16.dp)) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.align(Alignment.CenterHorizontally)) {
