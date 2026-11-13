@@ -28,6 +28,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.Image
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
@@ -233,13 +235,19 @@ fun LoginScreen(s: AppState) {
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation())
                         OutlinedButton(onClick = { showPassword = !showPassword },
-                            modifier = Modifier.size(56.dp),
-                            shape = RoundedCornerShape(14.dp),
+                            modifier = Modifier.size(50.dp),
+                            shape = RoundedCornerShape(15.dp),
                             contentPadding = PaddingValues(0.dp),
-                            border = BorderStroke(2.dp, Color(0xFF237A57))) {
-                            Text(if (showPassword) "◉" else "◎",
-                                color = Color(0xFF124E3B), fontSize = 28.sp,
-                                fontWeight = FontWeight.Bold)
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = if (showPassword) Color(0xFF0B4F32) else Color.White.copy(alpha = .85f),
+                                contentColor = if (showPassword) Color(0xFFFFA02A) else Color(0xFF0B4F32)
+                            ),
+                            border = BorderStroke(2.dp, if (showPassword) Color(0xFF42D77B) else Color(0xFF0B4F32))) {
+                            Icon(
+                                imageVector = if (showPassword) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe",
+                                modifier = Modifier.size(25.dp)
+                            )
                         }
                     }
                     AnimatedVisibility(s.mode == 0 && (s.status.startsWith("Erreur", ignoreCase = true) || s.status == "Abonnement Expiré")) {
