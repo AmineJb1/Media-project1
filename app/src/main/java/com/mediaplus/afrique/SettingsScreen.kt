@@ -132,26 +132,62 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                     }
                 }
                 "Contrôle parental" -> {
-                    SettingsPanel {
-                        Text("Sécurité des contenus", style = MaterialTheme.typography.titleMedium,
-                            color = Color(0xFF193D30), fontWeight = FontWeight.SemiBold)
-                        Text("Le code initial est 0000. Saisissez votre code actuel pour le modifier.",
-                            style = MaterialTheme.typography.bodyMedium, color = Color(0xFF5E6A64))
-                        OutlinedTextField(oldPin, { oldPin = it.filter(Char::isDigit).take(4) },
-                            label = { Text("Code actuel") }, visualTransformation = PasswordVisualTransformation(),
-                            singleLine = true, modifier = Modifier.fillMaxWidth())
-                        OutlinedTextField(newPin, { newPin = it.filter(Char::isDigit).take(4) },
-                            label = { Text("Nouveau code (4 chiffres)") }, visualTransformation = PasswordVisualTransformation(),
-                            singleLine = true, modifier = Modifier.fillMaxWidth())
-                        OutlinedTextField(confirmPin, { confirmPin = it.filter(Char::isDigit).take(4) },
-                            label = { Text("Confirmer le code") }, visualTransformation = PasswordVisualTransformation(),
-                            singleLine = true, modifier = Modifier.fillMaxWidth())
-                        Button(onClick = {
-                            message = if (newPin == confirmPin && s.changeParentalPin(oldPin, newPin)) "Code parental modifié" else "Vérifiez le code actuel et la confirmation"
-                            oldPin = ""; newPin = ""; confirmPin = ""
-                        }, modifier = Modifier.fillMaxWidth()) { Text("Enregistrer le nouveau code") }
-                        if (s.adultUnlocked) OutlinedButton(onClick = { s.lockAdult() }, modifier = Modifier.fillMaxWidth()) {
-                            Text("Verrouiller les chaînes Adultes")
+                    var showOldPin by remember { mutableStateOf(false) }
+                    var showNewPin by remember { mutableStateOf(false) }
+                    var showConfirmPin by remember { mutableStateOf(false) }
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(0.88f).widthIn(max = 760.dp),
+                            shape = RoundedCornerShape(24.dp),
+                            color = Color(0xFFF6FAF8).copy(alpha = 0.83f),
+                            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.85f)),
+                            shadowElevation = 6.dp
+                        ) {
+                            Column(
+                                Modifier.padding(horizontal = 22.dp, vertical = 18.dp),
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Text("🔒  Sécurité des contenus",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = Color(0xFF174A35), fontWeight = FontWeight.Bold)
+                                Text("Le code initial est 0000. Saisissez votre code actuel pour le modifier.",
+                                    style = MaterialTheme.typography.bodyMedium, color = Color(0xFF334B40))
+                                OutlinedTextField(oldPin, { oldPin = it.filter(Char::isDigit).take(4) },
+                                    label = { Text("Code actuel") },
+                                    visualTransformation = if (showOldPin) VisualTransformation.None else PasswordVisualTransformation(),
+                                    trailingIcon = { TextButton(onClick = { showOldPin = !showOldPin }) {
+                                        Text(if (showOldPin) "Masquer" else "Voir")
+                                    } },
+                                    singleLine = true, modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(18.dp))
+                                OutlinedTextField(newPin, { newPin = it.filter(Char::isDigit).take(4) },
+                                    label = { Text("Nouveau code (4 chiffres)") },
+                                    visualTransformation = if (showNewPin) VisualTransformation.None else PasswordVisualTransformation(),
+                                    trailingIcon = { TextButton(onClick = { showNewPin = !showNewPin }) {
+                                        Text(if (showNewPin) "Masquer" else "Voir")
+                                    } },
+                                    singleLine = true, modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(18.dp))
+                                OutlinedTextField(confirmPin, { confirmPin = it.filter(Char::isDigit).take(4) },
+                                    label = { Text("Confirmer le code") },
+                                    visualTransformation = if (showConfirmPin) VisualTransformation.None else PasswordVisualTransformation(),
+                                    trailingIcon = { TextButton(onClick = { showConfirmPin = !showConfirmPin }) {
+                                        Text(if (showConfirmPin) "Masquer" else "Voir")
+                                    } },
+                                    singleLine = true, modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(18.dp))
+                                Button(onClick = {
+                                    message = if (newPin == confirmPin && s.changeParentalPin(oldPin, newPin)) "Code parental modifié" else "Vérifiez le code actuel et la confirmation"
+                                    oldPin = ""; newPin = ""; confirmPin = ""
+                                }, modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF075A36)),
+                                    shape = RoundedCornerShape(18.dp)) {
+                                    Text("▣  Enregistrer le nouveau code")
+                                }
+                                if (s.adultUnlocked) OutlinedButton(
+                                    onClick = { s.lockAdult() }, modifier = Modifier.fillMaxWidth()
+                                ) { Text("Verrouiller les chaînes Adultes") }
+                            }
                         }
                     }
                 }
