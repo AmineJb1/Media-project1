@@ -1199,8 +1199,13 @@ private fun VodDetailsPage(s: AppState) {
         info?.releaseDate?.takeIf { it.isNotBlank() },
         info?.genre?.takeIf { it.isNotBlank() }
     ).joinToString("   ·   ")
-    var playFocused by remember { mutableStateOf(false) }
-    var favFocused by remember { mutableStateOf(false) }
+    var playFocused by remember(item.url) { mutableStateOf(false) }
+    var favFocused by remember(item.url) { mutableStateOf(false) }
+    val playFocusRequester = remember(item.url) { FocusRequester() }
+    LaunchedEffect(item.url) {
+        kotlinx.coroutines.delay(120)
+        playFocusRequester.requestFocus()
+    }
     Dialog(onDismissRequest = { s.closeVodDetails() },
         properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Box(Modifier.fillMaxSize().background(Color(0xFF091712))) {
@@ -1247,6 +1252,7 @@ private fun VodDetailsPage(s: AppState) {
                     Button(onClick = { s.launchSelectedVod() },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF15523B)),
                         modifier = Modifier.widthIn(min = 150.dp).height(40.dp)
+                            .focusRequester(playFocusRequester)
                             .onFocusChanged { playFocused = it.isFocused }
                             .border(if (playFocused) 3.dp else 0.dp,
                                 if (playFocused) Color(0xFF46ED9D) else Color.Transparent,
