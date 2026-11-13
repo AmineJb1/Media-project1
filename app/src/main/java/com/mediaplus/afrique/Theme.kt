@@ -85,39 +85,7 @@ fun AfricaTheme(content: @Composable () -> Unit) {
             val premiumBackground = remember {
                 try {
                     ctx.assets.open("bg_cote_ivoire_3d.jpg").use { stream ->
-                        BitmapFactory.decodeStream(stream)?.let { original ->
-                            // Intensify only the orange and green of the Ivorian flag.
-                            // Keep the original Africa image, its contours and white areas.
-                            val bitmap = original.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
-                            val width = bitmap.width
-                            val pixels = IntArray(width * bitmap.height)
-                            bitmap.getPixels(pixels, 0, width, 0, 0, width, bitmap.height)
-                            val hsv = FloatArray(3)
-                            for (i in pixels.indices) {
-                                val pixel = pixels[i]
-                                android.graphics.Color.colorToHSV(pixel, hsv)
-                                val hue = hsv[0]
-                                // Include pale orange pixels previously missed by the saturation threshold.
-                                val red = android.graphics.Color.red(pixel)
-                                val greenChannel = android.graphics.Color.green(pixel)
-                                val blue = android.graphics.Color.blue(pixel)
-                                // Target the tan / ochre orange flag stripe, including
-                                // shaded 3D pixels; leave green, white and the logo intact.
-                                val orange = hue in 9f..67f && hsv[1] > .075f &&
-                                    red > blue * 1.12f &&
-                                    greenChannel > blue * 1.035f &&
-                                    red >= greenChannel * 1.025f
-                                if (orange) {
-                                    hsv[0] = 25f // vivid Côte d'Ivoire orange
-                                    hsv[1] = (hsv[1] * 1.75f).coerceIn(.86f, 1f)
-                                    hsv[2] = (hsv[2] * 1.26f).coerceAtMost(1f)
-                                    pixels[i] = android.graphics.Color.HSVToColor(
-                                        android.graphics.Color.alpha(pixel), hsv)
-                                }
-                            }
-                            bitmap.setPixels(pixels, 0, width, 0, 0, width, bitmap.height)
-                            bitmap.asImageBitmap()
-                        }
+                        BitmapFactory.decodeStream(stream)?.asImageBitmap()
                     }
                 } catch (_: Exception) { null }
             }
