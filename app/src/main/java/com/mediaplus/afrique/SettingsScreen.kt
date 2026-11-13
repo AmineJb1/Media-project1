@@ -316,38 +316,31 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                 }
                 "À propos" -> {
                     val bottleGreen = Color(0xFF0B4F32)
-                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(Modifier.width(5.dp).height(34.dp)
-                                .background(bottleGreen, RoundedCornerShape(4.dp)))
-                            Spacer(Modifier.width(12.dp))
-                            Text("À propos", fontSize = 27.sp, fontWeight = FontWeight.ExtraBold,
-                                color = Color(0xFF142C21))
-                        }
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                         Surface(
-                            modifier = Modifier.fillMaxWidth().shadow(7.dp, RoundedCornerShape(22.dp)),
+                            modifier = Modifier.fillMaxWidth(0.82f).widthIn(max = 780.dp)
+                                .shadow(6.dp, RoundedCornerShape(22.dp)),
                             shape = RoundedCornerShape(22.dp),
-                            color = Color(0xFFF9FBFF),
-                            border = BorderStroke(1.dp, Color(0xFFD4E0E8))
+                            color = Color(0xFFF9FBFF).copy(alpha = 0.78f),
+                            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.85f))
                         ) {
-                            BoxWithConstraints(Modifier.fillMaxWidth().padding(20.dp)) {
-                                val compact = maxWidth < 500.dp
-                                if (compact) {
+                            BoxWithConstraints(Modifier.padding(18.dp)) {
+                                if (maxWidth < 480.dp) {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                        verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                         Image(painterResource(R.drawable.media_plus_brand),
                                             contentDescription = "Logo Media+ Afrique",
-                                            modifier = Modifier.size(100.dp), contentScale = ContentScale.Fit)
+                                            modifier = Modifier.size(95.dp), contentScale = ContentScale.Fit)
                                         AboutInfo()
                                     }
                                 } else {
                                     Row(verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(22.dp)) {
+                                        horizontalArrangement = Arrangement.spacedBy(18.dp)) {
                                         Image(painterResource(R.drawable.media_plus_brand),
                                             contentDescription = "Logo Media+ Afrique",
-                                            modifier = Modifier.size(135.dp), contentScale = ContentScale.Fit)
-                                        Box(Modifier.width(2.dp).height(130.dp)
-                                            .background(Color(0xFFB8C9D3)))
+                                            modifier = Modifier.size(125.dp), contentScale = ContentScale.Fit)
+                                        Box(Modifier.width(2.dp).height(120.dp)
+                                            .background(bottleGreen.copy(alpha = 0.7f)))
                                         Box(Modifier.weight(1f)) { AboutInfo() }
                                     }
                                 }
@@ -411,9 +404,9 @@ private fun SettingsDetail(label: String, value: String, emphasized: Boolean = f
 @Composable
 private fun AboutInfo() {
     val green = Color(0xFF0B4F32)
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text("Media+ Côte d’Ivoire", color = Color(0xFF14251C),
-            fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
+    Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
+        Text("À propos", color = green,
+            fontSize = 25.sp, fontWeight = FontWeight.ExtraBold)
         Text("Version de l’application", color = Color(0xFF283E32),
             fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
         Surface(color = green, shape = RoundedCornerShape(50)) {
