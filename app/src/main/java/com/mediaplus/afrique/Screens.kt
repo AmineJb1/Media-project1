@@ -35,6 +35,9 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.layout.ContentScale
@@ -222,8 +225,8 @@ fun LoginScreen(s: AppState) {
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
-                            IconButton(onClick = { showPassword = !showPassword }, modifier = Modifier.size(48.dp)) {
-                                Icon(if (showPassword) Icons.Default.Lock else Icons.Default.Lock,
+                            IconButton(onClick = { showPassword = !showPassword }, modifier = Modifier.size(52.dp).border(1.5.dp, Color(0xFF447F69), RoundedCornerShape(12.dp))) {
+                                Icon(if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                                     contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe",
                                     tint = Color(0xFF102C54))
                             }
@@ -234,6 +237,10 @@ fun LoginScreen(s: AppState) {
                             Spacer(Modifier.width(6.dp))
                             Text(s.status, color = Color(0xFFD32F2F), style = MaterialTheme.typography.bodySmall)
                         }
+                    }
+                    Row(Modifier.align(Alignment.CenterHorizontally).padding(top = 5.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(checked = s.rememberPassword, onCheckedChange = { s.rememberPassword = it })
+                        Text("Enregistrer mon mot de passe sur cet appareil", fontSize = 12.sp, color = Color(0xFF173E33))
                     }
                     if (biometricReady) {
                         TextButton(onClick = {
@@ -366,7 +373,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
         val useSideRail = landscapeCompact || tvWide
         Row(Modifier.fillMaxSize()) {
             if (useSideRail) {
-                Column(Modifier.width(if (tvWide) 126.dp else 104.dp).fillMaxHeight()
+                Column(Modifier.width(if (tvWide) 150.dp else 124.dp).fillMaxHeight()
                     .background(Color(0xFFF7F9FB))
                     .border(1.dp, Color(0xFFE0E8EC))
                     .padding(horizontal = 7.dp, vertical = 12.dp),
@@ -389,7 +396,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                     modifier = Modifier.size(27.dp))
                             }
                             Spacer(Modifier.height(6.dp))
-                            Text(title, fontSize = 14.sp, fontWeight = FontWeight.Bold,
+                            Text(title, fontSize = 16.sp, fontWeight = FontWeight.Bold,
                                 color = if (active) Color(0xFF14553F) else Color(0xFF263E4B), maxLines = 1)
                         }
                     }
@@ -411,7 +418,14 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 style = if (useSideRail) MaterialTheme.typography.titleMedium else if (wide) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.ExtraBold
             ) }
-            IconButton(onClick = { searchOpen = !searchOpen; if (!searchOpen) s.query = "" }) { Icon(if (searchOpen) Icons.Filled.Close else Icons.Filled.Search, contentDescription = "Rechercher", tint = c.primary, modifier = Modifier.size(25.dp)) }
+            Surface(shape = RoundedCornerShape(16.dp), color = Color(0xFFE8F3EE),
+                border = BorderStroke(1.5.dp, Color(0xFF6DAD92)), shadowElevation = 3.dp) {
+                IconButton(onClick = { searchOpen = !searchOpen; if (!searchOpen) s.query = "" }, modifier = Modifier.size(48.dp)) {
+                    Icon(if (searchOpen) Icons.Filled.Close else Icons.Filled.Search,
+                        contentDescription = if (searchOpen) "Fermer la recherche" else "Rechercher",
+                        tint = Color(0xFF145E44), modifier = Modifier.size(27.dp))
+                }
+            }
             }
             if (searchOpen) OutlinedTextField(s.query, { s.query = it }, Modifier.fillMaxWidth(), singleLine = true, placeholder = { Text("Rechercher une chaîne ou un bouquet") })
             if (!useSideRail) Text("Vos chaînes et vos contenus", color = c.onSurfaceVariant,
@@ -570,16 +584,16 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                         if (s.group == null && s.query.isBlank()) {
                             val groups = (specialGroups.keys + list.map { it.group }).filter { it.isNotBlank() }.distinct()
                             BoxWithConstraints(Modifier.fillMaxSize()) {
-                                val cardHeight = (maxHeight - 24.dp - 12.dp) / 3
+                                val cardHeight = (maxHeight - 42.dp) / 3
                                 LazyVerticalGrid(columns = GridCells.Fixed(3),
-                                    modifier = Modifier.fillMaxSize(),
+                                    modifier = Modifier.fillMaxSize().padding(bottom = 8.dp).clipToBounds(),
                                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                                     verticalArrangement = Arrangement.spacedBy(12.dp),
                                     contentPadding = PaddingValues(bottom = 12.dp)) {
                                     items(groups) { groupName ->
                                         Column(Modifier.fillMaxWidth().height(cardHeight)
                                             .clip(RoundedCornerShape(18.dp))
-                                            .background(Color.White)
+                                            .background(Color.White.copy(alpha = 0.88f))
                                             .border(2.dp, Color(0xFFB2C9C3), RoundedCornerShape(18.dp))
                                             .clickable { s.requestGroup(groupName) }
                                             .padding(10.dp),
