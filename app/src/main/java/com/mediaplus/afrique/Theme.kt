@@ -109,7 +109,7 @@ fun AfricaTheme(content: @Composable () -> Unit) {
                     contentScale = ContentScale.Fit
                 )
             }
-            Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = if (tvBackground) 0.76f else 0.08f)))
+            Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = if (tvBackground) 0.36f else 0.08f)))
             Surface(Modifier.fillMaxSize(), color = Color.Transparent) { content() }
         }
     }
