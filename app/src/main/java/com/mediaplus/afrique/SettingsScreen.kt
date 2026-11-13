@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.ui.focus.onFocusChanged
@@ -74,11 +75,17 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
     val firstSettingFocus = remember { FocusRequester() }
     val parentalPinFocus = remember { FocusRequester() }
     val detailFocus = remember { FocusRequester() }
+    val infoFocus = remember { FocusRequester() }
+    val cacheFocus = remember { FocusRequester() }
+    val aboutFocus = remember { FocusRequester() }
     LaunchedEffect(page) {
         kotlinx.coroutines.delay(180)
         when (page) {
             null -> runCatching { firstSettingFocus.requestFocus() }
             "Contrôle parental" -> runCatching { parentalPinFocus.requestFocus() }
+            "Informations d’abonnement" -> runCatching { infoFocus.requestFocus() }
+            "Vider le cache" -> runCatching { cacheFocus.requestFocus() }
+            "À propos" -> runCatching { aboutFocus.requestFocus() }
             else -> runCatching { detailFocus.requestFocus() }
         }
     }
@@ -340,7 +347,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                                         Button(
                                             onClick = { confirmClearCache = true },
                                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF7900)),
-                                            modifier = Modifier.fillMaxWidth()
+                                            modifier = Modifier.fillMaxWidth().focusRequester(cacheFocus)
                                         ) { Text("Vider le cache", color = Color.White) }
                                     }
                                 } else {
@@ -355,7 +362,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                                         Button(
                                             onClick = { confirmClearCache = true },
                                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF7900)),
-                                            modifier = Modifier.widthIn(min = 170.dp)
+                                            modifier = Modifier.widthIn(min = 170.dp).focusRequester(cacheFocus)
                                         ) { Text("Vider le cache", color = Color.White) }
                                     }
                                 }
@@ -368,6 +375,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                         Surface(
                             modifier = Modifier.fillMaxWidth(0.82f).widthIn(max = 780.dp)
+                                .focusRequester(aboutFocus).focusable()
                                 .shadow(6.dp, RoundedCornerShape(22.dp)),
                             shape = RoundedCornerShape(22.dp),
                             color = Color(0xFFF9FBFF).copy(alpha = 0.78f),
