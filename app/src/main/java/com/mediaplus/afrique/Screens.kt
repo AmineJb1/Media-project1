@@ -1021,17 +1021,44 @@ private fun LivePreviewPanel(s: AppState, compact: Boolean) {
                             modifier = Modifier.fillMaxSize(), showControls = false,
                         onVideoResolution = { w, h -> resolution = if (w > 0 && h > 0) "$w × $h" else "—" }, sharedPlayer = s.livePlayer)
                     }
-                    Column(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 9.dp),
-                        verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                        Text(s.previewChannelName, color = Color(0xFF103C2D),
-                            fontWeight = FontWeight.Bold, fontSize = 16.sp,
-                            maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text(epgText, color = Color(0xFF385B4E),
-                            fontSize = 13.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                        if (nextText.isNotEmpty()) Text(nextText, color = Color(0xFF526B60),
-                            fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text("Résolution : $resolution", color = Color(0xFF0B4F32),
-                            fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                    Row(
+                        Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Box(
+                            Modifier.size(52.dp).clip(RoundedCornerShape(12.dp))
+                                .background(Color(0xFF1038CE)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (selected.logo.startsWith("http")) {
+                                AsyncImage(
+                                    model = selected.logo, contentDescription = null,
+                                    contentScale = ContentScale.Fit,
+                                    modifier = Modifier.fillMaxSize().padding(4.dp)
+                                )
+                            } else {
+                                Text("TV", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            }
+                        }
+                        Box(Modifier.width(3.dp).height(47.dp)
+                            .clip(RoundedCornerShape(2.dp))
+                            .background(Color(0xFF1766DE)))
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Text(s.previewChannelName, color = Color(0xFF10284C),
+                                fontWeight = FontWeight.Bold, fontSize = 16.sp,
+                                maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text(epgText, color = Color(0xFF385B72),
+                                fontSize = 12.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                            if (nextText.isNotEmpty()) Text(nextText, color = Color(0xFF526B78),
+                                fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        }
+                        Box(Modifier.clip(RoundedCornerShape(20.dp))
+                            .background(Color(0xFF1038CE))
+                            .padding(horizontal = 10.dp, vertical = 6.dp)) {
+                            Text(resolution, color = Color.White,
+                                fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        }
                     }
                 }
             }
