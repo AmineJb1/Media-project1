@@ -50,6 +50,9 @@ import androidx.compose.ui.text.AnnotatedString
 import android.content.res.Configuration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
@@ -65,6 +68,8 @@ fun LoginScreen(s: AppState) {
     val f = Modifier.fillMaxWidth().padding(top = 6.dp)
     var showPassword by remember { mutableStateOf(false) }
     var showMacAccess by remember { mutableStateOf(false) }
+    val initialButtonFocus = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
     val isTv = (LocalContext.current.resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK) == Configuration.UI_MODE_TYPE_TELEVISION
     val clipboard = LocalClipboardManager.current
     var showBiometricHelp by remember { mutableStateOf(false) }
@@ -102,6 +107,12 @@ fun LoginScreen(s: AppState) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val wide = maxWidth >= 700.dp
         val tvLayout = isTv || (maxWidth >= 800.dp && maxWidth > maxHeight)
+        LaunchedEffect(tvLayout) {
+            if (tvLayout) {
+                initialButtonFocus.requestFocus()
+                keyboardController?.hide()
+            }
+        }
         Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.12f)))
         // Constrain the parent before using fillMaxWidth inside the login form.
         Box(
@@ -181,18 +192,28 @@ fun LoginScreen(s: AppState) {
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Column(Modifier.fillMaxWidth().padding(if (tvLayout) 4.dp else if (wide) 22.dp else 16.dp)) {
-                    Text("Media+ Côte d’Ivoire", fontSize = if (tvLayout) 30.sp else 21.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF176B83), maxLines = 1, modifier = Modifier.align(Alignment.CenterHorizontally))
+                    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                        Text("Media+", fontSize = if (tvLayout) 36.sp else 26.sp,
+                            fontWeight = FontWeight.ExtraBold, color = Color.Black, maxLines = 1)
+                        Text("Côte d’Ivoire", fontSize = if (tvLayout) 23.sp else 18.sp,
+                            fontWeight = FontWeight.Bold, color = Color(0xFF124D37), maxLines = 1)
+                        Row(Modifier.padding(top = 5.dp).width(if (tvLayout) 190.dp else 150.dp).height(6.dp).clip(RoundedCornerShape(4.dp))) {
+                            Box(Modifier.weight(1f).fillMaxHeight().background(Color(0xFFFF8200)))
+                            Box(Modifier.weight(1f).fillMaxHeight().background(Color.White).border(.5.dp, Color(0xFFDADADA)))
+                            Box(Modifier.weight(1f).fillMaxHeight().background(Color(0xFF009A49)))
+                        }
+                    }
                     Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, fontSize = if (tvLayout) 15.sp else 13.sp, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp, bottom = 18.dp))
                     Text("Identifiants", color = c.onSurface, fontSize = if (tvLayout) 19.sp else 15.sp,
                         fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 4.dp))
-                    OutlinedTextField(s.user, { s.saveUsername(it) }, f, singleLine = true,
+                    OutlinedTextField(s.user, { s.saveUsername(it) }, f.widthIn(max = if (tvLayout) 340.dp else 560.dp).align(Alignment.CenterHorizontally), singleLine = true,
                         shape = field, label = { Text("Nom d'utilisateur") },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF9D3C16),
                             unfocusedBorderColor = Color(0xFF275A4A),
                             focusedLabelColor = Color(0xFF71311E)))
                     OutlinedTextField(s.pass, { s.pass = it },
-                        f.onFocusChanged { if (it.isFocused && s.hasSavedBiometricAccount()) requestBiometric() },
+                        f.widthIn(max = if (tvLayout) 340.dp else 560.dp).align(Alignment.CenterHorizontally).onFocusChanged { if (it.isFocused && s.hasSavedBiometricAccount()) requestBiometric() },
                         singleLine = true, shape = field, label = { Text("Mot de passe") },
                         colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF9D3C16), unfocusedBorderColor = Color(0xFF275A4A)),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -211,6 +232,9 @@ fun LoginScreen(s: AppState) {
                             androidx.compose.material3.Icon(if (showPassword) androidx.compose.material.icons.Icons.Default.Lock else androidx.compose.material.icons.Icons.Default.Lock, contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe", tint = Color(0xFF174C3B))
                         }
                     }
+                    AnimatedVisibility(s.mode == 0 && (s.status.startsWith("Erreur", ignoreCase = true) || s.status == "Abonnement Expiré")) {
+                        Text(s.status, Modifier.padding(top = 8.dp), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                    }
                     if (biometricReady) {
                         TextButton(onClick = {
                             if (s.hasSavedBiometricAccount()) requestBiometric()
@@ -225,7 +249,7 @@ fun LoginScreen(s: AppState) {
                     }
                     Button(
                         onClick = { s.mode = 0; s.connect() },
-                        modifier = Modifier.fillMaxWidth().padding(top = 12.dp).height(if (tvLayout) 52.dp else if (wide) 52.dp else 48.dp),
+                        modifier = Modifier.fillMaxWidth(if (tvLayout) .78f else .90f).align(Alignment.CenterHorizontally).focusRequester(initialButtonFocus).padding(top = 12.dp).height(if (tvLayout) 52.dp else if (wide) 52.dp else 48.dp),
                         shape = RoundedCornerShape(28.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F2F1), contentColor = c.onSurface),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
@@ -240,9 +264,7 @@ fun LoginScreen(s: AppState) {
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 3.dp, pressedElevation = 1.dp)
                     ) { Text("▶  Connexion avec Adresse MAC", fontSize = if (tvLayout) 13.sp else 14.sp, fontWeight = FontWeight.SemiBold) }
-                    AnimatedVisibility(s.status.startsWith("Erreur", ignoreCase = true) || s.status == "Abonnement Expiré") {
-                        Text(s.status, Modifier.padding(top = 12.dp), color = c.secondary, style = MaterialTheme.typography.bodySmall)
-                    }
+
                 }
             }
             Spacer(Modifier.height(18.dp))
