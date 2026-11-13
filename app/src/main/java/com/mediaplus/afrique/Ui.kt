@@ -70,6 +70,7 @@ fun Header(showAccount: Boolean, expiryEpochSeconds: Long?, compact: Boolean = f
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        if (!compact) {
         Image(
             painter = painterResource(R.drawable.media_plus_brand),
             contentDescription = "Logo Media+ Afrique",
@@ -78,6 +79,7 @@ fun Header(showAccount: Boolean, expiryEpochSeconds: Long?, compact: Boolean = f
                 .height(if (compact) 116.dp else 130.dp),
             contentScale = ContentScale.Fit
         )
+        }
         Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Media", color = Color(0xFF103D2B),
