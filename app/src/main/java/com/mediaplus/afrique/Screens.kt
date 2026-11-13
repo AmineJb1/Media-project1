@@ -874,6 +874,16 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                             fontSize = if (tvWide) 15.sp else 13.sp,
                                             fontWeight = FontWeight.SemiBold, maxLines = 2,
                                             overflow = TextOverflow.Ellipsis)
+                                        if (previewSelected) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(3.dp)
+                                            ) {
+                                                Text("●", color = Color(0xFFE53935), fontSize = 11.sp)
+                                                Text("LIVE", color = if (channelFocused) Color(0xFFFF6B65) else Color(0xFFD92727),
+                                                    fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                                            }
+                                        }
                                         Box(
                                             Modifier.size(39.dp)
                                                 .clip(RoundedCornerShape(9.dp))
@@ -889,19 +899,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                                 modifier = Modifier.size(25.dp)
                                             )
                                         }
-                                        if (previewSelected) {
-                                            Row(
-                                                Modifier.clip(RoundedCornerShape(50))
-                                                    .background(if (channelFocused) Color.White.copy(alpha = .16f) else Color(0xFFE2F5E9))
-                                                    .padding(horizontal = 7.dp, vertical = 5.dp),
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                            ) {
-                                                Text("●", color = Color(0xFFEA4D45), fontSize = 12.sp)
-                                                Text("LIVE", color = Color(0xFFE53935),
-                                                    fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                                            }
-                                        }
+
                                     }
                                 }
                             }
