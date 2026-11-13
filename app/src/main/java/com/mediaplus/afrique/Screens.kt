@@ -198,8 +198,8 @@ fun LoginScreen(s: AppState) {
                         colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF9D3C16), unfocusedBorderColor = Color(0xFF275A4A)),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                        trailingIcon = if (tvLayout) null else {
-                            Button(onClick = { showPassword = !showPassword }, modifier = Modifier.width(88.dp).height(48.dp),
+                        trailingIcon = {
+                            if (!tvLayout) Button(onClick = { showPassword = !showPassword }, modifier = Modifier.width(88.dp).height(48.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE3EEE8), contentColor = Color(0xFF174C3B)),
                                 contentPadding = PaddingValues(horizontal = 4.dp)) {
                                 Text(if (showPassword) "Masquer" else "Voir",
