@@ -58,75 +58,60 @@ fun Pill(text: String, selected: Boolean, modifier: Modifier = Modifier, onClick
 
 @Composable
 fun Header(showAccount: Boolean, expiryEpochSeconds: Long?, compact: Boolean = false, onAccount: () -> Unit) {
-    val c = MaterialTheme.colorScheme
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Column(horizontalAlignment = Alignment.Start) {
-            Box {
-                Image(
-                    painter = painterResource(R.drawable.media_plus_brand),
-                    contentDescription = "Logo Media+ Côte d’Ivoire",
-                    modifier = Modifier.width(if (compact) 58.dp else 116.dp)
-                        .height(if (compact) 43.dp else 82.dp)
-                        .clip(RoundedCornerShape(12.dp)),
-                    contentScale = ContentScale.Fit
-                )
-                Text("🇨🇮", fontSize = if (compact) 13.sp else 20.sp,
-                    modifier = Modifier.align(Alignment.BottomEnd)
-                        .background(Color.White, RoundedCornerShape(5.dp))
-                        .padding(horizontal = 2.dp))
-            }
-            val days = expiryEpochSeconds?.let { expiry ->
-                val remaining = expiry * 1000L - System.currentTimeMillis()
-                if (remaining <= 0L) 0L else (remaining + 86_399_999L) / 86_400_000L
-            }
-            Surface(
-                color = if (days != null && days <= 7L) Color(0xFFFFE9D5) else Color(0xFFEAF3ED),
-                shape = RoundedCornerShape(50),
-                border = androidx.compose.foundation.BorderStroke(1.dp,
-                    if (days != null && days <= 7L) Color(0xFFE6A16B) else Color(0xFFC8DFD0)),
-                modifier = Modifier.padding(top = 4.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = if (compact) 6.dp else 10.dp,
-                        vertical = if (compact) 3.dp else 5.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text("◷", color = Color(0xFF20724B), fontSize = if (compact) 10.sp else 13.sp)
-                    Text(
-                        when (days) {
-                            null -> "Date inconnue"
-                            0L -> "Abonnement expiré"
-                            1L -> "1 jour restant"
-                            else -> "$days jours restants"
-                        },
-                        fontSize = if (compact) 9.sp else 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = if (days != null && days <= 7L) Color(0xFF9A4A0E) else Color(0xFF174C36),
-                        maxLines = 1
-                    )
-                }
-            }
-        }
-        Spacer(Modifier.width(10.dp))
-        Column(Modifier.weight(1f)) {
+    val days = expiryEpochSeconds?.let { expiry ->
+        val remaining = expiry * 1000L - System.currentTimeMillis()
+        if (remaining <= 0L) 0L else (remaining + 86_399_999L) / 86_400_000L
+    }
+    val expiryText = expiryEpochSeconds?.let {
+        "Expire le " + SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE).format(Date(it * 1000L))
+    } ?: "Expiration inconnue"
+    Row(
+        Modifier.fillMaxWidth().padding(vertical = if (compact) 5.dp else 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Image(
+            painter = painterResource(R.drawable.media_plus_brand),
+            contentDescription = "Logo Media+ Afrique",
+            modifier = Modifier.width(if (compact) 105.dp else 135.dp)
+                .height(if (compact) 74.dp else 98.dp),
+            contentScale = ContentScale.Fit
+        )
+        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Media", color = Color(0xFF103D2B),
-                    fontSize = if (compact) 19.sp else 27.sp,
+                    fontSize = if (compact) 26.sp else 32.sp,
                     fontWeight = FontWeight.Black, maxLines = 1)
                 Text("+", color = Color(0xFFF28A16),
-                    fontSize = if (compact) 21.sp else 30.sp,
+                    fontSize = if (compact) 28.sp else 34.sp,
                     fontWeight = FontWeight.Black, maxLines = 1)
             }
-            Text("Côte d’Ivoire", color = Color(0xFFD9650A),
-                fontSize = if (compact) 12.sp else 17.sp,
-                fontWeight = FontWeight.Bold, maxLines = 1)
-            Box(Modifier.width(if (compact) 72.dp else 116.dp).height(3.dp)
+            Text("Côte d’Ivoire", color = Color(0xFF146B48),
+                fontSize = if (compact) 17.sp else 21.sp,
+                fontWeight = FontWeight.ExtraBold, maxLines = 1)
+            Box(Modifier.width(if (compact) 118.dp else 155.dp).height(4.dp)
                 .clip(RoundedCornerShape(4.dp))
                 .background(Brush.horizontalGradient(listOf(Color(0xFFFF8A00), Color.White, Color(0xFF07964E)))))
         }
-        if (false && showAccount) TextButton(onClick = onAccount) {
-            Text("Compte", color = c.secondary, fontWeight = FontWeight.Bold)
+        Surface(
+            color = if (days != null && days <= 7L) Color(0xFFFFE9D5) else Color(0xFFEAF3ED),
+            shape = RoundedCornerShape(12.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFC8DFD0))
+        ) {
+            Column(Modifier.padding(horizontal = if (compact) 9.dp else 14.dp, vertical = 7.dp),
+                horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("DATE D’EXPIRATION", fontSize = if (compact) 9.sp else 11.sp,
+                    fontWeight = FontWeight.Bold, color = Color(0xFF315E4B), maxLines = 1)
+                Text(expiryText, fontSize = if (compact) 11.sp else 13.sp,
+                    fontWeight = FontWeight.Bold, color = Color(0xFF153F31), maxLines = 1)
+                Text(when (days) {
+                    null -> "Date non disponible"
+                    0L -> "Abonnement expiré"
+                    1L -> "1 jour restant"
+                    else -> "$days jours restants"
+                }, fontSize = if (compact) 10.sp else 12.sp,
+                    color = Color(0xFF315E4B), maxLines = 1)
+            }
         }
     }
 }
