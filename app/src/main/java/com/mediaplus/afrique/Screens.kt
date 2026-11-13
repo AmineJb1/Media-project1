@@ -222,31 +222,47 @@ fun LoginScreen(s: AppState) {
                             focusedBorderColor = Color(0xFF008D43),
                             unfocusedBorderColor = Color(0xFF0B4F32),
                             focusedLabelColor = Color(0xFF71311E)))
-                    OutlinedTextField(s.pass, { s.pass = it },
-                        Modifier.fillMaxWidth().widthIn(max = if (tvLayout) 330.dp else 560.dp)
+                    var eyeFocused by remember { mutableStateOf(false) }
+                    Box(
+                        modifier = Modifier.fillMaxWidth()
+                            .widthIn(max = if (tvLayout) 330.dp else 560.dp)
                             .align(Alignment.CenterHorizontally).padding(top = 8.dp)
-                            .onFocusChanged {
+                    ) {
+                        OutlinedTextField(s.pass, { s.pass = it },
+                            modifier = Modifier.fillMaxWidth().onFocusChanged {
                                 if (it.isFocused && s.hasSavedBiometricAccount()) requestBiometric()
                             },
-                        singleLine = true,
-                        shape = if (tvLayout) RoundedCornerShape(8.dp) else field,
-                        label = { Text("Mot de passe") },
-                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFF0B4F32)) },
-                        trailingIcon = {
-                            IconButton(onClick = { showPassword = !showPassword }) {
-                                Icon(
-                                    imageVector = if (showPassword) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                    contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe",
-                                    tint = Color(0xFF0B4F32),
-                                    modifier = Modifier.size(25.dp)
-                                )
-                            }
-                        },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF0B4F32),
-                            unfocusedBorderColor = Color(0xFF739E89)),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation())
+                            singleLine = true,
+                            shape = if (tvLayout) RoundedCornerShape(8.dp) else field,
+                            label = { Text("Mot de passe") },
+                            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFF0B4F32)) },
+                            trailingIcon = { Spacer(Modifier.width(52.dp)) },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color(0xFF0B4F32),
+                                unfocusedBorderColor = Color(0xFF739E89)),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                            visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation())
+                        IconButton(
+                            onClick = { showPassword = !showPassword },
+                            modifier = Modifier.align(Alignment.CenterEnd)
+                                .padding(end = 5.dp).size(46.dp)
+                                .onFocusChanged { eyeFocused = it.isFocused }
+                                .background(
+                                    if (eyeFocused) Color(0xFF0B4F32) else Color.Transparent,
+                                    RoundedCornerShape(12.dp))
+                                .border(
+                                    if (eyeFocused) 3.dp else 0.dp,
+                                    if (eyeFocused) Color(0xFF42D77B) else Color.Transparent,
+                                    RoundedCornerShape(12.dp))
+                        ) {
+                            Icon(
+                                imageVector = if (showPassword) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe",
+                                tint = if (eyeFocused) Color.White else Color(0xFF0B4F32),
+                                modifier = Modifier.size(25.dp)
+                            )
+                        }
+                    }
                     AnimatedVisibility(s.mode == 0 && (s.status.startsWith("Erreur", ignoreCase = true) || s.status == "Abonnement Expiré")) {
                         Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.Close, contentDescription = null, tint = Color(0xFFD32F2F), modifier = Modifier.size(18.dp))
