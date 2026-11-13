@@ -90,7 +90,17 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         val key = vodAccountKey()
         if (!force && vodFile(kind).exists() && vodTimestamp(kind) > 0 &&
             System.currentTimeMillis() - vodTimestamp(kind) < vodTtlMs) {
-            vodLoading.remove(kind)
+            scope.launch {
+                try {
+                    val cached = withContext(Dispatchers.IO) { readVod(kind) }
+                    if (cached != null && key == vodAccountKey()) {
+                        if (kind == 2) { movies = cached.items; movieCategories = cached.categories }
+                        else { series = cached.items; seriesCategories = cached.categories }
+                    } else if (cached == null && key == vodAccountKey()) {
+                        // Invalid cache will be retried after releasing the loading guard
+                    }
+                } finally { vodLoading.remove(kind) }
+            }
             return
         }
         val client = xt()
