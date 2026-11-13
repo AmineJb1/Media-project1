@@ -396,7 +396,8 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 }
             }
             Column(Modifier.weight(1f).fillMaxHeight()
-                .padding(horizontal = if (useSideRail) 12.dp else if (wide) 30.dp else 16.dp)) {
+                .padding(start = if (useSideRail) 14.dp else if (wide) 30.dp else 16.dp,
+                    end = if (useSideRail) 34.dp else if (wide) 30.dp else 16.dp)) {
             Spacer(Modifier.height(if (landscapeCompact) 2.dp else 14.dp))
             Header(false, s.subscriptionExpirySeconds, compact = useSideRail) { }
             Spacer(Modifier.height(if (landscapeCompact) 1.dp else 5.dp))
@@ -569,11 +570,11 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                         if (s.group == null && s.query.isBlank()) {
                             val groups = (specialGroups.keys + list.map { it.group }).filter { it.isNotBlank() }.distinct()
                             BoxWithConstraints(Modifier.fillMaxSize()) {
-                                val cardHeight = (maxHeight - 28.dp - 12.dp) / 3
+                                val cardHeight = (maxHeight - 24.dp - 12.dp) / 3
                                 LazyVerticalGrid(columns = GridCells.Fixed(3),
                                     modifier = Modifier.fillMaxSize(),
-                                    horizontalArrangement = Arrangement.spacedBy(14.dp),
-                                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(12.dp),
                                     contentPadding = PaddingValues(bottom = 12.dp)) {
                                     items(groups) { groupName ->
                                         Column(Modifier.fillMaxWidth().height(cardHeight)
