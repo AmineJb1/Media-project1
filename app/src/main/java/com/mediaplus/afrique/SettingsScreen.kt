@@ -276,7 +276,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                             }
                             Button(
                                 onClick = { onPage("Ajouter un compte") },
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().focusRequester(detailFocus),
                                 shape = RoundedCornerShape(18.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF075A36))
                             ) { Text("＋  Ajouter un compte", fontWeight = FontWeight.Bold) }
