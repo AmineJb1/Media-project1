@@ -234,10 +234,11 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                                 Button(onClick = {
                                     message = if (newPin == confirmPin && s.changeParentalPin(oldPin, newPin)) "Code parental modifié" else "Vérifiez le code actuel et la confirmation"
                                     oldPin = ""; newPin = ""; confirmPin = ""
-                                }, modifier = Modifier.fillMaxWidth().focusRequester(parentalActionFocus),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF075A36)),
-                                    shape = RoundedCornerShape(18.dp)) {
-                                    Text("▣  Enregistrer le nouveau code")
+                                }, modifier = Modifier.align(Alignment.CenterHorizontally).widthIn(min = 220.dp, max = 310.dp).height(44.dp)
+                                    .focusRequester(parentalActionFocus),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE58A18)),
+                                    shape = RoundedCornerShape(14.dp)) {
+                                    Text("▣  Enregistrer le nouveau code", fontSize = 14.sp)
                                 }
                                 if (s.adultUnlocked) OutlinedButton(
                                     onClick = { s.lockAdult() }, modifier = Modifier.fillMaxWidth()
