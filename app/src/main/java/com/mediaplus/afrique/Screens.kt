@@ -155,7 +155,7 @@ fun LoginScreen(s: AppState) {
             }
             Column(
                 Modifier.align(if (tvLayout) Alignment.CenterEnd else Alignment.TopCenter)
-                    .widthIn(max = if (tvLayout) 450.dp else 560.dp)
+                    .widthIn(max = if (tvLayout) 430.dp else 560.dp)
                     .fillMaxWidth()
                     .padding(top = if (tvLayout) 0.dp else 0.dp)
                     .verticalScroll(rememberScrollState()),
@@ -200,10 +200,10 @@ fun LoginScreen(s: AppState) {
             ) {
                 Column(Modifier.fillMaxWidth().padding(if (tvLayout) 12.dp else if (wide) 22.dp else 16.dp)) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                        Text("Media+", fontSize = if (tvLayout) 32.sp else 26.sp,
-                            fontWeight = FontWeight.ExtraBold, color = Color.Black, maxLines = 1)
-                        Text("Côte d’Ivoire", fontSize = if (tvLayout) 21.sp else 18.sp,
-                            fontWeight = FontWeight.Bold, color = Color(0xFF124D37), maxLines = 1)
+                        Text("Media+", fontSize = if (tvLayout) 39.sp else 26.sp,
+                            fontWeight = FontWeight.Black, color = Color.Black, maxLines = 1)
+                        Text("Côte d’Ivoire", fontSize = if (tvLayout) 26.sp else 18.sp,
+                            fontWeight = FontWeight.Black, color = Color.Black, maxLines = 1)
                         Row(Modifier.padding(top = 5.dp).width(if (tvLayout) 190.dp else 150.dp).height(6.dp).clip(RoundedCornerShape(4.dp))) {
                             Box(Modifier.weight(1f).fillMaxHeight().background(Color(0xFFFF8200)))
                             Box(Modifier.weight(1f).fillMaxHeight().background(Color.White).border(.5.dp, Color(0xFFDADADA)))
@@ -211,14 +211,14 @@ fun LoginScreen(s: AppState) {
                         }
                     }
                     Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, fontSize = if (tvLayout) 15.sp else 13.sp, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp, bottom = 18.dp))
-                    Text("Identifiants", color = Color(0xFF0B4F32), fontSize = if (tvLayout) 20.sp else 15.sp,
+                    Text("Identifiants", color = Color.Black, fontSize = if (tvLayout) 22.sp else 15.sp,
                         fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 4.dp))
                     OutlinedTextField(s.user, { s.saveUsername(it) }, f.widthIn(max = if (tvLayout) 380.dp else 560.dp).align(Alignment.CenterHorizontally), singleLine = true,
-                        shape = field, label = { Text("Nom d'utilisateur") },
+                        shape = if (tvLayout) RoundedCornerShape(8.dp) else field, label = { Text("Nom d'utilisateur") },
                         leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = Color(0xFF0B4F32)) },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF0B4F32),
-                            unfocusedBorderColor = Color(0xFF739E89),
+                            focusedBorderColor = Color(0xFF008D43),
+                            unfocusedBorderColor = Color(0xFF0B4F32),
                             focusedLabelColor = Color(0xFF71311E)))
                     Row(Modifier.fillMaxWidth().widthIn(max = if (tvLayout) 380.dp else 620.dp)
                         .align(Alignment.CenterHorizontally).padding(top = 8.dp),
@@ -228,7 +228,7 @@ fun LoginScreen(s: AppState) {
                             Modifier.weight(1f).onFocusChanged {
                                 if (it.isFocused && s.hasSavedBiometricAccount()) requestBiometric()
                             },
-                            singleLine = true, shape = field, label = { Text("Mot de passe") },
+                            singleLine = true, shape = if (tvLayout) RoundedCornerShape(8.dp) else field, label = { Text("Mot de passe") },
                             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFF0B4F32)) },
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = Color(0xFF0B4F32), unfocusedBorderColor = Color(0xFF739E89)),
@@ -275,12 +275,12 @@ fun LoginScreen(s: AppState) {
                     }
                     Button(
                         onClick = { s.mode = 0; s.connect() },
-                        modifier = Modifier.fillMaxWidth(if (tvLayout) .82f else .90f).align(Alignment.CenterHorizontally).focusRequester(initialButtonFocus).padding(top = 8.dp).height(if (tvLayout) 44.dp else if (wide) 52.dp else 48.dp),
+                        modifier = Modifier.fillMaxWidth(if (tvLayout) .82f else .90f).align(Alignment.CenterHorizontally).focusRequester(initialButtonFocus).padding(top = 8.dp).height(if (tvLayout) 48.dp else if (wide) 52.dp else 48.dp),
                         shape = RoundedCornerShape(28.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B4F32), contentColor = Color.White),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 3.dp, pressedElevation = 1.dp)
-                    ) { Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color(0xFF0B4F32))
+                    ) { Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.White)
                         Spacer(Modifier.width(8.dp))
                         Text("Se connecter", fontSize = 15.sp, color = Color.White, fontWeight = FontWeight.Bold) }
                     Spacer(Modifier.height(10.dp))
@@ -291,7 +291,7 @@ fun LoginScreen(s: AppState) {
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF8A00), contentColor = Color.White),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 3.dp, pressedElevation = 1.dp)
-                    ) { Icon(Icons.Default.Home, contentDescription = null, tint = Color(0xFF0B4F32))
+                    ) { Icon(Icons.Default.Home, contentDescription = null, tint = Color.White)
                         Spacer(Modifier.width(8.dp))
                         Text("Connexion avec Adresse MAC", fontSize = if (tvLayout) 13.sp else 14.sp, color = Color.White, fontWeight = FontWeight.SemiBold) }
 
