@@ -152,9 +152,30 @@ fun TvPlayer(s: AppState) {
             catch (_: Exception) { epgError = true }
         }
     }
+    // Coalesce fast remote presses: only prepare the final requested stream.
+    var pendingChannelIndex by remember { mutableIntStateOf(-1) }
+    var pendingChannelKey by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(channels) {
+        pendingChannelIndex = -1
+        pendingChannelKey = null
+    }
+    LaunchedEffect(pendingChannelIndex, pendingChannelKey) {
+        val index = pendingChannelIndex
+        if (index >= 0 && index < channels.size) {
+            delay(450)
+            val target = channels[index]
+            pendingChannelIndex = -1
+            pendingChannelKey = null
+            if (target.id != s.playingChannel?.id) s.playLive(target)
+        }
+    }
     fun changeChannel(delta: Int) {
-        val index = channels.indexOfFirst { it.id == channel?.id }
-        if (index >= 0 && channels.isNotEmpty()) s.playLive(channels[(index + delta + channels.size) % channels.size])
+        if (channels.isEmpty()) return
+        val currentIndex = channels.indexOfFirst { it.id == channel?.id }.coerceAtLeast(0)
+        val base = if (pendingChannelIndex in channels.indices) pendingChannelIndex else currentIndex
+        pendingChannelIndex = (base + delta + channels.size) % channels.size
+        pendingChannelKey = channels[pendingChannelIndex].id
+        infoVisible = true
     }
     Box(
         Modifier.fillMaxSize().background(Color.Black)
