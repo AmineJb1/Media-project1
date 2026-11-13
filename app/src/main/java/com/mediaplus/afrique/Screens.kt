@@ -397,11 +397,17 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     .padding(horizontal = 7.dp, vertical = 12.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                    Spacer(Modifier.height(if (tvWide) 36.dp else 20.dp))
+                    Image(
+                        painter = painterResource(R.drawable.media_plus_brand),
+                        contentDescription = "Media+ Afrique",
+                        modifier = Modifier.fillMaxWidth().height(if (tvWide) 106.dp else 74.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                    Spacer(Modifier.height(4.dp))
                     listOf(0 to "Direct", 2 to "Films", 3 to "Séries", 4 to "Favoris", 5 to "Réglages").forEach { (section, title) ->
                         val active = if (section == 5) settingsOpen else !settingsOpen && s.section == section
                         var navFocused by remember { mutableStateOf(false) }
-                        val selected = active || navFocused
+                        val selected = active
                         val bottleGreen = Color(0xFF0B4F32)
                         Row(Modifier.fillMaxWidth()
                             .shadow(if (selected) 6.dp else 3.dp, RoundedCornerShape(15.dp))
