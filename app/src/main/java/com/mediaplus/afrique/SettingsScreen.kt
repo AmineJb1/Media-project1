@@ -304,13 +304,47 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                     }
                 }
                 "Vider le cache" -> {
-                    SettingsPanel {
-                        Text("Nettoyer les données temporaires", style = MaterialTheme.typography.titleMedium,
-                            color = Color(0xFF193D30), fontWeight = FontWeight.SemiBold)
-                        Text("Supprime l’historique des chaînes récemment regardées, les caches des films et séries ainsi que le cache vidéo. Vos favoris et vos comptes restent conservés.",
-                            style = MaterialTheme.typography.bodyMedium, color = Color(0xFF56675D))
-                        Button(onClick = { confirmClearCache = true }, modifier = Modifier.fillMaxWidth()) {
-                            Text("Vider le cache")
+                    val bottleGreen = Color(0xFF0B4F32)
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(0.80f).widthIn(max = 680.dp)
+                                .shadow(5.dp, RoundedCornerShape(20.dp)),
+                            shape = RoundedCornerShape(20.dp),
+                            color = Color(0xFFF9FBFF).copy(alpha = 0.76f),
+                            border = BorderStroke(1.dp, bottleGreen.copy(alpha = 0.25f))
+                        ) {
+                            BoxWithConstraints(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+                                if (maxWidth < 430.dp) {
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                                    ) {
+                                        Text("Vider le cache", color = bottleGreen,
+                                            fontWeight = FontWeight.Bold,
+                                            style = MaterialTheme.typography.titleMedium)
+                                        Button(
+                                            onClick = { confirmClearCache = true },
+                                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF7900)),
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) { Text("Vider le cache", color = Color.White) }
+                                    }
+                                } else {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(14.dp)
+                                    ) {
+                                        Text("Vider le cache", color = bottleGreen,
+                                            fontWeight = FontWeight.Bold,
+                                            style = MaterialTheme.typography.titleLarge,
+                                            modifier = Modifier.weight(1f))
+                                        Button(
+                                            onClick = { confirmClearCache = true },
+                                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF7900)),
+                                            modifier = Modifier.widthIn(min = 170.dp)
+                                        ) { Text("Vider le cache", color = Color.White) }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
