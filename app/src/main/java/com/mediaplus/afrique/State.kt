@@ -374,10 +374,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         selectPlaybackBouquet(null, emptyList())
         if (s != 0) clearPreview()
         if ((s == 2 || s == 3) && mode != 0) { status = "Films et séries : connexion par identifiants requise"; return }
-        if (s == 2 || s == 3) {
-            loadVodCache()
-            updateVod(s)
-        }
+        if (s == 2 || s == 3) updateVod(s)
     }
 
     fun refreshCatalog() {
