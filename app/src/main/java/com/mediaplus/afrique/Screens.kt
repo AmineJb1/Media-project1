@@ -12,7 +12,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.grid.items
@@ -663,7 +662,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                 horizontalArrangement = Arrangement.spacedBy(7.dp),
                                 verticalArrangement = Arrangement.spacedBy(7.dp),
                                 contentPadding = PaddingValues(bottom = 12.dp)) {
-                                itemsIndexed(visibleItems, key = { _, item -> item.id }) { index, item ->
+                                items(visibleItems, key = { item -> item.id }) { item ->
                                     var channelFocused by remember { mutableStateOf(false) }
                                     Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
                                         .onFocusChanged { channelFocused = it.isFocused }
@@ -673,7 +672,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                         .clickable {
                                             s.selectPlaybackBouquet(s.group, visibleItems)
                                             s.requestAdultItem(item) { s.pick(item) }
-                                        }.then(if (index == 0) Modifier.focusRequester(firstChannelFocus) else Modifier)
+                                        }.then(if (visibleItems.firstOrNull()?.id == item.id) Modifier.focusRequester(firstChannelFocus) else Modifier)
                                         .padding(7.dp),
                                         horizontalAlignment = Alignment.CenterHorizontally) {
                                         Logo(item)
