@@ -123,10 +123,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                 }
             }
         } else {
-            TextButton(onClick = { onPage(if (page == "Ajouter un compte") "Mon compte" else null); message = "" }) {
-                Text("‹  Retour")
-            }
-            Text(page, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = Color(0xFF153E30))
+            // Detail pages keep their content headings inside cards; no redundant back/title header.
             when (page) {
                 "Informations d’abonnement" -> {
                     val expiry = s.subscriptionExpirySeconds
