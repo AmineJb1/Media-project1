@@ -274,8 +274,8 @@ fun LoginScreen(s: AppState) {
                         onClick = { s.mode = 0; s.connect() },
                         modifier = Modifier.fillMaxWidth(if (tvLayout) .86f else .90f).align(Alignment.CenterHorizontally).focusRequester(initialButtonFocus).onFocusChanged { loginButtonFocused = it.isFocused }.padding(top = 8.dp).height(if (tvLayout) 44.dp else if (wide) 52.dp else 48.dp),
                         shape = RoundedCornerShape(28.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = if (loginButtonFocused || macButtonFocused) Color(0xFFFF8A00) else Color(0xFF0B4F32), contentColor = Color.White),
-                        border = androidx.compose.foundation.BorderStroke(if (loginButtonFocused) 3.dp else 1.dp, if (loginButtonFocused) Color(0xFF0B4F32) else Color(0xFFCDD1CD)),
+                        colors = ButtonDefaults.buttonColors(containerColor = if (loginButtonFocused) Color(0xFF0B4F32) else Color(0xFFFF8A00), contentColor = Color.White),
+                        border = androidx.compose.foundation.BorderStroke(if (loginButtonFocused) 3.dp else 1.dp, if (loginButtonFocused) Color(0xFF42D77B) else Color(0xFFCDD1CD)),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 3.dp, pressedElevation = 1.dp)
                     ) { Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.White)
                         Spacer(Modifier.width(8.dp))
