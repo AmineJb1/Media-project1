@@ -575,15 +575,15 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
             }
             if (s.section == 2 || s.section == 3) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.End)) {
                     OutlinedButton(onClick = { s.refreshCatalog() }, contentPadding = PaddingValues(horizontal = 10.dp)) { Text("↻ Actualiser", color = Color(0xFF154A36), maxLines = 1, fontSize = 12.sp) }
                     var sortOpen by remember { mutableStateOf(false) }
                     Box {
                         OutlinedButton(onClick = { sortOpen = true }) {
-                            Text(when (s.vodSort) {
-                                1 -> "Récemment ajouté"
+                            Text("Trier : " + when (s.vodSort) {
+                                1 -> "Récents"
                                 2 -> "A-Z"
-                                else -> "Par défaut"
+                                else -> "Défaut"
                             }, maxLines = 1, fontSize = 12.sp, color = Color(0xFF154A36))
                         }
                         DropdownMenu(expanded = sortOpen, onDismissRequest = { sortOpen = false }) {
