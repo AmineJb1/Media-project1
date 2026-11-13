@@ -101,15 +101,16 @@ fun AfricaTheme(content: @Composable () -> Unit) {
                                 val red = android.graphics.Color.red(pixel)
                                 val greenChannel = android.graphics.Color.green(pixel)
                                 val blue = android.graphics.Color.blue(pixel)
-                                val orange = hue in 12f..49f && hsv[1] > .055f &&
-                                    red > greenChannel * 1.055f && greenChannel > blue * 1.03f
-                                val green = hue in 75f..175f && hsv[1] > .10f &&
-                                    greenChannel > red * 1.08f
-                                if (orange || green) {
-                                    // Saturate the existing flag, without changing its silhouette.
-                                    hsv[0] = if (orange) 30f else 140f
-                                    hsv[1] = if (orange) .96f else .92f
-                                    hsv[2] = (hsv[2] * 1.30f).coerceAtMost(1f)
+                                // Target the tan / ochre orange flag stripe, including
+                                // shaded 3D pixels; leave green, white and the logo intact.
+                                val orange = hue in 9f..67f && hsv[1] > .075f &&
+                                    red > blue * 1.12f &&
+                                    greenChannel > blue * 1.035f &&
+                                    red >= greenChannel * 1.025f
+                                if (orange) {
+                                    hsv[0] = 25f // vivid Côte d'Ivoire orange
+                                    hsv[1] = (hsv[1] * 1.75f).coerceIn(.86f, 1f)
+                                    hsv[2] = (hsv[2] * 1.26f).coerceAtMost(1f)
                                     pixels[i] = android.graphics.Color.HSVToColor(
                                         android.graphics.Color.alpha(pixel), hsv)
                                 }
