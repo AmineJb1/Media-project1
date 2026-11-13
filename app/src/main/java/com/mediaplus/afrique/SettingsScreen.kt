@@ -118,17 +118,45 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                     val expiry = s.subscriptionExpirySeconds
                     val date = expiry?.let { SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(it * 1000L)) } ?: "Non communiquée"
                     val days = expiry?.let { ((it * 1000L - System.currentTimeMillis()).coerceAtLeast(0L) + 86399999L) / 86400000L }
-                    SettingsPanel {
-                        SettingsDetail("Identifiant", if (s.mode == 0) s.user.ifBlank { "Non renseigné" } else s.mac)
-                        HorizontalDivider(color = Color(0xFFE5EAE7))
-                        SettingsDetail("Expiration", date)
-                        HorizontalDivider(color = Color(0xFFE5EAE7))
-                        SettingsDetail("Jours restants", days?.let { "$it jours" } ?: "Inconnu", emphasized = true)
-                        HorizontalDivider(color = Color(0xFFE5EAE7))
-                        SettingsDetail("Type de connexion", if (s.mode == 0) "Xtream Codes" else "Adresse MAC")
-                    }
-                    OutlinedButton(onClick = { s.refreshSubscription() }, modifier = Modifier.fillMaxWidth()) {
-                        Text("Actualiser les informations")
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(0.78f).widthIn(max = 700.dp),
+                            shape = RoundedCornerShape(24.dp),
+                            color = Color(0xFFF6FAF8).copy(alpha = 0.73f),
+                            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.85f)),
+                            shadowElevation = 6.dp
+                        ) {
+                            Column(Modifier.padding(horizontal = 22.dp, vertical = 18.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Text("▣  Informations d’abonnement",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold, color = Color(0xFF174A35))
+                                Surface(
+                                    color = Color.White.copy(alpha = 0.52f),
+                                    shape = RoundedCornerShape(18.dp),
+                                    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.75f))
+                                ) {
+                                    Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                        verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        SettingsDetail("Identifiant", if (s.mode == 0) s.user.ifBlank { "Non renseigné" } else s.mac)
+                                        HorizontalDivider(color = Color(0xFFB9CCC3))
+                                        SettingsDetail("Expiration", date)
+                                        HorizontalDivider(color = Color(0xFFB9CCC3))
+                                        SettingsDetail("Jours restants", days?.let { "$it jours" } ?: "Inconnu", emphasized = true)
+                                        HorizontalDivider(color = Color(0xFFB9CCC3))
+                                        SettingsDetail("Type de connexion", if (s.mode == 0) "Xtream Codes" else "Adresse MAC")
+                                    }
+                                }
+                                OutlinedButton(onClick = { s.refreshSubscription() },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(18.dp),
+                                    border = BorderStroke(1.dp, Color(0xFF075A36)),
+                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = Color(0xFFE4F1E9).copy(alpha = 0.82f))) {
+                                    Text("⟳  Actualiser les informations", color = Color(0xFF075A36),
+                                        fontWeight = FontWeight.SemiBold)
+                                }
+                            }
+                        }
                     }
                 }
                 "Contrôle parental" -> {
