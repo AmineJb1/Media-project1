@@ -392,7 +392,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
         Row(Modifier.fillMaxSize()) {
             if (useSideRail) {
                 Column(Modifier.width(if (tvWide) 174.dp else 144.dp).fillMaxHeight()
-                    .background(Color(0xFFF7F9FB))
+                    .background(Color(0xFFF8FAFC))
                     .border(1.dp, Color(0xFFE0E8EC))
                     .padding(horizontal = 7.dp, vertical = 12.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -400,24 +400,43 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     listOf(0 to "Direct", 2 to "Films", 3 to "Séries", 4 to "Favoris", 5 to "Réglages").forEach { (section, title) ->
                         val active = if (section == 5) settingsOpen else !settingsOpen && s.section == section
                         var navFocused by remember { mutableStateOf(false) }
-                        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(9.dp))
+                        val selected = active || navFocused
+                        val bottleGreen = Color(0xFF0B4F32)
+                        Row(Modifier.fillMaxWidth()
+                            .shadow(if (selected) 6.dp else 3.dp, RoundedCornerShape(15.dp))
+                            .clip(RoundedCornerShape(15.dp))
                             .onFocusChanged { navFocused = it.isFocused }
-                            .background(if (navFocused) Color(0xFFD6EAE0) else if (active) Color(0xFFBFE9D3) else Color.White)
-                            .border(if (navFocused) 4.dp else if (active) 3.dp else 1.dp, if (navFocused) Color(0xFF145A43) else if (active) Color(0xFF087246) else Color(0xFFE4E9ED), RoundedCornerShape(9.dp))
+                            .background(if (selected) bottleGreen else Color(0xFFF8FAFF))
+                            .border(if (selected) 2.5.dp else 1.dp,
+                                if (selected) Color(0xFF078B49) else Color(0xFFD6E0EA),
+                                RoundedCornerShape(15.dp))
                             .clickable {
                                 if (section == 5) { onSettingsOpen(true); s.clearPreview() }
                                 else { onSettingsOpen(false); onSettingsPage(null); s.pickSection(section) }
-                            }.padding(vertical = 10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                            Box(Modifier.size(42.dp).clip(RoundedCornerShape(14.dp))
-                                .background(if (active) Color(0xFF20785C) else Color(0xFFEEF3F6)),
-                                contentAlignment = Alignment.Center) {
-                                Icon(when (section) { 0 -> Icons.Filled.Home; 2 -> Icons.Filled.PlayArrow; 3 -> Icons.Filled.List; 4 -> Icons.Filled.Star; else -> Icons.Filled.Settings },
-                                    contentDescription = title, tint = if (active) Color.White else Color(0xFF34566A),
-                                    modifier = Modifier.size(27.dp))
                             }
-                            Spacer(Modifier.height(6.dp))
-                            Text(title, fontSize = 16.sp, fontWeight = FontWeight.Bold,
-                                color = if (active) Color(0xFF14553F) else Color(0xFF263E4B), maxLines = 1)
+                            .padding(horizontal = 8.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically) {
+                            Box(Modifier.size(38.dp).clip(RoundedCornerShape(11.dp))
+                                .background(if (selected) Color(0xFF126B42) else Color.White),
+                                contentAlignment = Alignment.Center) {
+                                if (section == 3) {
+                                    Text("🎬", fontSize = 23.sp)
+                                } else {
+                                    Icon(when (section) {
+                                        0 -> Icons.Filled.Home
+                                        2 -> Icons.Filled.PlayArrow
+                                        4 -> Icons.Filled.Star
+                                        else -> Icons.Filled.Settings
+                                    }, contentDescription = title,
+                                        tint = if (selected) Color.White else bottleGreen,
+                                        modifier = Modifier.size(26.dp))
+                                }
+                            }
+                            Spacer(Modifier.width(7.dp))
+                            Text(title, fontSize = if (tvWide) 14.sp else 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (selected) Color.White else Color(0xFF173F2D),
+                                maxLines = 1)
                         }
                     }
                 }
