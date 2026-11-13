@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.foundation.focusable
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.FocusRequester
@@ -83,6 +84,7 @@ fun TvPlayer(s: AppState) {
     }
     val focusRequester = remember { FocusRequester() }
     val drawerFocusRequester = remember { FocusRequester() }
+    val infoSettingsFocusRequester = remember { FocusRequester() }
     LaunchedEffect(menuVisible, settingsVisible) {
         // Wait for the target to enter the composition before requesting TV focus.
         kotlinx.coroutines.yield()
@@ -156,8 +158,24 @@ fun TvPlayer(s: AppState) {
         Modifier.fillMaxSize().background(Color.Black)
             .onPreviewKeyEvent { event ->
                 if (event.type != KeyEventType.KeyDown) false else when (event.key) {
-                    // Do not switch channels or change volume with directional keys in fullscreen.
-                    Key.DirectionUp, Key.DirectionDown, Key.DirectionLeft, Key.DirectionRight -> false
+                    Key.DirectionUp, Key.DirectionDown -> {
+                        if (menuVisible || settingsVisible || infoVisible) false
+                        else {
+                            val index = channels.indexOfFirst { it.id == channel?.id }
+                            if (index >= 0 && channels.isNotEmpty()) {
+                                val step = if (event.key == Key.DirectionUp) -1 else 1
+                                val nextIndex = (index + step + channels.size) % channels.size
+                                s.playLive(channels[nextIndex])
+                                true
+                            } else false
+                        }
+                    }
+                    Key.DirectionLeft, Key.DirectionRight -> {
+                        if (!menuVisible && !settingsVisible && infoVisible) {
+                            infoSettingsFocusRequester.requestFocus()
+                            true
+                        } else false
+                    }
                     Key.DirectionCenter, Key.Enter, Key.NumPadEnter -> {
                         if (menuVisible || settingsVisible) false
                         else { settingsVisible = false; infoVisible = true; menuVisible = true; selectedBouquet = initialBouquet; drawerTab = 1; true }
@@ -199,7 +217,7 @@ fun TvPlayer(s: AppState) {
                         style = MaterialTheme.typography.labelSmall,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp))
                 }
-                TextButton(onClick = { settingsVisible = true; infoVisible = true }) {
+                TextButton(modifier = Modifier.focusRequester(infoSettingsFocusRequester), onClick = { settingsVisible = true; infoVisible = true }) {
                     Text("⚙", color = Color.White, fontSize = 24.sp)
                 }
             }
@@ -213,18 +231,18 @@ fun TvPlayer(s: AppState) {
         }
         if (menuVisible && !settingsVisible) {
             Surface(
-                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(0.84f).fillMaxWidth(0.62f),
+                modifier = Modifier.align(Alignment.BottomStart).padding(start = 12.dp, bottom = 108.dp).fillMaxHeight(0.68f).fillMaxWidth(0.48f),
                 color = Color(0xF0152119),
                 shape = RoundedCornerShape(topStart = 18.dp, bottomStart = 18.dp)
             ) {
-                Column(Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(10.dp)) {
+                Column(Modifier.padding(10.dp)) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         listOf("Bouquets" to 0, "Chaînes" to 1).forEach { (title, tab) ->
                             Surface(
                                 modifier = Modifier.weight(1f)
                                     .then(if (tab == 1) Modifier.focusRequester(drawerFocusRequester) else Modifier)
                                     .onFocusChanged { if (it.isFocused) drawerTab = tab }
-                                    .focusable().clickable { drawerTab = tab },
+                                    .clickable { drawerTab = tab }.focusable(),
                                 color = if (drawerTab == tab) Color(0xFFDF792D) else Color(0x553D5047),
                                 shape = RoundedCornerShape(10.dp)
                             ) {
@@ -249,11 +267,10 @@ fun TvPlayer(s: AppState) {
                                 Surface(
                                     modifier = Modifier.fillMaxWidth()
                                         .onFocusChanged { }
-                                        .focusable()
                                         .clickable {
                                         selectedBouquet = name
                                         drawerTab = 1
-                                    },
+                                    }.focusable(),
                                     color = if (name == drawerBouquet) Color(0x554D8B72) else Color.Transparent,
                                     shape = RoundedCornerShape(11.dp)
                                 ) {
@@ -273,12 +290,11 @@ fun TvPlayer(s: AppState) {
                                             if (item.id == channel?.id) Color(0x554D8B72) else Color.Transparent,
                                             RoundedCornerShape(11.dp)
                                         )
-                                        .focusable()
                                         .clickable {
                                             s.selectPlaybackBouquet(drawerBouquet, drawerChannels)
                                             s.playLive(item)
                                             menuVisible = false
-                                        }
+                                        }.focusable()
                                         .padding(horizontal = 9.dp, vertical = 10.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(10.dp)
