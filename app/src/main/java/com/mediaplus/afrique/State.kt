@@ -250,6 +250,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     var previewChannelId by mutableStateOf<String?>(null)
     var previewChannelName by mutableStateOf("")
     var showLogin by mutableStateOf(true)
+    var restoringSession by mutableStateOf(false)
     var cacheMb by mutableStateOf(0L)
     val favs = mutableStateListOf<Item>()
     val recentlyWatched = mutableStateListOf<String>()
@@ -306,6 +307,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         if (prefs.getBoolean("session_active", false) && (mode == 1 || (mode == 0 && !savedPassword.isNullOrBlank()))) {
             if (mode == 0) pass = savedPassword.orEmpty()
             showLogin = true
+            restoringSession = true
             connect()
         } else showLogin = true
 
@@ -347,7 +349,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
                     prefs.edit().remove("biometric_saved_user").putBoolean("biometric_opt_in", false).apply()
                 }
                 prefs.edit().putBoolean("session_active", mode == 1 || savedSecurely).apply()
-                status = "${l.size} chaînes"; showLogin = false
+                status = "${l.size} chaînes"; restoringSession = false; showLogin = false
                 refreshSubscription()
                 // Do not load films/series in the background while opening Live TV.
                 // Low-memory Android TV boxes should load these sections on demand.
@@ -358,6 +360,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
                     msg.contains("expiré", ignoreCase = true))
                     "Abonnement Expiré" else "Erreur de récupération"
                 prefs.edit().putBoolean("session_active", false).apply()
+                restoringSession = false
             }
         }
     }
