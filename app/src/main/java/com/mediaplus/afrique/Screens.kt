@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items as listItems
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -729,12 +731,20 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     }
                 }
             } else if (s.section == 0 && useSideRail) {
-                Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Box(Modifier.weight(if (s.previewChannelId != null) 0.64f else 1f).fillMaxHeight()) {
-                        val visibleItems = if (s.query.isNotBlank()) {
-                            list.filter { it.name.contains(s.query, ignoreCase = true) || it.group.contains(s.query, ignoreCase = true) }
-                        } else if (s.group == null) emptyList()
-                        else specialGroups[s.group] ?: list.filter { it.group == s.group }
+                val visibleItems = if (s.query.isNotBlank()) {
+                    list.filter { it.name.contains(s.query, ignoreCase = true) || it.group.contains(s.query, ignoreCase = true) }
+                } else if (s.group == null) emptyList()
+                else specialGroups[s.group] ?: list.filter { it.group == s.group }
+                if (s.group != null) {
+                    Row(Modifier.fillMaxWidth().padding(bottom = 5.dp),
+                        horizontalArrangement = Arrangement.End) {
+                        Text(s.group.orEmpty(), color = Color(0xFF0B4F32),
+                            fontSize = 18.sp, fontWeight = FontWeight.Bold,
+                            maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                }
+                Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Box(Modifier.weight(if (s.group == null) 1f else 0.47f).fillMaxHeight()) {
                         if (s.group == null && s.query.isBlank()) {
                             val groups = (specialGroups.keys + list.map { it.group }).filter { it.isNotBlank() }.distinct()
                             BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -802,35 +812,62 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                     runCatching { firstChannelFocus.requestFocus() }
                                 }
                             }
-                            LazyVerticalGrid(columns = GridCells.Adaptive(if (tvWide) 180.dp else 150.dp),
-                                horizontalArrangement = Arrangement.spacedBy(7.dp),
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
                                 verticalArrangement = Arrangement.spacedBy(7.dp),
-                                contentPadding = PaddingValues(bottom = 12.dp)) {
-                                items(visibleItems, key = { item -> item.id }) { item ->
+                                contentPadding = PaddingValues(bottom = 10.dp)
+                            ) {
+                                listItems(visibleItems, key = { it.id }) { item ->
                                     var channelFocused by remember { mutableStateOf(false) }
-                                    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-                                        .onFocusChanged { channelFocused = it.isFocused }
-                                        .background(if (channelFocused) Color(0xFFD6EAE0) else Color.White.copy(alpha = if (s.previewChannelId == item.id) 1f else 0.96f))
-                                        .border(if (channelFocused) 4.dp else 1.dp,
-                                            if (channelFocused) Color(0xFF145A43) else Color(0xFFB2C9C3), RoundedCornerShape(12.dp))
-                                        .clickable {
-                                            s.selectPlaybackBouquet(s.group, visibleItems)
-                                            s.requestAdultItem(item) { s.pick(item) }
-                                        }.then(if (visibleItems.firstOrNull()?.id == item.id) Modifier.focusRequester(firstChannelFocus) else Modifier)
-                                        .padding(7.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Logo(item)
-                                        Spacer(Modifier.height(4.dp))
-                                        Text(item.name, fontSize = if (tvWide) 14.sp else 12.sp, color = c.onSurface,
-                                            fontWeight = FontWeight.Medium, maxLines = 2)
+                                    val previewSelected = s.previewChannelId == item.id
+                                    Row(
+                                        Modifier.fillMaxWidth().height(if (tvWide) 73.dp else 62.dp)
+                                            .onFocusChanged { channelFocused = it.isFocused }
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .background(if (channelFocused) Color(0xFF0B4F32)
+                                                else Color.White.copy(alpha = if (previewSelected) .95f else .83f))
+                                            .border(if (channelFocused) 3.dp else 1.dp,
+                                                if (channelFocused) Color(0xFF42D77B) else Color(0xFFB2C9C3),
+                                                RoundedCornerShape(12.dp))
+                                            .clickable {
+                                                if (previewSelected && s.previewUrl != null) {
+                                                    s.playLive(item, fromPreview = true)
+                                                } else {
+                                                    s.selectPlaybackBouquet(s.group, visibleItems)
+                                                    s.requestAdultItem(item) { s.pick(item) }
+                                                }
+                                            }
+                                            .then(if (visibleItems.firstOrNull()?.id == item.id) Modifier.focusRequester(firstChannelFocus) else Modifier)
+                                            .padding(horizontal = 10.dp, vertical = 5.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                    ) {
+                                        Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) { Logo(item) }
+                                        Text(item.name, modifier = Modifier.weight(1f),
+                                            color = if (channelFocused) Color.White else Color(0xFF17332B),
+                                            fontSize = if (tvWide) 15.sp else 13.sp,
+                                            fontWeight = FontWeight.SemiBold, maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis)
+                                        if (previewSelected) Text("▶", color = if (channelFocused) Color.White else Color(0xFF0B4F32))
                                     }
                                 }
                             }
                         }
                     }
-                    if (s.previewChannelId != null) {
-                        Box(Modifier.weight(0.36f).fillMaxHeight()) {
-                            LivePreviewPanel(s, compact = false)
+                    if (s.group != null) {
+                        Box(Modifier.weight(0.53f).fillMaxHeight()) {
+                            if (s.previewChannelId != null) {
+                                LivePreviewPanel(s, compact = false)
+                            } else {
+                                Box(Modifier.fillMaxWidth().aspectRatio(16f / 9f)
+                                    .clip(RoundedCornerShape(14.dp))
+                                    .background(Color(0xFF102820)),
+                                    contentAlignment = Alignment.Center) {
+                                    Text("Sélectionnez une chaîne pour afficher l’aperçu et l’EPG",
+                                        color = Color.White, textAlign = TextAlign.Center,
+                                        modifier = Modifier.padding(18.dp))
+                                }
+                            }
                         }
                     }
                 }
@@ -969,7 +1006,7 @@ private fun LivePreviewPanel(s: AppState, compact: Boolean) {
                         val url = s.previewUrl
                         if (url != null) VideoPlayer(url, onError = { s.onPlayerError(it) },
                             modifier = Modifier.fillMaxSize(), showControls = false,
-                        onVideoResolution = { w, h -> resolution = if (w > 0 && h > 0) "$w × $h" else "—" })
+                        onVideoResolution = { w, h -> resolution = if (w > 0 && h > 0) "$w × $h" else "—" }, sharedPlayer = s.livePlayer)
                     }
                 }
             }
