@@ -807,16 +807,22 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                             }
                         } else {
                             val firstChannelFocus = remember { FocusRequester() }
-                            // A leading ## marks a non-playable heading: start on the next real channel.
-                            val initialChannel = visibleItems.firstOrNull { !it.name.trimStart().startsWith("##") }
+                            val channelListState = androidx.compose.foundation.lazy.rememberLazyListState()
+                            // Restore focus to the channel that was playing when leaving fullscreen.
+                            // Only use the preview ID if it belongs to the currently opened bouquet.
+                            val initialChannel = visibleItems.firstOrNull { it.id == s.previewChannelId }
+                                ?: visibleItems.firstOrNull { !it.name.trimStart().startsWith("##") }
                                 ?: visibleItems.firstOrNull()
                             LaunchedEffect(s.group, initialChannel?.id) {
-                                if (s.group != null && visibleItems.isNotEmpty()) {
+                                if (s.group != null && initialChannel != null) {
+                                    val index = visibleItems.indexOfFirst { it.id == initialChannel.id }
+                                    if (index >= 0) channelListState.scrollToItem(index)
                                     kotlinx.coroutines.delay(180)
                                     runCatching { firstChannelFocus.requestFocus() }
                                 }
                             }
                             LazyColumn(
+                                state = channelListState,
                                 modifier = Modifier.fillMaxSize(),
                                 verticalArrangement = Arrangement.spacedBy(7.dp),
                                 contentPadding = PaddingValues(bottom = 10.dp)
