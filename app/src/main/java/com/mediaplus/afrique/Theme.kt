@@ -97,7 +97,7 @@ fun AfricaTheme(content: @Composable () -> Unit) {
                         // Enlarge Africa while keeping Côte d’Ivoire near the screen center.
                         scaleX = if (tvBackground) 0.84f else 1.48f
                         scaleY = if (tvBackground) 0.84f else 1.48f
-                        translationX = size.width * (if (tvBackground) -0.22f else 0.28f)
+                        translationX = size.width * (if (tvBackground) -0.12f else 0.28f)
                     },
                     contentScale = ContentScale.Fit
                 )
