@@ -72,10 +72,14 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
     var confirmDisconnect by remember { mutableStateOf(false) }
     var confirmClearCache by remember { mutableStateOf(false) }
     val firstSettingFocus = remember { FocusRequester() }
+    val parentalPinFocus = remember { FocusRequester() }
+    val detailFocus = remember { FocusRequester() }
     LaunchedEffect(page) {
-        if (page == null) {
-            kotlinx.coroutines.delay(180)
-            runCatching { firstSettingFocus.requestFocus() }
+        kotlinx.coroutines.delay(180)
+        when (page) {
+            null -> runCatching { firstSettingFocus.requestFocus() }
+            "Contrôle parental" -> runCatching { parentalPinFocus.requestFocus() }
+            else -> runCatching { detailFocus.requestFocus() }
         }
     }
 
@@ -197,7 +201,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                                     trailingIcon = { TextButton(onClick = { showOldPin = !showOldPin }) {
                                         Text(if (showOldPin) "Masquer" else "Voir")
                                     } },
-                                    singleLine = true, modifier = Modifier.fillMaxWidth(),
+                                    singleLine = true, modifier = Modifier.fillMaxWidth().focusRequester(parentalPinFocus),
                                     shape = RoundedCornerShape(18.dp))
                                 OutlinedTextField(newPin, { newPin = it.filter(Char::isDigit).take(4) },
                                     label = { Text("Nouveau code (4 chiffres)") },
@@ -290,7 +294,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                 "Ajouter un compte" -> {
                     SettingsPanel {
                         OutlinedTextField(name, { name = it }, label = { Text("Nom du compte") },
-                            singleLine = true, modifier = Modifier.fillMaxWidth())
+                            singleLine = true, modifier = Modifier.fillMaxWidth().focusRequester(detailFocus))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             FilterChip(accountMode == 0, onClick = { accountMode = 0 }, label = { Text("Xtream") })
                             FilterChip(accountMode == 1, onClick = { accountMode = 1 }, label = { Text("MAC") })
