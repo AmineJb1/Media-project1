@@ -406,9 +406,9 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                             .shadow(if (selected) 6.dp else 3.dp, RoundedCornerShape(15.dp))
                             .clip(RoundedCornerShape(15.dp))
                             .onFocusChanged { navFocused = it.isFocused }
-                            .background(if (selected) bottleGreen else Color(0xFFF8FAFF))
+                            .background(if (selected) bottleGreen else Color(0xFFFF8A00))
                             .border(if (selected) 2.5.dp else 1.dp,
-                                if (selected) Color(0xFF078B49) else Color(0xFFD6E0EA),
+                                if (selected) Color(0xFF42D77B) else Color(0xFFE87500),
                                 RoundedCornerShape(15.dp))
                             .clickable {
                                 if (section == 5) { onSettingsOpen(true); s.clearPreview() }
@@ -417,7 +417,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                             .padding(horizontal = 8.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically) {
                             Box(Modifier.size(38.dp).clip(RoundedCornerShape(11.dp))
-                                .background(if (selected) Color(0xFF126B42) else Color.White),
+                                .background(if (selected) Color(0xFF126B42) else Color(0xFFFFA533)),
                                 contentAlignment = Alignment.Center) {
                                 if (section == 3) {
                                     Text("🎬", fontSize = 23.sp)
@@ -428,14 +428,14 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                         4 -> Icons.Filled.Star
                                         else -> Icons.Filled.Settings
                                     }, contentDescription = title,
-                                        tint = if (selected) Color.White else bottleGreen,
+                                        tint = Color.Black,
                                         modifier = Modifier.size(26.dp))
                                 }
                             }
                             Spacer(Modifier.width(7.dp))
                             Text(title, fontSize = if (tvWide) 14.sp else 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = if (selected) Color.White else Color(0xFF173F2D),
+                                color = Color.White,
                                 maxLines = 1)
                         }
                     }
