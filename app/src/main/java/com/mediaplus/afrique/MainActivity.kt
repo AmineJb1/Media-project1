@@ -9,6 +9,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -103,18 +105,40 @@ fun App() {
     if (confirmExit) {
         AlertDialog(
             onDismissRequest = { confirmExit = false },
-            title = { Text("Quitter l’application ?", color = Color(0xFF173A25)) },
-            text = { Text("Voulez-vous vraiment fermer Media+ Côte d’Ivoire ?", color = Color(0xFF343A35)) },
+            modifier = Modifier.fillMaxWidth(0.72f),
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp),
+            title = {
+                Text("Quitter l’application ?",
+                    color = Color(0xFF0B4F32),
+                    style = MaterialTheme.typography.titleLarge)
+            },
+            text = {
+                Text("Voulez-vous vraiment fermer Media+ Côte d’Ivoire ?",
+                    color = Color(0xFF234336),
+                    style = MaterialTheme.typography.bodyMedium)
+            },
             confirmButton = {
+                var quitFocused by remember { mutableStateOf(false) }
                 Button(
                     onClick = { s.stopLivePlayback(); confirmExit = false; activity?.finish() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF58216))
+                    modifier = Modifier.onFocusChanged { quitFocused = it.isFocused },
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
+                    border = androidx.compose.foundation.BorderStroke(
+                        if (quitFocused) 2.dp else 1.dp,
+                        if (quitFocused) Color(0xFF42D77B) else Color(0xFF0B4F32)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B4F32))
                 ) { Text("Oui, quitter", color = Color.White) }
             },
             dismissButton = {
-                OutlinedButton(onClick = { confirmExit = false }) { Text("Non", color = Color(0xFF173A25)) }
+                OutlinedButton(
+                    onClick = { confirmExit = false },
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = Color(0xFFFF8A00), contentColor = Color.White),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE87500))
+                ) { Text("Non", color = Color.White) }
             },
-            containerColor = Color.White
+            containerColor = Color.White.copy(alpha = 0.88f)
         )
     }
 }
