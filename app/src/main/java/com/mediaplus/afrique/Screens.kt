@@ -403,6 +403,13 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
     var lastBouquet by remember { mutableStateOf<String?>(null) }
     val restoreBouquetFocus = remember { FocusRequester() }
     val firstBouquetFocus = remember { FocusRequester() }
+    val firstVodFocus = remember { FocusRequester() }
+    LaunchedEffect(s.section, s.group, settingsOpen, s.query) {
+        if (!settingsOpen && (s.section == 2 || s.section == 3)) {
+            kotlinx.coroutines.delay(230)
+            runCatching { firstVodFocus.requestFocus() }
+        }
+    }
     var initialBouquetFocusDone by remember { mutableStateOf(false) }
     val bouquetGridState = rememberLazyGridState()
     var restoreBouquetPending by remember { mutableStateOf(false) }
@@ -704,7 +711,8 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 ) {
                     if (s.group == null && s.query.isBlank()) {
                         item {
-                            VodIconTile("Continuez à Regarder", "", true, isContinue = true) {
+                            VodIconTile("Continuez à Regarder", "", true, isContinue = true,
+                                modifier = Modifier.focusRequester(firstVodFocus)) {
                                 s.group = "Continuez à Regarder"
                             }
                         }
@@ -713,7 +721,8 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                         }
                     } else {
                         items(displayed, key = { it.kind.toString() + ":" + it.id }) { item ->
-                            VodIconTile(item.name, item.logo, false) {
+                            VodIconTile(item.name, item.logo, false,
+                                modifier = if (item == displayed.firstOrNull()) Modifier.focusRequester(firstVodFocus) else Modifier) {
                                 s.requestAdultItem(item) { s.openVodDetails(item) }
                             }
                         }
@@ -966,10 +975,10 @@ private fun LivePreviewPanel(s: AppState, compact: Boolean) {
 }
 
 @Composable
-private fun VodIconTile(title: String, poster: String, isBouquet: Boolean, isContinue: Boolean = false, onClick: () -> Unit) {
+private fun VodIconTile(title: String, poster: String, isBouquet: Boolean, isContinue: Boolean = false, modifier: Modifier = Modifier, onClick: () -> Unit) {
     val c = MaterialTheme.colorScheme
     Column(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(15.dp))
+        modifier.fillMaxWidth().clip(RoundedCornerShape(15.dp))
             .background(Color.White.copy(alpha = .95f))
             .clickable(onClick = onClick).padding(7.dp),
         horizontalAlignment = Alignment.CenterHorizontally
