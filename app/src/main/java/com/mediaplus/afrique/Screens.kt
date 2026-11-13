@@ -35,7 +35,6 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.Brush
@@ -201,7 +200,7 @@ fun LoginScreen(s: AppState) {
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
-                            if (!tvLayout) IconButton(onClick = { showPassword = !showPassword }, modifier = Modifier.size(48.dp)) { androidx.compose.material3.Icon(if (showPassword) androidx.compose.material.icons.Icons.Default.LockOpen else androidx.compose.material.icons.Icons.Default.Lock, contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe", tint = Color(0xFF174C3B)) }
+                            if (!tvLayout) IconButton(onClick = { showPassword = !showPassword }, modifier = Modifier.size(48.dp)) { androidx.compose.material3.Icon(if (showPassword) androidx.compose.material.icons.Icons.Default.Lock else androidx.compose.material.icons.Icons.Default.Lock, contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe", tint = Color(0xFF174C3B)) }
 
                         })
                     if (tvLayout) {
@@ -211,7 +210,7 @@ fun LoginScreen(s: AppState) {
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE3EEE8), contentColor = Color(0xFF174C3B))
                         ) {
-                            androidx.compose.material3.Icon(if (showPassword) androidx.compose.material.icons.Icons.Default.LockOpen else androidx.compose.material.icons.Icons.Default.Lock, contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe", tint = Color(0xFF174C3B))
+                            androidx.compose.material3.Icon(if (showPassword) androidx.compose.material.icons.Icons.Default.Lock else androidx.compose.material.icons.Icons.Default.Lock, contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe", tint = Color(0xFF174C3B))
                         }
                     }
                     if (biometricReady) {
