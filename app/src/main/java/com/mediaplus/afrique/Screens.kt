@@ -36,6 +36,8 @@ import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.text.style.TextAlign
+import androidx.activity.compose.BackHandler
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.layout.ContentScale
@@ -344,6 +346,8 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
     if (s.selectedVod != null) VodDetailsPage(s)
     val favUrls = s.favs.map { it.url }.toSet()
     var searchOpen by remember { mutableStateOf(false) }
+    var exploreAllBouquets by remember { mutableStateOf(false) }
+    BackHandler(enabled = exploreAllBouquets && s.group == null && s.section == 0) { exploreAllBouquets = false }
     val recent = s.recentlyWatched.mapNotNull { id -> s.live.firstOrNull { it.id == id } }
     // Exact channel names supplied by the user; no fabricated streams or URLs.
     val ivoryCoastNames = remember {
@@ -371,7 +375,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
         val useSideRail = landscapeCompact || tvWide
         Row(Modifier.fillMaxSize()) {
             if (useSideRail) {
-                Column(Modifier.width(if (tvWide) 150.dp else 124.dp).fillMaxHeight()
+                Column(Modifier.width(if (tvWide) 174.dp else 144.dp).fillMaxHeight()
                     .background(Color(0xFFF7F9FB))
                     .border(1.dp, Color(0xFFE0E8EC))
                     .padding(horizontal = 7.dp, vertical = 12.dp),
@@ -379,9 +383,9 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     listOf(0 to "Direct", 2 to "Films", 3 to "Séries", 4 to "Favoris", 5 to "Réglages").forEach { (section, title) ->
                         val active = if (section == 5) settingsOpen else !settingsOpen && s.section == section
-                        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp))
-                            .background(if (active) Color(0xFFE5F3EC) else Color.White)
-                            .border(if (active) 2.dp else 1.dp, if (active) Color(0xFF278264) else Color(0xFFE4E9ED), RoundedCornerShape(18.dp))
+                        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(9.dp))
+                            .background(if (active) Color(0xFFBFE9D3) else Color.White)
+                            .border(if (active) 3.dp else 1.dp, if (active) Color(0xFF087246) else Color(0xFFE4E9ED), RoundedCornerShape(9.dp))
                             .clickable {
                                 if (section == 5) { onSettingsOpen(true); s.clearPreview() }
                                 else { onSettingsOpen(false); onSettingsPage(null); s.pickSection(section) }
@@ -582,13 +586,13 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                         if (s.group == null && s.query.isBlank()) {
                             val groups = (specialGroups.keys + list.map { it.group }).filter { it.isNotBlank() }.distinct()
                             BoxWithConstraints(Modifier.fillMaxSize()) {
-                                val cardHeight = (maxHeight - 42.dp) / 3
+                                val cardHeight = (maxHeight - 46.dp) / 3
                                 LazyVerticalGrid(columns = GridCells.Fixed(3),
-                                    modifier = Modifier.fillMaxSize().padding(bottom = 8.dp).clipToBounds(),
+                                    modifier = Modifier.fillMaxSize().padding(bottom = if (exploreAllBouquets) 8.dp else 34.dp).clipToBounds(),
                                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                                     verticalArrangement = Arrangement.spacedBy(12.dp),
                                     contentPadding = PaddingValues(bottom = 12.dp)) {
-                                    items(groups) { groupName ->
+                                    items(if (exploreAllBouquets) groups else groups.take(9)) { groupName ->
                                         Column(Modifier.fillMaxWidth().height(cardHeight)
                                             .clip(RoundedCornerShape(18.dp))
                                             .background(Color.White.copy(alpha = 0.88f))
@@ -600,10 +604,17 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                             Text(bouquetIcon(groupName), fontSize = if (tvWide) 37.sp else 28.sp)
                                             Spacer(Modifier.height(6.dp))
                                             Text(groupName, fontSize = if (tvWide) 19.sp else 15.sp,
-                                                maxLines = 3, color = Color(0xFF17332B),
+                                                maxLines = 3, color = Color(0xFF17332B), textAlign = TextAlign.Center,
                                                 fontWeight = FontWeight.Bold,
                                                 lineHeight = if (tvWide) 24.sp else 19.sp)
                                         }
+                                    }
+                                }
+                                if (!exploreAllBouquets && groups.size > 9) {
+                                    TextButton(onClick = { exploreAllBouquets = true },
+                                        modifier = Modifier.align(Alignment.BottomStart).height(34.dp)) {
+                                        Text("Explorer  →", color = Color(0xFF15523B),
+                                            fontWeight = FontWeight.Bold, fontSize = 13.sp)
                                     }
                                 }
                             }
