@@ -170,7 +170,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                                     }
                                 }
                                 OutlinedButton(onClick = { s.refreshSubscription() },
-                                    modifier = Modifier.fillMaxWidth(),
+                                    modifier = Modifier.fillMaxWidth().focusRequester(infoFocus),
                                     shape = RoundedCornerShape(18.dp),
                                     border = BorderStroke(1.dp, Color(0xFF075A36)),
                                     colors = ButtonDefaults.outlinedButtonColors(containerColor = Color(0xFFE4F1E9).copy(alpha = 0.82f))) {
