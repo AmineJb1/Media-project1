@@ -27,8 +27,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.Image
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
@@ -197,9 +195,10 @@ fun LoginScreen(s: AppState) {
                         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
                             IconButton(onClick = { showPassword = !showPassword }, modifier = Modifier.size(48.dp)) {
-                                Icon(if (showPassword) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                                    contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe",
-                                    tint = Color(0xFF174C3B))
+                                Text(if (showPassword) "Masquer" else "Voir",
+                                    color = Color(0xFF174C3B),
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.SemiBold)
                             }
                         })
                     if (biometricReady) {
