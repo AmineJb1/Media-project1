@@ -372,7 +372,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     listOf(0 to "Direct", 2 to "Films", 3 to "Séries", 4 to "Favoris", 5 to "Réglages").forEach { (section, title) ->
                         val active = if (section == 5) settingsOpen else !settingsOpen && s.section == section
                         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-                            .background(if (active) Color.White.copy(alpha = 0.72f) else Color.Transparent)
+                            .background(if (active) Color.White.copy(alpha = 0.96f) else Color.Transparent)
                             .clickable {
                                 if (section == 5) { onSettingsOpen(true); s.clearPreview() }
                                 else { onSettingsOpen(false); onSettingsPage(null); s.pickSection(section) }
@@ -556,7 +556,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                         else specialGroups[s.group] ?: list.filter { it.group == s.group }
                         if (s.group == null && s.query.isBlank()) {
                             val groups = (specialGroups.keys + list.map { it.group }).filter { it.isNotBlank() }.distinct()
-                            LazyVerticalGrid(columns = GridCells.Adaptive(100.dp),
+                            LazyVerticalGrid(columns = GridCells.Adaptive(if (tvWide) 190.dp else 150.dp),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                                 contentPadding = PaddingValues(bottom = 12.dp)) {
@@ -566,19 +566,19 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                         .clickable { s.requestGroup(groupName) }
                                         .padding(9.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                                         Text(bouquetIcon(groupName), fontSize = 27.sp)
-                                        Text(groupName, fontSize = 11.sp, maxLines = 2,
+                                        Text(groupName, fontSize = if (tvWide) 15.sp else 13.sp, maxLines = 3,
                                             color = c.onSurface, fontWeight = FontWeight.SemiBold)
                                     }
                                 }
                             }
                         } else {
-                            LazyVerticalGrid(columns = GridCells.Adaptive(94.dp),
+                            LazyVerticalGrid(columns = GridCells.Adaptive(if (tvWide) 180.dp else 150.dp),
                                 horizontalArrangement = Arrangement.spacedBy(7.dp),
                                 verticalArrangement = Arrangement.spacedBy(7.dp),
                                 contentPadding = PaddingValues(bottom = 12.dp)) {
                                 items(visibleItems) { item ->
                                     Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-                                        .background(Color.White.copy(alpha = if (s.previewChannelId == item.id) 0.92f else 0.70f))
+                                        .background(Color.White.copy(alpha = if (s.previewChannelId == item.id) 1f else 0.96f))
                                         .clickable {
                                             s.selectPlaybackBouquet(s.group, visibleItems)
                                             s.requestAdultItem(item) { s.pick(item) }
@@ -586,7 +586,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                         horizontalAlignment = Alignment.CenterHorizontally) {
                                         Logo(item)
                                         Spacer(Modifier.height(4.dp))
-                                        Text(item.name, fontSize = 10.sp, color = c.onSurface,
+                                        Text(item.name, fontSize = if (tvWide) 14.sp else 12.sp, color = c.onSurface,
                                             fontWeight = FontWeight.Medium, maxLines = 2)
                                     }
                                 }
