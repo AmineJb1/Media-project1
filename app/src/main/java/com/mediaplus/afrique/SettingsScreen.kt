@@ -77,6 +77,9 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
     val detailFocus = remember { FocusRequester() }
     var addAccountFocused by remember { mutableStateOf(false) }
     var disconnectFocused by remember { mutableStateOf(false) }
+    var refreshFocused by remember { mutableStateOf(false) }
+    var savePinFocused by remember { mutableStateOf(false) }
+    var clearCacheFocused by remember { mutableStateOf(false) }
     val infoFocus = remember { FocusRequester() }
     val cacheFocus = remember { FocusRequester() }
     val aboutFocus = remember { FocusRequester() }
