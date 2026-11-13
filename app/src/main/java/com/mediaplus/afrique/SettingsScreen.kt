@@ -1,6 +1,10 @@
 package com.mediaplus.afrique
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -216,12 +220,44 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                     }
                 }
                 "À propos" -> {
-                    SettingsPanel {
-                        Text("Media+ Côte d’Ivoire", style = MaterialTheme.typography.titleLarge,
-                            color = Color(0xFF193D30), fontWeight = FontWeight.Bold)
-                        SettingsDetail("Version de l’application", "2.3.12", emphasized = true)
-                        Text("Direct · Films · Séries", style = MaterialTheme.typography.bodyMedium,
-                            color = Color(0xFF64736A))
+                    val bottleGreen = Color(0xFF0B4F32)
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(Modifier.width(5.dp).height(34.dp)
+                                .background(bottleGreen, RoundedCornerShape(4.dp)))
+                            Spacer(Modifier.width(12.dp))
+                            Text("À propos", fontSize = 27.sp, fontWeight = FontWeight.ExtraBold,
+                                color = Color(0xFF142C21))
+                        }
+                        Surface(
+                            modifier = Modifier.fillMaxWidth().shadow(7.dp, RoundedCornerShape(22.dp)),
+                            shape = RoundedCornerShape(22.dp),
+                            color = Color(0xFFF9FBFF),
+                            border = BorderStroke(1.dp, Color(0xFFD4E0E8))
+                        ) {
+                            BoxWithConstraints(Modifier.fillMaxWidth().padding(20.dp)) {
+                                val compact = maxWidth < 500.dp
+                                if (compact) {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                        Image(painterResource(R.drawable.media_plus_brand),
+                                            contentDescription = "Logo Media+ Afrique",
+                                            modifier = Modifier.size(100.dp), contentScale = ContentScale.Fit)
+                                        AboutInfo()
+                                    }
+                                } else {
+                                    Row(verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(22.dp)) {
+                                        Image(painterResource(R.drawable.media_plus_brand),
+                                            contentDescription = "Logo Media+ Afrique",
+                                            modifier = Modifier.size(135.dp), contentScale = ContentScale.Fit)
+                                        Box(Modifier.width(2.dp).height(130.dp)
+                                            .background(Color(0xFFB8C9D3)))
+                                        Box(Modifier.weight(1f)) { AboutInfo() }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -274,5 +310,28 @@ private fun SettingsDetail(label: String, value: String, emphasized: Boolean = f
         Text(value, style = MaterialTheme.typography.bodyLarge,
             fontWeight = if (emphasized) FontWeight.Bold else FontWeight.Medium,
             color = if (emphasized) Color(0xFFBF6A1C) else Color(0xFF173D2E))
+    }
+}
+
+@Composable
+private fun AboutInfo() {
+    val green = Color(0xFF0B4F32)
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text("Media+ Côte d’Ivoire", color = Color(0xFF14251C),
+            fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
+        Text("Version de l’application", color = Color(0xFF283E32),
+            fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+        Surface(color = green, shape = RoundedCornerShape(50)) {
+            Text("2.3.12", modifier = Modifier.padding(horizontal = 22.dp, vertical = 5.dp),
+                color = Color.White, fontSize = 19.sp, fontWeight = FontWeight.Bold)
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(13.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+            Text("▣ Direct", color = green, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            Text("│", color = Color(0xFF8A9EAB))
+            Text("▶ Films", color = green, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            Text("│", color = Color(0xFF8A9EAB))
+            Text("▤ Séries", color = green, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+        }
     }
 }
