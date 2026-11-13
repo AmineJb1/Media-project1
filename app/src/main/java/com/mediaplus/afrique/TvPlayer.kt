@@ -26,6 +26,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.border
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -231,7 +232,7 @@ fun TvPlayer(s: AppState) {
         }
         if (menuVisible && !settingsVisible) {
             Surface(
-                modifier = Modifier.align(Alignment.BottomStart).padding(start = 12.dp, bottom = 108.dp).fillMaxHeight(0.68f).fillMaxWidth(0.48f),
+                modifier = Modifier.align(Alignment.TopStart).padding(start = 12.dp, top = 12.dp, bottom = 112.dp).fillMaxHeight(0.82f).fillMaxWidth(0.48f),
                 color = Color(0xF0152119),
                 shape = RoundedCornerShape(topStart = 18.dp, bottomStart = 18.dp)
             ) {
@@ -264,14 +265,16 @@ fun TvPlayer(s: AppState) {
                         LazyColumn(modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             items(bouquets) { name ->
+                                var rowFocused by remember { mutableStateOf(false) }
                                 Surface(
                                     modifier = Modifier.fillMaxWidth()
-                                        .onFocusChanged { }
+                                        .onFocusChanged { rowFocused = it.isFocused }
+                                        .border(if (rowFocused) 2.dp else 0.dp, if (rowFocused) Color(0xFF2CFF86) else Color.Transparent, RoundedCornerShape(11.dp))
                                         .clickable {
                                         selectedBouquet = name
                                         drawerTab = 1
                                     }.focusable(),
-                                    color = if (name == drawerBouquet) Color(0x554D8B72) else Color.Transparent,
+                                    color = if (rowFocused) Color(0xFF075D3A) else if (name == drawerBouquet) Color(0x554D8B72) else Color.Transparent,
                                     shape = RoundedCornerShape(11.dp)
                                 ) {
                                     Text(name, color = if (name == drawerBouquet) Color(0xFFFFC18C) else Color.White,
@@ -284,12 +287,15 @@ fun TvPlayer(s: AppState) {
                         LazyColumn(modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.spacedBy(3.dp)) {
                             items(drawerChannels, key = { it.id + it.url }) { item ->
+                                var rowFocused by remember { mutableStateOf(false) }
                                 Row(
                                     Modifier.fillMaxWidth()
+                                        .onFocusChanged { rowFocused = it.isFocused }
                                         .background(
-                                            if (item.id == channel?.id) Color(0x554D8B72) else Color.Transparent,
+                                            if (rowFocused) Color(0xFF075D3A) else if (item.id == channel?.id) Color(0x554D8B72) else Color.Transparent,
                                             RoundedCornerShape(11.dp)
                                         )
+                                        .border(if (rowFocused) 2.dp else 0.dp, if (rowFocused) Color(0xFF2CFF86) else Color.Transparent, RoundedCornerShape(11.dp))
                                         .clickable {
                                             s.selectPlaybackBouquet(drawerBouquet, drawerChannels)
                                             s.playLive(item)
@@ -303,7 +309,7 @@ fun TvPlayer(s: AppState) {
                                         AsyncImage(model = item.logo, contentDescription = null,
                                             modifier = Modifier.size(36.dp), contentScale = ContentScale.Fit)
                                     }
-                                    Text(item.name, color = if (item.id == channel?.id) Color(0xFFFFC18C) else Color.White,
+                                    Text(item.name, color = if (rowFocused) Color.White else if (item.id == channel?.id) Color(0xFFFFC18C) else Color.White,
                                         style = MaterialTheme.typography.bodyMedium,
                                         maxLines = 2, modifier = Modifier.weight(1f))
                                 }
