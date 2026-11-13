@@ -563,8 +563,8 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
             )
             if (!useSideRail) Text("Vos chaînes et vos contenus", color = c.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium)
-            Spacer(Modifier.height(5.dp))
-            if (s.group != null && s.section != 4) {
+            Spacer(Modifier.height(if (useSideRail && s.section == 0) 0.dp else 5.dp))
+            if (s.group != null && s.section != 4 && !(useSideRail && s.section == 0)) {
                 TextButton({ s.group = null }) {
                     Text(if (landscapeCompact) "‹  Bouquets" else "‹  Retour aux catégories", color = Color(0xFF154A36), fontWeight = FontWeight.SemiBold, fontSize = if (landscapeCompact) 12.sp else 14.sp)
                 }
@@ -807,7 +807,10 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                             }
                         } else {
                             val firstChannelFocus = remember { FocusRequester() }
-                            LaunchedEffect(s.group, visibleItems.firstOrNull()?.id) {
+                            // A leading ## marks a non-playable heading: start on the next real channel.
+                            val initialChannel = visibleItems.firstOrNull { !it.name.trimStart().startsWith("##") }
+                                ?: visibleItems.firstOrNull()
+                            LaunchedEffect(s.group, initialChannel?.id) {
                                 if (s.group != null && visibleItems.isNotEmpty()) {
                                     kotlinx.coroutines.delay(180)
                                     runCatching { firstChannelFocus.requestFocus() }
@@ -838,7 +841,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                                     s.requestAdultItem(item) { s.pick(item) }
                                                 }
                                             }
-                                            .then(if (visibleItems.firstOrNull()?.id == item.id) Modifier.focusRequester(firstChannelFocus) else Modifier)
+                                            .then(if (initialChannel?.id == item.id) Modifier.focusRequester(firstChannelFocus) else Modifier)
                                             .padding(horizontal = 10.dp, vertical = 5.dp),
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(10.dp)
