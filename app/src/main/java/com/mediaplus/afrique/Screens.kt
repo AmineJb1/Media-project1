@@ -740,15 +740,15 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                             BoxWithConstraints(Modifier.fillMaxSize()) {
                                 val cardHeight = (maxHeight - 42.dp) / 3
                                 LaunchedEffect(groups, useSideRail, settingsOpen, s.section, s.group, directFocusRequest) {
-                                    if (useSideRail && !settingsOpen && s.section == 0 && s.group == null && groups.isNotEmpty()) {
+                                    if (useSideRail && !settingsOpen && s.section == 0 && s.group == null && groups.isNotEmpty() && !restoreBouquetPending) {
                                         val target = groups.indexOfFirst { it.contains("Côte d’Ivoire", ignoreCase = true) || it.contains("Cote d'Ivoire", ignoreCase = true) }
                                             .takeIf { it >= 0 } ?: 0
                                         bouquetGridState.scrollToItem((target / 3) * 3)
                                         kotlinx.coroutines.delay(220)
-                                        runCatching { firstBouquetFocus.requestFocus() }
+                                        if (!restoreBouquetPending) runCatching { firstBouquetFocus.requestFocus() }
                                     }
                                 }
-                                                                LaunchedEffect(s.group, s.section, lastBouquet, groups.size) {
+                                LaunchedEffect(s.group, s.section, lastBouquet, groups.size, restoreBouquetPending) {
                                     if (s.group == null && s.section == 0 && restoreBouquetPending && lastBouquet != null) {
                                         val index = groups.indexOf(lastBouquet)
                                         if (index >= 0) {
