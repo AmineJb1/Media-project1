@@ -400,19 +400,24 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     Image(
                         painter = painterResource(R.drawable.media_plus_brand),
                         contentDescription = "Media+ Afrique",
-                        modifier = Modifier.fillMaxWidth().height(if (tvWide) 106.dp else 74.dp),
+                        modifier = Modifier.fillMaxWidth().height(if (tvWide) 146.dp else 104.dp),
                         contentScale = ContentScale.Fit
                     )
                     Spacer(Modifier.height(4.dp))
+                    var focusedNavSection by remember { mutableStateOf<Int?>(null) }
                     listOf(0 to "Direct", 2 to "Films", 3 to "Séries", 4 to "Favoris", 5 to "Réglages").forEach { (section, title) ->
                         val active = if (section == 5) settingsOpen else !settingsOpen && s.section == section
                         var navFocused by remember { mutableStateOf(false) }
-                        val selected = active
+                        val selected = if (focusedNavSection != null) focusedNavSection == section else active
                         val bottleGreen = Color(0xFF0B4F32)
                         Row(Modifier.fillMaxWidth()
                             .shadow(if (selected) 6.dp else 3.dp, RoundedCornerShape(15.dp))
                             .clip(RoundedCornerShape(15.dp))
-                            .onFocusChanged { navFocused = it.isFocused }
+                            .onFocusChanged {
+                                navFocused = it.isFocused
+                                if (it.isFocused) focusedNavSection = section
+                                else if (focusedNavSection == section) focusedNavSection = null
+                            }
                             .background(if (selected) bottleGreen else Color(0xFFFF8A00))
                             .border(if (selected) 2.5.dp else 1.dp,
                                 if (selected) Color(0xFF42D77B) else Color(0xFFE87500),
