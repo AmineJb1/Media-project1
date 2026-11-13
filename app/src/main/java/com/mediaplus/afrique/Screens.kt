@@ -119,7 +119,7 @@ fun LoginScreen(s: AppState) {
                         Image(
                             painter = painterResource(R.drawable.media_plus_brand),
                             contentDescription = "Media+ Afrique",
-                            modifier = Modifier.size(116.dp),
+                            modifier = Modifier.size(148.dp),
                             contentScale = ContentScale.Fit
                         )
                         Text("🇨🇮", fontSize = 18.sp, modifier = Modifier.offset(x = (-18).dp, y = (-30).dp))
@@ -139,7 +139,7 @@ fun LoginScreen(s: AppState) {
                 Modifier.align(Alignment.TopCenter)
                     .widthIn(max = if (tvLayout) 480.dp else 560.dp)
                     .fillMaxWidth()
-                    .padding(top = if (tvLayout) 118.dp else 0.dp)
+                    .padding(top = if (tvLayout) 168.dp else 0.dp)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -173,7 +173,7 @@ fun LoginScreen(s: AppState) {
                 modifier = Modifier.fillMaxWidth())
             }
             Spacer(Modifier.height(if (tvLayout) 8.dp else if (wide) 14.dp else 9.dp))
-            Card(
+            if (tvLayout) Box(Modifier.fillMaxWidth()) else Card(
                 Modifier.fillMaxWidth().animateContentSize()
                     ,
                 shape = RoundedCornerShape(26.dp),
@@ -181,20 +181,27 @@ fun LoginScreen(s: AppState) {
                 border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = if (tvLayout) .55f else .95f)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
-                Column(Modifier.fillMaxWidth().padding(if (tvLayout) 18.dp else if (wide) 22.dp else 16.dp)) {
-                    Text("Bienvenue", fontSize = if (tvLayout) 32.sp else 23.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF123D30), maxLines = 1, modifier = Modifier.align(Alignment.CenterHorizontally))
+                Column(Modifier.fillMaxWidth().padding(if (tvLayout) 4.dp else if (wide) 22.dp else 16.dp)) {
+                    Text("Bienvenue", fontSize = if (tvLayout) 34.sp else 23.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF123D30), maxLines = 1, modifier = Modifier.align(Alignment.CenterHorizontally))
                     Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, fontSize = if (tvLayout) 15.sp else 13.sp, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp, bottom = 18.dp))
                     Text("Identifiants", color = c.onSurface, fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 4.dp))
                     OutlinedTextField(s.user, { s.saveUsername(it) }, f, singleLine = true,
-                        shape = field, label = { Text("Nom d'utilisateur") })
+                        shape = field, label = { Text("Nom d'utilisateur") },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF9D3C16),
+                            unfocusedBorderColor = Color(0xFF275A4A),
+                            focusedLabelColor = Color(0xFF71311E)))
                     OutlinedTextField(s.pass, { s.pass = it },
                         f.onFocusChanged { if (it.isFocused && s.hasSavedBiometricAccount()) requestBiometric() },
                         singleLine = true, shape = field, label = { Text("Mot de passe") },
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF9D3C16), unfocusedBorderColor = Color(0xFF275A4A)),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
-                            IconButton(onClick = { showPassword = !showPassword }, modifier = Modifier.size(48.dp)) {
+                            Button(onClick = { showPassword = !showPassword }, modifier = Modifier.width(88.dp).height(48.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE3EEE8), contentColor = Color(0xFF174C3B)),
+                                contentPadding = PaddingValues(horizontal = 4.dp)) {
                                 Text(if (showPassword) "Masquer" else "Voir",
                                     color = Color(0xFF174C3B),
                                     fontSize = 13.sp,
