@@ -286,32 +286,36 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                                     }
                                 }
                             }
-                            Button(
-                                onClick = { onPage("Ajouter un compte") },
-                                modifier = Modifier.fillMaxWidth().height(46.dp)
-                                    .focusRequester(detailFocus)
-                                    .onFocusChanged { addAccountFocused = it.isFocused },
-                                shape = RoundedCornerShape(13.dp),
-                                border = BorderStroke(if (addAccountFocused) 3.dp else 1.dp,
-                                    if (addAccountFocused) Color(0xFF43DE7E) else Color(0xFF0D7047)),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (addAccountFocused) Color(0xFF073D29) else Color(0xFF075A36))
-                            ) {
-                                Text("＋  Ajouter un compte", fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp, color = Color.White)
+                            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                                Button(
+                                    onClick = { onPage("Ajouter un compte") },
+                                    modifier = Modifier.fillMaxWidth(0.64f).height(42.dp)
+                                        .focusRequester(detailFocus)
+                                        .onFocusChanged { addAccountFocused = it.isFocused },
+                                    shape = RoundedCornerShape(12.dp),
+                                    border = BorderStroke(if (addAccountFocused) 3.dp else 1.dp,
+                                        if (addAccountFocused) Color(0xFF43DE7E) else Color(0xFFE6A13C)),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (addAccountFocused) Color(0xFF073D29) else Color(0xFFE88C1A))
+                                ) {
+                                    Text("＋  Ajouter un compte", fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp, color = Color.White)
+                                }
                             }
-                            OutlinedButton(
-                                onClick = { confirmDisconnect = true },
-                                modifier = Modifier.fillMaxWidth().height(46.dp)
-                                    .onFocusChanged { disconnectFocused = it.isFocused },
-                                shape = RoundedCornerShape(13.dp),
-                                border = BorderStroke(if (disconnectFocused) 3.dp else 1.dp,
-                                    if (disconnectFocused) Color(0xFF43DE7E) else Color(0xFF075A36)),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    containerColor = if (disconnectFocused) Color(0xFF073D29) else Color.White.copy(alpha = 0.68f))
-                            ) {
-                                Text("Se déconnecter", fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
-                                    color = if (disconnectFocused) Color.White else Color(0xFF075A36))
+                            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                                Button(
+                                    onClick = { confirmDisconnect = true },
+                                    modifier = Modifier.fillMaxWidth(0.64f).height(42.dp)
+                                        .onFocusChanged { disconnectFocused = it.isFocused },
+                                    shape = RoundedCornerShape(12.dp),
+                                    border = BorderStroke(if (disconnectFocused) 3.dp else 1.dp,
+                                        if (disconnectFocused) Color(0xFF43DE7E) else Color(0xFFE6A13C)),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (disconnectFocused) Color(0xFF073D29) else Color(0xFFE88C1A))
+                                ) {
+                                    Text("Se déconnecter", fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                                        color = Color.White)
+                                }
                             }
                         }
                     }
