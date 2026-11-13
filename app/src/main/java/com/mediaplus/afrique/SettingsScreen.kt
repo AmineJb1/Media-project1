@@ -73,6 +73,12 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
     var confirmDisconnect by remember { mutableStateOf(false) }
     var confirmClearCache by remember { mutableStateOf(false) }
     val firstSettingFocus = remember { FocusRequester() }
+    // Keep the exact Settings item selected when returning from a detail page.
+    var lastSettingsSection by remember { mutableStateOf("Mon compte") }
+    val settingsItemFocus = remember { List(5) { FocusRequester() } }
+    val settingsSectionNames = remember {
+        listOf("Mon compte", "Informations d’abonnement", "Contrôle parental", "Vider le cache", "À propos")
+    }
     val parentalActionFocus = remember { FocusRequester() }
     val detailFocus = remember { FocusRequester() }
     var addAccountFocused by remember { mutableStateOf(false) }
@@ -86,7 +92,10 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
     LaunchedEffect(page) {
         kotlinx.coroutines.delay(180)
         when (page) {
-            null -> runCatching { firstSettingFocus.requestFocus() }
+            null -> {
+                val index = settingsSectionNames.indexOf(lastSettingsSection).coerceAtLeast(0)
+                runCatching { settingsItemFocus[index].requestFocus() }
+            }
             "Contrôle parental" -> runCatching { parentalActionFocus.requestFocus() }
             "Informations d’abonnement" -> runCatching { infoFocus.requestFocus() }
             "Vider le cache" -> runCatching { cacheFocus.requestFocus() }
@@ -108,10 +117,10 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
             sections.forEachIndexed { index, (section, subtitle, symbol) ->
                 var focused by remember(section) { mutableStateOf(false) }
                 Surface(
-                    onClick = { onPage(section); message = "" },
+                    onClick = { lastSettingsSection = section; onPage(section); message = "" },
                     modifier = Modifier.fillMaxWidth(0.72f)
                         .widthIn(max = 610.dp)
-                        .then(if (index == 0) Modifier.focusRequester(firstSettingFocus) else Modifier)
+                        .focusRequester(settingsItemFocus[index])
                         .onFocusChanged { focused = it.isFocused }
                         .shadow(if (focused) 7.dp else 3.dp, RoundedCornerShape(18.dp)),
                     color = if (focused) Color(0xFF0B4F32).copy(alpha = 0.94f)
