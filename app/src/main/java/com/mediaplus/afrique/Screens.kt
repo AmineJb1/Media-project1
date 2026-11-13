@@ -133,11 +133,11 @@ fun LoginScreen(s: AppState) {
                 Text("Version $tvVersion",
                     color = c.onSurfaceVariant.copy(alpha = .9f),
                     fontSize = 12.sp,
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(end = 12.dp, bottom = 8.dp))
+                    modifier = Modifier.align(Alignment.BottomStart).padding(start = 12.dp, bottom = 8.dp))
             }
             Column(
                 Modifier.align(if (tvLayout) Alignment.TopEnd else Alignment.TopCenter)
-                    .widthIn(max = if (tvLayout) 470.dp else 560.dp)
+                    .widthIn(max = if (tvLayout) 390.dp else 560.dp)
                     .fillMaxWidth()
                     .padding(top = if (tvLayout) 16.dp else 0.dp)
                     .verticalScroll(rememberScrollState()),
@@ -182,7 +182,7 @@ fun LoginScreen(s: AppState) {
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Column(Modifier.fillMaxWidth().padding(if (tvLayout) 4.dp else if (wide) 22.dp else 16.dp)) {
-                    Text("Bienvenue", fontSize = if (tvLayout) 38.sp else 23.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF102B43), maxLines = 1, modifier = Modifier.align(Alignment.CenterHorizontally))
+                    Text("Bienvenue", fontSize = if (tvLayout) 35.sp else 23.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF176B83), maxLines = 1, modifier = Modifier.align(Alignment.CenterHorizontally))
                     Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, fontSize = if (tvLayout) 15.sp else 13.sp, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp, bottom = 18.dp))
                     Text("Identifiants", color = c.onSurface, fontSize = if (tvLayout) 19.sp else 15.sp,
                         fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 4.dp))
@@ -199,14 +199,15 @@ fun LoginScreen(s: AppState) {
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
-                            if (!tvLayout) Button(onClick = { showPassword = !showPassword }, modifier = Modifier.width(88.dp).height(48.dp),
+                            if (!tvLayout) IconButton(onClick = { showPassword = !showPassword }, modifier = Modifier.size(48.dp)) { androidx.compose.material3.Icon(if (showPassword) androidx.compose.material.icons.Icons.Default.Visibility else androidx.compose.material.icons.Icons.Default.VisibilityOff, contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe", tint = Color(0xFF174C3B)) }
+                            /*Button(onClick = { showPassword = !showPassword }, modifier = Modifier.width(88.dp).height(48.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE3EEE8), contentColor = Color(0xFF174C3B)),
                                 contentPadding = PaddingValues(horizontal = 4.dp)) {
                                 Text(if (showPassword) "Masquer" else "Voir",
                                     color = Color(0xFF174C3B),
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.SemiBold)
-                            }
+                            }*/
                         })
                     if (tvLayout) {
                         Button(
@@ -215,8 +216,7 @@ fun LoginScreen(s: AppState) {
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE3EEE8), contentColor = Color(0xFF174C3B))
                         ) {
-                            Text(if (showPassword) "Masquer le mot de passe" else "Voir le mot de passe",
-                                color = Color(0xFF174C3B), fontWeight = FontWeight.Bold)
+                            androidx.compose.material3.Icon(if (showPassword) androidx.compose.material.icons.Icons.Default.Visibility else androidx.compose.material.icons.Icons.Default.VisibilityOff, contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe", tint = Color(0xFF174C3B))
                         }
                     }
                     if (biometricReady) {
