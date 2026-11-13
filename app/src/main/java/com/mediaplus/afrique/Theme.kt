@@ -97,11 +97,19 @@ fun AfricaTheme(content: @Composable () -> Unit) {
                                 val pixel = pixels[i]
                                 android.graphics.Color.colorToHSV(pixel, hsv)
                                 val hue = hsv[0]
-                                val orange = hue in 12f..48f && hsv[1] > .19f
-                                val green = hue in 75f..175f && hsv[1] > .19f
+                                // Include pale orange pixels previously missed by the saturation threshold.
+                                val red = android.graphics.Color.red(pixel)
+                                val greenChannel = android.graphics.Color.green(pixel)
+                                val blue = android.graphics.Color.blue(pixel)
+                                val orange = hue in 12f..49f && hsv[1] > .055f &&
+                                    red > greenChannel * 1.055f && greenChannel > blue * 1.03f
+                                val green = hue in 75f..175f && hsv[1] > .10f &&
+                                    greenChannel > red * 1.08f
                                 if (orange || green) {
-                                    hsv[1] = (hsv[1] * 1.55f).coerceAtMost(1f)
-                                    hsv[2] = (hsv[2] * 1.15f).coerceAtMost(1f)
+                                    // Saturate the existing flag, without changing its silhouette.
+                                    hsv[0] = if (orange) 30f else 140f
+                                    hsv[1] = if (orange) .96f else .92f
+                                    hsv[2] = (hsv[2] * 1.30f).coerceAtMost(1f)
                                     pixels[i] = android.graphics.Color.HSVToColor(
                                         android.graphics.Color.alpha(pixel), hsv)
                                 }
