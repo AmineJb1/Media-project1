@@ -96,8 +96,10 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
                     if (cached != null && key == vodAccountKey()) {
                         if (kind == 2) { movies = cached.items; movieCategories = cached.categories }
                         else { series = cached.items; seriesCategories = cached.categories }
-                    } else if (cached == null && key == vodAccountKey()) {
-                        // Invalid cache will be retried after releasing the loading guard
+                    }
+                    if (cached == null) {
+                        vodLoading.remove(kind)
+                        if (key == vodAccountKey()) updateVod(kind, force = true)
                     }
                 } finally { vodLoading.remove(kind) }
             }
