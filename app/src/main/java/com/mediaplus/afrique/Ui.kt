@@ -144,9 +144,16 @@ fun Logo(item: Item) {
     var ok by remember(item.logo) { mutableStateOf(false) }
     Box(Modifier.size(58.dp).clip(RoundedCornerShape(16.dp)).background(Color(0xFFF0F7F0))) {
         if (!ok) Box(
-            Modifier.fillMaxSize().background(Brush.linearGradient(listOf(Color(0xFF08723A), Color(0xFFFF8A00)))),
+            Modifier.fillMaxSize().background(Color(0xFFF0F7F0)),
             contentAlignment = Alignment.Center
-        ) { Text(bouquetIcon(item.group), fontSize = 24.sp) }
+        ) {
+            Text(
+                item.name.trim().take(2).uppercase(Locale.ROOT),
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF0B4F32)
+            )
+        }
         if (item.logo.startsWith("http")) {
             AsyncImage(
                 model = remember(item.logo) { ImageRequest.Builder(ctx).data(item.logo).size(128).crossfade(true).build() },
