@@ -85,7 +85,30 @@ fun AfricaTheme(content: @Composable () -> Unit) {
             val premiumBackground = remember {
                 try {
                     ctx.assets.open("bg_cote_ivoire_3d.jpg").use { stream ->
-                        BitmapFactory.decodeStream(stream)?.asImageBitmap()
+                        BitmapFactory.decodeStream(stream)?.let { original ->
+                            // Intensify only the orange and green of the Ivorian flag.
+                            // Keep the original Africa image, its contours and white areas.
+                            val bitmap = original.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
+                            val width = bitmap.width
+                            val pixels = IntArray(width * bitmap.height)
+                            bitmap.getPixels(pixels, 0, width, 0, 0, width, bitmap.height)
+                            val hsv = FloatArray(3)
+                            for (i in pixels.indices) {
+                                val pixel = pixels[i]
+                                android.graphics.Color.colorToHSV(pixel, hsv)
+                                val hue = hsv[0]
+                                val orange = hue in 12f..48f && hsv[1] > .19f
+                                val green = hue in 75f..175f && hsv[1] > .19f
+                                if (orange || green) {
+                                    hsv[1] = (hsv[1] * 1.55f).coerceAtMost(1f)
+                                    hsv[2] = (hsv[2] * 1.15f).coerceAtMost(1f)
+                                    pixels[i] = android.graphics.Color.HSVToColor(
+                                        android.graphics.Color.alpha(pixel), hsv)
+                                }
+                            }
+                            bitmap.setPixels(pixels, 0, width, 0, 0, width, bitmap.height)
+                            bitmap.asImageBitmap()
+                        }
                     }
                 } catch (_: Exception) { null }
             }
