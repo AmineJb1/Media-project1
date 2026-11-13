@@ -16,6 +16,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.focus.focusable
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
@@ -82,6 +84,10 @@ fun TvPlayer(s: AppState) {
         if (infoVisible && !settingsVisible && !menuVisible) { delay(5000); infoVisible = false }
     }
     val focusRequester = remember { FocusRequester() }
+    val drawerFocusRequester = remember { FocusRequester() }
+    LaunchedEffect(menuVisible) {
+        if (menuVisible) drawerFocusRequester.requestFocus() else focusRequester.requestFocus()
+    }
     LaunchedEffect(Unit) { focusRequester.requestFocus() }
     var videoSize by remember { mutableStateOf(VideoSize.UNKNOWN) }
     var epg by remember { mutableStateOf<List<Prog>>(emptyList()) }
@@ -158,7 +164,10 @@ fun TvPlayer(s: AppState) {
                     Key.DirectionDown -> { if (menuVisible) false else { changeChannel(1); true } }
                     Key.DirectionLeft -> { if (menuVisible) false else { audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI); true } }
                     Key.DirectionRight -> { if (menuVisible) false else { audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI); true } }
-                    Key.DirectionCenter, Key.Enter, Key.NumPadEnter -> { settingsVisible = false; infoVisible = true; menuVisible = !menuVisible; selectedBouquet = initialBouquet; drawerTab = 1; true }
+                    Key.DirectionCenter, Key.Enter, Key.NumPadEnter -> {
+                        if (menuVisible || settingsVisible) false
+                        else { settingsVisible = false; infoVisible = true; menuVisible = true; selectedBouquet = initialBouquet; drawerTab = 1; true }
+                    }
                     Key.Back, Key.Escape -> { if (settingsVisible) { settingsVisible = false; true } else if (menuVisible) { menuVisible = false; true } else false }
                     else -> false
                 }
@@ -176,22 +185,20 @@ fun TvPlayer(s: AppState) {
         if (infoVisible) {
             Row(
                 Modifier.align(Alignment.BottomCenter).fillMaxWidth()
-                    .background(Color(0xD9000000)).padding(horizontal = 14.dp, vertical = 10.dp),
+                    .background(Color(0x99000000)).padding(horizontal = 22.dp, vertical = 20.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                    Text(channel?.name ?: "Direct", color = Color.White,
+                        fontSize = 20.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                    Text(if (current != null) current.title else "EPG indisponible",
+                        color = Color(0xFFE2E6E6), fontSize = 15.sp, maxLines = 2)
+                }
                 val logo = channel?.logo.orEmpty()
                 if (logo.startsWith("http")) {
                     AsyncImage(model = logo, contentDescription = "Logo de la chaîne",
-                        modifier = Modifier.size(48.dp), contentScale = ContentScale.Fit)
-                } else {
-                    Text("◉", color = Color.White, fontSize = 26.sp)
-                }
-                Column(Modifier.weight(1f)) {
-                    Text(channel?.name ?: "Direct", color = Color.White,
-                        fontWeight = FontWeight.SemiBold, maxLines = 1)
-                    Text(if (current != null) current.title else "EPG indisponible",
-                        color = Color.LightGray, style = MaterialTheme.typography.bodySmall, maxLines = 2)
+                        modifier = Modifier.size(68.dp), contentScale = ContentScale.Fit)
                 }
                 Surface(color = Color(0xB2223230), shape = RoundedCornerShape(8.dp)) {
                     Text(quality, color = Color.White, fontWeight = FontWeight.Bold,
@@ -215,88 +222,13 @@ fun TvPlayer(s: AppState) {
                 shape = RoundedCornerShape(topStart = 18.dp, bottomStart = 18.dp)
             ) {
                 Column(Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(10.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Paramètres du lecteur", color = Color.White,
-                            fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                        TextButton(onClick = { settingsVisible = false }) { Text("Fermer") }
-                    }
-                    Text("Format d'image", color = Color.White, fontWeight = FontWeight.Bold)
-                    listOf(
-                        "Ajuster" to AspectRatioFrameLayout.RESIZE_MODE_FIT,
-                        "Remplir" to AspectRatioFrameLayout.RESIZE_MODE_FILL,
-                        "Zoom" to AspectRatioFrameLayout.RESIZE_MODE_ZOOM,
-                        "Largeur fixe" to AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH
-                    ).forEach { (name, value) ->
-                        TextButton(onClick = { setDisplayMode(value) }) {
-                            Text((if (resizeMode == value) "✓ " else "") + name, color = Color.White)
-                        }
-                    }
-                    Text("Audio disponible", color = Color.White, fontWeight = FontWeight.Bold)
-                    if (audioGroups.isEmpty()) Text("Aucune piste audio détectée", color = Color.LightGray)
-                    audioGroups.forEach { group ->
-                        for (index in 0 until group.length) {
-                            if (group.isTrackSupported(index)) {
-                                val format = group.getTrackFormat(index)
-                                val title = listOfNotNull(format.language?.takeUnless { it == "und" },
-                                    format.label).joinToString(" · ").ifBlank { "Audio ${index + 1}" }
-                                TextButton(onClick = {
-                                    player.trackSelectionParameters = player.trackSelectionParameters.buildUpon()
-                                        .setOverrideForType(TrackSelectionOverride(group.mediaTrackGroup, index)).build()
-                                }) {
-                                    Text((if (group.isTrackSelected(index)) "✓ " else "") + title, color = Color.White)
-                                }
-                            }
-                        }
-                    }
-                    Text("Sous-titres", color = Color.White, fontWeight = FontWeight.Bold)
-                    TextButton(onClick = {
-                        player.trackSelectionParameters = player.trackSelectionParameters.buildUpon()
-                            .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true).build()
-                    }) { Text("Désactivés", color = Color.White) }
-                    if (textGroups.isEmpty()) Text("Aucun sous-titre disponible", color = Color.LightGray)
-                    textGroups.forEach { group ->
-                        for (index in 0 until group.length) {
-                            if (group.isTrackSupported(index)) {
-                                val format = group.getTrackFormat(index)
-                                val title = listOfNotNull(format.language?.takeUnless { it == "und" },
-                                    format.label).joinToString(" · ").ifBlank { "Sous-titre ${index + 1}" }
-                                TextButton(onClick = {
-                                    player.trackSelectionParameters = player.trackSelectionParameters.buildUpon()
-                                        .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
-                                        .setOverrideForType(TrackSelectionOverride(group.mediaTrackGroup, index)).build()
-                                }) {
-                                    Text((if (group.isTrackSelected(index)) "✓ " else "") + title, color = Color.White)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        if (menuVisible) {
-            Box(Modifier.fillMaxSize().clickable { menuVisible = false })
-            Surface(
-                modifier = Modifier.align(Alignment.CenterStart)
-                    .fillMaxHeight(if (portrait) 0.72f else 0.74f)
-                    .fillMaxWidth(if (portrait) 0.78f else 0.36f)
-                    .widthIn(max = 350.dp),
-                color = Color(0xE9192421),
-                shape = RoundedCornerShape(topEnd = 18.dp, bottomEnd = 18.dp),
-                shadowElevation = 14.dp
-            ) {
-                Column(Modifier.fillMaxSize().padding(horizontal = 12.dp, vertical = 12.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Chaînes TV", color = Color.White,
-                            fontWeight = FontWeight.Bold, fontSize = 15.sp,
-                            modifier = Modifier.weight(1f))
-                        TextButton(onClick = { menuVisible = false }) {
-                            Text("✕", color = Color.White, fontSize = 18.sp)
-                        }
-                    }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         listOf("Bouquets" to 0, "Chaînes" to 1).forEach { (title, tab) ->
                             Surface(
-                                modifier = Modifier.weight(1f).clickable { drawerTab = tab },
+                                modifier = Modifier.weight(1f)
+                                    .then(if (tab == 1) Modifier.focusRequester(drawerFocusRequester) else Modifier)
+                                    .onFocusChanged { if (it.isFocused) drawerTab = tab }
+                                    .focusable().clickable { drawerTab = tab },
                                 color = if (drawerTab == tab) Color(0xFFDF792D) else Color(0x553D5047),
                                 shape = RoundedCornerShape(10.dp)
                             ) {
@@ -319,7 +251,10 @@ fun TvPlayer(s: AppState) {
                             verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             items(bouquets) { name ->
                                 Surface(
-                                    modifier = Modifier.fillMaxWidth().clickable {
+                                    modifier = Modifier.fillMaxWidth()
+                                        .onFocusChanged { }
+                                        .focusable()
+                                        .clickable {
                                         selectedBouquet = name
                                         drawerTab = 1
                                     },
@@ -342,6 +277,7 @@ fun TvPlayer(s: AppState) {
                                             if (item.id == channel?.id) Color(0x554D8B72) else Color.Transparent,
                                             RoundedCornerShape(11.dp)
                                         )
+                                        .focusable()
                                         .clickable {
                                             s.selectPlaybackBouquet(drawerBouquet, drawerChannels)
                                             s.playLive(item)
