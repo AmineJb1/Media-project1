@@ -173,12 +173,12 @@ fun LoginScreen(s: AppState) {
                 modifier = Modifier.fillMaxWidth())
             }
             Spacer(Modifier.height(if (tvLayout) 8.dp else if (wide) 14.dp else 9.dp))
-            if (tvLayout) Box(Modifier.fillMaxWidth()) else Card(
+            Card(
                 Modifier.fillMaxWidth().animateContentSize()
                     ,
                 shape = RoundedCornerShape(26.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = if (tvLayout) .72f else .88f)),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = if (tvLayout) .55f else .95f)),
+                colors = CardDefaults.cardColors(containerColor = if (tvLayout) Color.Transparent else Color.White.copy(alpha = .88f)),
+                border = androidx.compose.foundation.BorderStroke(if (tvLayout) 0.dp else 1.dp, if (tvLayout) Color.Transparent else Color.White.copy(alpha = .95f)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Column(Modifier.fillMaxWidth().padding(if (tvLayout) 4.dp else if (wide) 22.dp else 16.dp)) {
