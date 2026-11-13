@@ -808,6 +808,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                             }
                         } else {
                             val firstChannelFocus = remember { FocusRequester() }
+                            var focusedChannelId by remember(s.group) { mutableStateOf<String?>(null) }
                             val channelListState = androidx.compose.foundation.lazy.rememberLazyListState()
                             val channelScrollScope = rememberCoroutineScope()
                             // Restore focus to the channel that was playing when leaving fullscreen.
@@ -821,13 +822,10 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                     if (index >= 0) channelListState.scrollToItem(index)
                                     // LazyColumn composes its focus target asynchronously on Android TV.
                                     // Retry until the channel row is attached instead of leaving focus on Direct.
-                                    for (attempt in 0 until 8) {
-                                        kotlinx.coroutines.delay(if (attempt == 0) 220 else 120)
-                                        val focused = runCatching {
-                                            firstChannelFocus.requestFocus()
-                                            true
-                                        }.getOrDefault(false)
-                                        if (focused) break
+                                    for (attempt in 0 until 12) {
+                                        kotlinx.coroutines.delay(if (attempt == 0) 260 else 130)
+                                        if (focusedChannelId != null) break
+                                        runCatching { firstChannelFocus.requestFocus() }
                                     }
                                 }
                             }
@@ -843,7 +841,10 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                     val previewSelected = s.previewChannelId == item.id
                                     Row(
                                         Modifier.fillMaxWidth().height(if (tvWide) 65.dp else 58.dp)
-                                            .onFocusChanged { channelFocused = it.isFocused }
+                                            .onFocusChanged {
+                                                channelFocused = it.isFocused
+                                                if (it.isFocused) focusedChannelId = item.id
+                                            }
                                             .clip(RoundedCornerShape(12.dp))
                                             .background(if (channelFocused) Color(0xFF0B4F32)
                                                 else Color.White.copy(alpha = if (previewSelected) .95f else .83f))
