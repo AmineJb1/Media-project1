@@ -9,7 +9,7 @@
         android:icon="@mipmap/ic_launcher"
         android:banner="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"
-        android:theme="@android:style/Theme.Material.NoActionBar">
+        android:theme="@style/MediaPlusLaunchTheme">
         <activity android:name=".MainActivity" android:exported="true"
             android:configChanges="orientation|screenSize|keyboardHidden">
             <intent-filter>
