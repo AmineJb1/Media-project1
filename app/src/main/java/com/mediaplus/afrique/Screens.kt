@@ -2,6 +2,7 @@ package com.mediaplus.afrique
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -808,6 +809,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                         } else {
                             val firstChannelFocus = remember { FocusRequester() }
                             val channelListState = androidx.compose.foundation.lazy.rememberLazyListState()
+                            val channelScrollScope = rememberCoroutineScope()
                             // Restore focus to the channel that was playing when leaving fullscreen.
                             // Only use the preview ID if it belongs to the currently opened bouquet.
                             val initialChannel = visibleItems.firstOrNull { it.id == s.previewChannelId }
@@ -836,6 +838,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                 contentPadding = PaddingValues(bottom = 10.dp)
                             ) {
                                 listItems(visibleItems, key = { it.id }) { item ->
+                                    val channelIndex = visibleItems.indexOfFirst { it.id == item.id }
                                     var channelFocused by remember { mutableStateOf(false) }
                                     val previewSelected = s.previewChannelId == item.id
                                     Row(
@@ -881,7 +884,19 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                                 modifier = Modifier.size(25.dp)
                                             )
                                         }
-                                        if (previewSelected) Text("▶", color = if (channelFocused) Color.White else Color(0xFF0B4F32))
+                                        if (previewSelected) {
+                                            Row(
+                                                Modifier.clip(RoundedCornerShape(50))
+                                                    .background(if (channelFocused) Color.White.copy(alpha = .16f) else Color(0xFFE2F5E9))
+                                                    .padding(horizontal = 7.dp, vertical = 5.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                            ) {
+                                                Text("●", color = Color(0xFFEA4D45), fontSize = 12.sp)
+                                                Text("LIVE", color = if (channelFocused) Color.White else Color(0xFF0B4F32),
+                                                    fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                                            }
+                                        }
                                     }
                                 }
                             }
