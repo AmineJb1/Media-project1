@@ -123,7 +123,6 @@ fun LoginScreen(s: AppState) {
                             modifier = Modifier.size(148.dp),
                             contentScale = ContentScale.Fit
                         )
-                        Text("🇨🇮", fontSize = 34.sp, modifier = Modifier.offset(x = (-24).dp, y = (-42).dp))
                     }
                 }
                 val tvAppContext = LocalContext.current
@@ -153,7 +152,6 @@ fun LoginScreen(s: AppState) {
                     modifier = Modifier.size(if (tvLayout) 80.dp else if (wide) 88.dp else 78.dp).clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Fit
                 )
-                Text("🇨🇮", fontSize = if (tvLayout) 21.sp else 15.sp, modifier = Modifier.offset(x = (-12).dp, y = if (tvLayout) (-25).dp else (-30).dp))
                 Spacer(Modifier.width(6.dp))
                 Column(Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -183,7 +181,7 @@ fun LoginScreen(s: AppState) {
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Column(Modifier.fillMaxWidth().padding(if (tvLayout) 4.dp else if (wide) 22.dp else 16.dp)) {
-                    Text("Bienvenue", fontSize = if (tvLayout) 35.sp else 23.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF176B83), maxLines = 1, modifier = Modifier.align(Alignment.CenterHorizontally))
+                    Text("Media+ Côte d’Ivoire", fontSize = if (tvLayout) 30.sp else 21.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF176B83), maxLines = 1, modifier = Modifier.align(Alignment.CenterHorizontally))
                     Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, fontSize = if (tvLayout) 15.sp else 13.sp, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp, bottom = 18.dp))
                     Text("Identifiants", color = c.onSurface, fontSize = if (tvLayout) 19.sp else 15.sp,
                         fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 4.dp))
@@ -231,17 +229,17 @@ fun LoginScreen(s: AppState) {
                         shape = RoundedCornerShape(28.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F2F1), contentColor = c.onSurface),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 3.dp, pressedElevation = 1.dp)
                     ) { Text("▶  Se connecter", fontSize = 15.sp, fontWeight = FontWeight.SemiBold) }
                     Spacer(Modifier.height(10.dp))
                     Button(
                         onClick = { showMacAccess = true },
-                        modifier = Modifier.fillMaxWidth().height(if (tvLayout) 52.dp else if (wide) 52.dp else 48.dp),
+                        modifier = Modifier.fillMaxWidth(if (tvLayout) .78f else .90f).align(Alignment.CenterHorizontally).height(if (tvLayout) 42.dp else 44.dp),
                         shape = RoundedCornerShape(28.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F2F1), contentColor = c.onSurface),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
-                    ) { Text("▶  Connexion avec Adresse MAC", fontSize = 15.sp, fontWeight = FontWeight.SemiBold) }
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 3.dp, pressedElevation = 1.dp)
+                    ) { Text("▶  Connexion avec Adresse MAC", fontSize = if (tvLayout) 13.sp else 14.sp, fontWeight = FontWeight.SemiBold) }
                     AnimatedVisibility(s.status.startsWith("Erreur", ignoreCase = true) || s.status == "Abonnement Expiré") {
                         Text(s.status, Modifier.padding(top = 12.dp), color = c.secondary, style = MaterialTheme.typography.bodySmall)
                     }
