@@ -133,7 +133,7 @@ fun LoginScreen(s: AppState) {
         ) {
             if (tvLayout) {
                 Column(
-                    Modifier.align(Alignment.BottomStart).padding(start = 4.dp, bottom = 38.dp),
+                    Modifier.align(Alignment.BottomStart).offset(x = (-16).dp).padding(bottom = 38.dp),
                     horizontalAlignment = Alignment.Start
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
