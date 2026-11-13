@@ -371,6 +371,8 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
     var searchOpen by remember { mutableStateOf(false) }
     var lastBouquet by remember { mutableStateOf<String?>(null) }
     val restoreBouquetFocus = remember { FocusRequester() }
+    val firstBouquetFocus = remember { FocusRequester() }
+    var initialBouquetFocusDone by remember { mutableStateOf(false) }
     val bouquetGridState = rememberLazyGridState()
     var restoreBouquetPending by remember { mutableStateOf(false) }
     LaunchedEffect(s.group, s.section) {
@@ -686,6 +688,12 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                             val groups = (specialGroups.keys + list.map { it.group }).filter { it.isNotBlank() }.distinct()
                             BoxWithConstraints(Modifier.fillMaxSize()) {
                                 val cardHeight = (maxHeight - 42.dp) / 3
+                                LaunchedEffect(groups.size, useSideRail, settingsOpen, s.section, s.group) {
+                                    if (useSideRail && !initialBouquetFocusDone && !settingsOpen && s.section == 0 && s.group == null && groups.isNotEmpty()) {
+                                        kotlinx.coroutines.delay(200)
+                                        if (runCatching { firstBouquetFocus.requestFocus() }.isSuccess) initialBouquetFocusDone = true
+                                    }
+                                }
                                 LaunchedEffect(s.group, s.section, lastBouquet, groups.size) {
                                     if (s.group == null && s.section == 0 && restoreBouquetPending && lastBouquet != null) {
                                         val index = groups.indexOf(lastBouquet)
@@ -714,6 +722,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                                 if (cardFocused) Color(0xFF145A43) else Color(0xFFB2C9C3), cardShape)
                                             .clickable { lastBouquet = groupName; s.requestGroup(groupName) }
                                             .then(if (groupName == lastBouquet) Modifier.focusRequester(restoreBouquetFocus) else Modifier)
+                                            .then(if (groupName == groups.firstOrNull()) Modifier.focusRequester(firstBouquetFocus) else Modifier)
                                             .padding(10.dp)) {
                                             Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
