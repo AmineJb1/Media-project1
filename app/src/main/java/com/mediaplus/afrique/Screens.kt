@@ -620,66 +620,97 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     }
                 }
             } else if (s.episodes != null && s.section == 3) {
-                Column(Modifier.weight(1f).widthIn(max = 980.dp).padding(horizontal = 16.dp)) {
-                    TextButton(onClick = { s.closeEpisodes() }) {
-                        Text("‹  Retour aux séries", color = Color(0xFF15523B),
-                            fontWeight = FontWeight.SemiBold)
+                val episodes = s.episodes.orEmpty()
+                val seriesImage = s.episodeSeries?.logo.orEmpty()
+                Box(Modifier.weight(1f).fillMaxWidth().clipToBounds()) {
+                    if (seriesImage.startsWith("http")) {
+                        AsyncImage(
+                            model = seriesImage, contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
                     }
-                    Text(s.episodeSeries?.name ?: "Épisodes", fontSize = 25.sp,
-                        fontWeight = FontWeight.Bold, color = Color(0xFF173D2E))
-                    Spacer(Modifier.height(10.dp))
-                    val episodes = s.episodes.orEmpty()
-                    if (episodes.isEmpty()) {
-                        Text(if (s.status.startsWith("Erreur")) "Impossible de récupérer les épisodes."
-                            else if (s.status.contains("Chargement")) "Chargement des épisodes…"
-                            else "Aucun épisode disponible pour cette série.",
-                            color = Color(0xFF173D2E), fontSize = 14.sp)
-                    } else {
-                        androidx.compose.foundation.lazy.LazyColumn(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(9.dp),
-                            contentPadding = PaddingValues(bottom = 18.dp)
-                        ) {
-                            items(episodes.size) { index ->
-                                val episode = episodes[index]
-                                var episodeFocused by remember { mutableStateOf(false) }
-                                Row(
-                                    Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
-                                        .background(Color.White.copy(alpha = .94f))
-                                        .clickable { s.pick(episode) }
-                                        .padding(9.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    Box(Modifier.width(112.dp).height(65.dp)
-                                        .clip(RoundedCornerShape(9.dp))
-                                        .background(Color(0xFFE7EEE9)),
-                                        contentAlignment = Alignment.Center) {
-                                        if (episode.logo.startsWith("http")) {
-                                            AsyncImage(model = episode.logo,
-                                                contentDescription = null,
-                                                contentScale = ContentScale.Crop,
-                                                modifier = Modifier.fillMaxSize())
-                                        } else {
-                                            Icon(Icons.Filled.PlayArrow,
-                                                contentDescription = null,
-                                                tint = Color(0xFF15523B))
+                    Box(Modifier.fillMaxSize().background(
+                        Brush.horizontalGradient(listOf(
+                            Color(0xF20B1D1A), Color(0xE8123027), Color(0xC81A382E)
+                        ))
+                    ))
+                    Column(
+                        Modifier.fillMaxSize().padding(horizontal = 22.dp, vertical = 14.dp),
+                        verticalArrangement = Arrangement.spacedBy(9.dp)
+                    ) {
+                        TextButton(onClick = { s.closeEpisodes() }) {
+                            Text("‹  Retour aux séries", color = Color.White,
+                                fontWeight = FontWeight.SemiBold)
+                        }
+                        Text(s.episodeSeries?.name ?: "Épisodes", fontSize = 26.sp,
+                            fontWeight = FontWeight.Bold, color = Color.White,
+                            maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        Text("${episodes.size} épisodes", fontSize = 13.sp,
+                            color = Color(0xFFE0EDE6))
+                        if (episodes.isEmpty()) {
+                            Text(if (s.status.startsWith("Erreur")) "Impossible de récupérer les épisodes."
+                                else if (s.status.contains("Chargement")) "Chargement des épisodes…"
+                                else "Aucun épisode disponible pour cette série.",
+                                color = Color.White, fontSize = 14.sp)
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.weight(1f).widthIn(max = 900.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                contentPadding = PaddingValues(bottom = 18.dp)
+                            ) {
+                                items(episodes.size, key = { index -> index }) { index ->
+                                    val episode = episodes[index]
+                                    var episodeFocused by remember(episode.url) { mutableStateOf(false) }
+                                    val episodeShape = RoundedCornerShape(14.dp)
+                                    Row(
+                                        Modifier.fillMaxWidth()
+                                            .clip(episodeShape)
+                                            .background(if (episodeFocused) Color(0xFF104D37)
+                                                else Color(0xC9243D38))
+                                            .border(if (episodeFocused) 2.dp else 1.dp,
+                                                if (episodeFocused) Color(0xFF31E18B)
+                                                else Color.White.copy(alpha = .20f), episodeShape)
+                                            .onFocusChanged { episodeFocused = it.isFocused }
+                                            .clickable { s.pick(episode) }
+                                            .padding(horizontal = 12.dp, vertical = 9.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(14.dp)
+                                    ) {
+                                        Box(
+                                            Modifier.width(132.dp).height(74.dp)
+                                                .clip(RoundedCornerShape(9.dp))
+                                                .background(Color(0xFF2D5145)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            if (episode.logo.startsWith("http")) {
+                                                AsyncImage(model = episode.logo,
+                                                    contentDescription = null,
+                                                    contentScale = ContentScale.Crop,
+                                                    modifier = Modifier.fillMaxSize())
+                                            } else {
+                                                Icon(Icons.Filled.PlayArrow,
+                                                    contentDescription = null,
+                                                    tint = Color.White)
+                                            }
                                         }
+                                        Column(Modifier.weight(1f),
+                                            verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                            Text("ÉPISODE ${index + 1}",
+                                                color = Color(0xFFFFA34D), fontSize = 12.sp,
+                                                fontWeight = FontWeight.Bold)
+                                            Text(episode.name, color = Color.White,
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis)
+                                        }
+                                        Icon(Icons.Filled.PlayArrow,
+                                            contentDescription = "Lire l’épisode",
+                                            tint = if (episodeFocused) Color(0xFF4EF5A3)
+                                                else Color.White,
+                                            modifier = Modifier.size(26.dp))
                                     }
-                                    Column(Modifier.weight(1f)) {
-                                        Text("Épisode " + (index + 1),
-                                            color = Color(0xFFCB651B),
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.Bold)
-                                        Text(episode.name, color = if (episodeFocused) Color.White else Color(0xFF173D2E),
-                                            fontSize = 13.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            maxLines = 2,
-                                            overflow = TextOverflow.Ellipsis)
-                                    }
-                                    Icon(Icons.Filled.PlayArrow,
-                                        contentDescription = "Lire l’épisode",
-                                        tint = if (episodeFocused) Color.White else Color(0xFF15523B))
                                 }
                             }
                         }
