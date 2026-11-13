@@ -366,20 +366,31 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
         val useSideRail = landscapeCompact || tvWide
         Row(Modifier.fillMaxSize()) {
             if (useSideRail) {
-                Column(Modifier.width(if (tvWide) 126.dp else 104.dp).fillMaxHeight().background(Color(0xFFF4F7F8))
-                    .padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally,
+                Column(Modifier.width(if (tvWide) 126.dp else 104.dp).fillMaxHeight()
+                    .background(Color(0xFFF7F9FB))
+                    .border(1.dp, Color(0xFFE0E8EC))
+                    .padding(horizontal = 7.dp, vertical = 12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     listOf(0 to "Direct", 2 to "Films", 3 to "Séries", 4 to "Favoris", 5 to "Réglages").forEach { (section, title) ->
                         val active = if (section == 5) settingsOpen else !settingsOpen && s.section == section
-                        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-                            .background(if (active) Color(0xFFE0F0E9) else Color.White)
+                        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp))
+                            .background(if (active) Color(0xFFE5F3EC) else Color.White)
+                            .border(if (active) 2.dp else 1.dp, if (active) Color(0xFF278264) else Color(0xFFE4E9ED), RoundedCornerShape(18.dp))
                             .clickable {
                                 if (section == 5) { onSettingsOpen(true); s.clearPreview() }
                                 else { onSettingsOpen(false); onSettingsPage(null); s.pickSection(section) }
-                            }.padding(vertical = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(when (section) { 0 -> Icons.Filled.Home; 2 -> Icons.Filled.PlayArrow; 3 -> Icons.Filled.List; 4 -> Icons.Filled.Star; else -> Icons.Filled.Settings }, contentDescription = title, tint = if (active) c.secondary else c.primary, modifier = Modifier.size(30.dp))
-                            Spacer(Modifier.height(5.dp))
-                            Text(title, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color(0xFF173C31), maxLines = 1)
+                            }.padding(vertical = 10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Box(Modifier.size(42.dp).clip(RoundedCornerShape(14.dp))
+                                .background(if (active) Color(0xFF20785C) else Color(0xFFEEF3F6)),
+                                contentAlignment = Alignment.Center) {
+                                Icon(when (section) { 0 -> Icons.Filled.Home; 2 -> Icons.Filled.PlayArrow; 3 -> Icons.Filled.List; 4 -> Icons.Filled.Star; else -> Icons.Filled.Settings },
+                                    contentDescription = title, tint = if (active) Color.White else Color(0xFF34566A),
+                                    modifier = Modifier.size(27.dp))
+                            }
+                            Spacer(Modifier.height(6.dp))
+                            Text(title, fontSize = 14.sp, fontWeight = FontWeight.Bold,
+                                color = if (active) Color(0xFF14553F) else Color(0xFF263E4B), maxLines = 1)
                         }
                     }
                 }
@@ -557,19 +568,29 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                         else specialGroups[s.group] ?: list.filter { it.group == s.group }
                         if (s.group == null && s.query.isBlank()) {
                             val groups = (specialGroups.keys + list.map { it.group }).filter { it.isNotBlank() }.distinct()
-                            LazyVerticalGrid(columns = GridCells.Fixed(3),
-                                horizontalArrangement = Arrangement.spacedBy(14.dp),
-                                verticalArrangement = Arrangement.spacedBy(14.dp),
-                                contentPadding = PaddingValues(bottom = 12.dp)) {
-                                items(groups) { groupName ->
-                                    Column(Modifier.fillMaxWidth().height(if (tvWide) 154.dp else 112.dp).clip(RoundedCornerShape(18.dp))
-                                        .background(Color(0xFFF5FAF7))
-                                        .border(2.dp, Color(0xFF8BAE9F), RoundedCornerShape(18.dp))
-                                        .clickable { s.requestGroup(groupName) }
-                                        .padding(9.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Text(bouquetIcon(groupName), fontSize = if (tvWide) 39.sp else 29.sp)
-                                        Text(groupName, fontSize = if (tvWide) 19.sp else 15.sp, maxLines = 3,
-                                            color = Color(0xFF142D27), fontWeight = FontWeight.Bold, lineHeight = if (tvWide) 24.sp else 19.sp)
+                            BoxWithConstraints(Modifier.fillMaxSize()) {
+                                val cardHeight = (maxHeight - 28.dp - 12.dp) / 3
+                                LazyVerticalGrid(columns = GridCells.Fixed(3),
+                                    modifier = Modifier.fillMaxSize(),
+                                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                                    contentPadding = PaddingValues(bottom = 12.dp)) {
+                                    items(groups) { groupName ->
+                                        Column(Modifier.fillMaxWidth().height(cardHeight)
+                                            .clip(RoundedCornerShape(18.dp))
+                                            .background(Color.White)
+                                            .border(2.dp, Color(0xFFB2C9C3), RoundedCornerShape(18.dp))
+                                            .clickable { s.requestGroup(groupName) }
+                                            .padding(10.dp),
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.Center) {
+                                            Text(bouquetIcon(groupName), fontSize = if (tvWide) 37.sp else 28.sp)
+                                            Spacer(Modifier.height(6.dp))
+                                            Text(groupName, fontSize = if (tvWide) 19.sp else 15.sp,
+                                                maxLines = 3, color = Color(0xFF17332B),
+                                                fontWeight = FontWeight.Bold,
+                                                lineHeight = if (tvWide) 24.sp else 19.sp)
+                                        }
                                     }
                                 }
                             }
