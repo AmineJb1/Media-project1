@@ -6,6 +6,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
@@ -79,28 +81,34 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                 Triple("À propos", "Version et informations de l’application", "ⓘ")
             )
             sections.forEach { (section, subtitle, symbol) ->
+                var focused by remember(section) { mutableStateOf(false) }
                 Surface(
                     onClick = { onPage(section); message = "" },
-                    modifier = Modifier.fillMaxWidth().shadow(3.dp, RoundedCornerShape(18.dp)),
-                    color = Color.White.copy(alpha = 0.94f),
+                    modifier = Modifier.fillMaxWidth(0.88f)
+                        .widthIn(max = 760.dp)
+                        .onFocusChanged { focused = it.isFocused }
+                        .shadow(if (focused) 7.dp else 3.dp, RoundedCornerShape(18.dp)),
+                    color = if (focused) Color(0xFF0B4F32).copy(alpha = 0.94f)
+                        else Color.White.copy(alpha = 0.82f),
                     shape = RoundedCornerShape(18.dp),
-                    border = BorderStroke(1.dp, Color(0xFFE1E7E3))
+                    border = BorderStroke(if (focused) 3.dp else 1.dp,
+                        if (focused) Color(0xFF42D77B) else Color(0xFF9BB6A8))
                 ) {
-                    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 17.dp),
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(13.dp)) {
-                        Surface(shape = RoundedCornerShape(13.dp), color = Color(0xFFEAF3EE)) {
+                        Surface(shape = RoundedCornerShape(13.dp), color = if (focused) Color(0xFF126B42) else Color(0xFFEAF3EE)) {
                             Box(Modifier.size(44.dp), contentAlignment = Alignment.Center) {
-                                Text(symbol, fontSize = 23.sp, color = Color(0xFF1A6345))
+                                Text(symbol, fontSize = 23.sp, color = if (focused) Color(0xFFFFA02A) else Color(0xFF1A6345))
                             }
                         }
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(section, style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold, color = Color(0xFF193D30))
+                                fontWeight = FontWeight.SemiBold, color = if (focused) Color.White else Color(0xFF193D30))
                             Text(subtitle, style = MaterialTheme.typography.bodySmall,
-                                color = Color(0xFF6D7772))
+                                color = if (focused) Color.White else Color(0xFF6D7772))
                         }
-                        Text("›", fontSize = 27.sp, color = Color(0xFFB66A26))
+                        Text("›", fontSize = 27.sp, color = if (focused) Color(0xFFFFA02A) else Color(0xFFB66A26))
                     }
                 }
             }
