@@ -7,10 +7,21 @@ import android.view.View
 import android.graphics.drawable.ColorDrawable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
@@ -104,42 +115,62 @@ fun App() {
     }
 
     if (confirmExit) {
-        AlertDialog(
-            onDismissRequest = { confirmExit = false },
-            modifier = Modifier.fillMaxWidth(0.72f),
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp),
-            title = {
-                Text("Quitter l’application ?",
-                    color = Color(0xFF0B4F32),
-                    style = MaterialTheme.typography.titleLarge)
-            },
-            text = {
-                Text("Voulez-vous vraiment fermer Media+ Côte d’Ivoire ?",
-                    color = Color(0xFF234336),
-                    style = MaterialTheme.typography.bodyMedium)
-            },
-            confirmButton = {
-                var quitFocused by remember { mutableStateOf(false) }
-                Button(
-                    onClick = { s.stopLivePlayback(); confirmExit = false; activity?.finish() },
-                    modifier = Modifier.onFocusChanged { quitFocused = it.isFocused },
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
-                    border = androidx.compose.foundation.BorderStroke(
-                        if (quitFocused) 2.dp else 1.dp,
-                        if (quitFocused) Color(0xFF42D77B) else Color(0xFF0B4F32)),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B4F32))
-                ) { Text("Oui, quitter", color = Color.White) }
-            },
-            dismissButton = {
-                OutlinedButton(
-                    onClick = { confirmExit = false },
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color(0xFFFF8A00), contentColor = Color.White),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE87500))
-                ) { Text("Non", color = Color.White) }
-            },
-            containerColor = Color.White.copy(alpha = 0.88f)
-        )
+        val noFocusRequester = remember { FocusRequester() }
+        var noFocused by remember { mutableStateOf(false) }
+        var yesFocused by remember { mutableStateOf(false) }
+        LaunchedEffect(confirmExit) {
+            kotlinx.coroutines.delay(120)
+            noFocusRequester.requestFocus()
+        }
+        Dialog(onDismissRequest = { confirmExit = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(.72f).widthIn(max = 430.dp),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp),
+                color = Color.White.copy(alpha = .91f),
+                shadowElevation = 12.dp
+            ) {
+                androidx.compose.foundation.layout.Column(
+                    modifier = Modifier.padding(horizontal = 22.dp, vertical = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    Text("Quitter l’application ?",
+                        color = Color(0xFF0B4F32),
+                        style = MaterialTheme.typography.titleLarge)
+                    Text("Voulez-vous vraiment fermer Media+ Côte d’Ivoire ?",
+                        color = Color(0xFF234336),
+                        style = MaterialTheme.typography.bodyMedium)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            onClick = { confirmExit = false },
+                            modifier = Modifier.weight(1f).height(44.dp)
+                                .focusRequester(noFocusRequester)
+                                .onFocusChanged { noFocused = it.isFocused },
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (noFocused) Color(0xFF0B4F32) else Color(0xFFFF8A00)),
+                            border = androidx.compose.foundation.BorderStroke(
+                                if (noFocused) 3.dp else 1.dp,
+                                if (noFocused) Color(0xFF42D77B) else Color(0xFFE87500))
+                        ) { Text("Non", color = Color.White) }
+                        Button(
+                            onClick = { s.stopLivePlayback(); confirmExit = false; activity?.finish() },
+                            modifier = Modifier.weight(1f).height(44.dp)
+                                .onFocusChanged { yesFocused = it.isFocused },
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (yesFocused) Color(0xFF0B4F32) else Color(0xFFFF8A00)),
+                            border = androidx.compose.foundation.BorderStroke(
+                                if (yesFocused) 3.dp else 1.dp,
+                                if (yesFocused) Color(0xFF42D77B) else Color(0xFFE87500))
+                        ) { Text("Oui, quitter", color = Color.White) }
+                    }
+                }
+            }
+        }
     }
 }
