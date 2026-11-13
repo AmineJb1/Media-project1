@@ -400,7 +400,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     Image(
                         painter = painterResource(R.drawable.media_plus_brand),
                         contentDescription = "Media+ Afrique",
-                        modifier = Modifier.fillMaxWidth().height(if (tvWide) 146.dp else 104.dp),
+                        modifier = Modifier.fillMaxWidth().height(if (tvWide) 178.dp else 128.dp),
                         contentScale = ContentScale.Fit
                     )
                     Spacer(Modifier.height(4.dp))
@@ -438,7 +438,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                         4 -> Icons.Filled.Star
                                         else -> Icons.Filled.Settings
                                     }, contentDescription = title,
-                                        tint = Color.Black,
+                                        tint = if (selected) Color(0xFFFF8A00) else bottleGreen,
                                         modifier = Modifier.size(26.dp))
                             }
                             Spacer(Modifier.width(7.dp))
