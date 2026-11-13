@@ -357,6 +357,14 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
     val favUrls = s.favs.map { it.url }.toSet()
     var searchOpen by remember { mutableStateOf(false) }
     var exploreAllBouquets by remember { mutableStateOf(false) }
+    var lastBouquet by remember { mutableStateOf<String?>(null) }
+    val restoreBouquetFocus = remember { FocusRequester() }
+    LaunchedEffect(s.group, s.section) {
+        if (s.group == null && s.section == 0 && lastBouquet != null) {
+            kotlinx.coroutines.delay(120)
+            runCatching { restoreBouquetFocus.requestFocus() }
+        }
+    }
     BackHandler(enabled = exploreAllBouquets && s.group == null && s.section == 0) { exploreAllBouquets = false }
     val recent = s.recentlyWatched.mapNotNull { id -> s.live.firstOrNull { it.id == id } }
     // Exact channel names supplied by the user; no fabricated streams or URLs.
@@ -604,10 +612,11 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                     contentPadding = PaddingValues(bottom = 12.dp)) {
                                     items(if (exploreAllBouquets) groups else groups.take(9)) { groupName ->
                                         Column(Modifier.fillMaxWidth().height(cardHeight)
+                                            .then(if (groupName == lastBouquet) Modifier.focusRequester(restoreBouquetFocus) else Modifier)
                                             .clip(RoundedCornerShape(18.dp))
                                             .background(Color.White.copy(alpha = 0.88f))
                                             .border(2.dp, Color(0xFFB2C9C3), RoundedCornerShape(18.dp))
-                                            .clickable { s.requestGroup(groupName) }
+                                            .clickable { lastBouquet = groupName; s.requestGroup(groupName) }
                                             .padding(10.dp),
                                             horizontalAlignment = Alignment.CenterHorizontally,
                                             verticalArrangement = Arrangement.Center) {
