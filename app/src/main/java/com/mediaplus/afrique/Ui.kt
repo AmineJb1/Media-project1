@@ -44,12 +44,12 @@ fun Pill(text: String, selected: Boolean, modifier: Modifier = Modifier, onClick
     val c = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(50)
     val bg by animateColorAsState(
-        targetValue = if (selected) Color(0xFFECEDEF) else if (focused) c.surfaceVariant.copy(alpha = 0.95f) else c.surface,
+        targetValue = if (focused) Color(0xFFFFE2B5) else if (selected) Color(0xFFD8F1E4) else c.surface,
         label = "tab-background"
     )
     Box(
         modifier.clip(shape).background(bg)
-            .border(if (focused) 2.dp else 1.dp, if (focused) c.secondary else if (selected) Color(0xFFB6B9BC) else c.outline, shape)
+            .border(if (focused) 4.dp else if (selected) 2.dp else 1.dp, if (focused) Color(0xFFB64B00) else if (selected) Color(0xFF087246) else c.outline, shape)
             .onFocusChanged { focused = it.isFocused }
             .clickable { onClick() }.padding(vertical = 11.dp, horizontal = 18.dp),
         contentAlignment = Alignment.Center
@@ -121,13 +121,13 @@ fun Tile(onClick: () -> Unit, content: @Composable RowScope.() -> Unit) {
     var focused by remember { mutableStateOf(false) }
     val c = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(25.dp)
-    val bg by animateColorAsState(if (focused) Color(0xFFFFF0E0) else Color.White.copy(alpha = 0.96f), label = "tile-background")
+    val bg by animateColorAsState(if (focused) Color(0xFFFFE2B5) else Color.White.copy(alpha = 0.96f), label = "tile-background")
     Row(
         Modifier.fillMaxWidth().padding(vertical = 5.dp)
             .shadow(if (focused) 10.dp else 5.dp, shape)
             .clip(shape)
             .background(bg)
-            .border(if (focused) 2.dp else 1.dp, if (focused) c.primary else Color(0xFFDDE0E2), shape)
+            .border(if (focused) 4.dp else 1.dp, if (focused) Color(0xFFB64B00) else Color(0xFFDDE0E2), shape)
             .onFocusChanged { focused = it.isFocused }
             .clickable { onClick() }.padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
