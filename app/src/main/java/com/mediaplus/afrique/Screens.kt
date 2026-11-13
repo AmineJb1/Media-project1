@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.ui.text.style.TextOverflow
 import coil.compose.AsyncImage
@@ -356,16 +357,13 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
     if (s.selectedVod != null) VodDetailsPage(s)
     val favUrls = s.favs.map { it.url }.toSet()
     var searchOpen by remember { mutableStateOf(false) }
-    var exploreAllBouquets by remember { mutableStateOf(false) }
     var lastBouquet by remember { mutableStateOf<String?>(null) }
     val restoreBouquetFocus = remember { FocusRequester() }
+    val bouquetGridState = rememberLazyGridState()
+    var restoreBouquetPending by remember { mutableStateOf(false) }
     LaunchedEffect(s.group, s.section) {
-        if (s.group == null && s.section == 0 && lastBouquet != null) {
-            kotlinx.coroutines.delay(120)
-            runCatching { restoreBouquetFocus.requestFocus() }
-        }
+        if (s.group != null && s.section == 0) restoreBouquetPending = true
     }
-    BackHandler(enabled = exploreAllBouquets && s.group == null && s.section == 0) { exploreAllBouquets = false }
     val recent = s.recentlyWatched.mapNotNull { id -> s.live.firstOrNull { it.id == id } }
     // Exact channel names supplied by the user; no fabricated streams or URLs.
     val ivoryCoastNames = remember {
@@ -401,9 +399,11 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     listOf(0 to "Direct", 2 to "Films", 3 to "Séries", 4 to "Favoris", 5 to "Réglages").forEach { (section, title) ->
                         val active = if (section == 5) settingsOpen else !settingsOpen && s.section == section
+                        var navFocused by remember { mutableStateOf(false) }
                         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(9.dp))
-                            .background(if (active) Color(0xFFBFE9D3) else Color.White)
-                            .border(if (active) 3.dp else 1.dp, if (active) Color(0xFF087246) else Color(0xFFE4E9ED), RoundedCornerShape(9.dp))
+                            .onFocusChanged { navFocused = it.isFocused }
+                            .background(if (navFocused) Color(0xFFFFE2B5) else if (active) Color(0xFFBFE9D3) else Color.White)
+                            .border(if (navFocused) 4.dp else if (active) 3.dp else 1.dp, if (navFocused) Color(0xFFB64B00) else if (active) Color(0xFF087246) else Color(0xFFE4E9ED), RoundedCornerShape(9.dp))
                             .clickable {
                                 if (section == 5) { onSettingsOpen(true); s.clearPreview() }
                                 else { onSettingsOpen(false); onSettingsPage(null); s.pickSection(section) }
@@ -604,36 +604,49 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                         if (s.group == null && s.query.isBlank()) {
                             val groups = (specialGroups.keys + list.map { it.group }).filter { it.isNotBlank() }.distinct()
                             BoxWithConstraints(Modifier.fillMaxSize()) {
-                                val cardHeight = (maxHeight - 46.dp) / 3
+                                val cardHeight = (maxHeight - 42.dp) / 3
+                                LaunchedEffect(s.group, s.section, lastBouquet, groups.size) {
+                                    if (s.group == null && s.section == 0 && restoreBouquetPending && lastBouquet != null) {
+                                        val index = groups.indexOf(lastBouquet)
+                                        if (index >= 0) {
+                                            bouquetGridState.scrollToItem(index)
+                                            kotlinx.coroutines.delay(180)
+                                            runCatching { restoreBouquetFocus.requestFocus() }
+                                        }
+                                        restoreBouquetPending = false
+                                    }
+                                }
                                 LazyVerticalGrid(columns = GridCells.Fixed(3),
-                                    modifier = Modifier.fillMaxSize().padding(bottom = if (exploreAllBouquets) 8.dp else 34.dp).clipToBounds(),
+                                    modifier = Modifier.fillMaxSize().clipToBounds(),
+                                    state = bouquetGridState,
                                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                                     verticalArrangement = Arrangement.spacedBy(12.dp),
                                     contentPadding = PaddingValues(bottom = 12.dp)) {
-                                    items(if (exploreAllBouquets) groups else groups.take(9)) { groupName ->
+                                    items(groups, key = { it }) { groupName ->
+                                        var cardFocused by remember { mutableStateOf(false) }
+                                        val cardShape = RoundedCornerShape(18.dp)
                                         Column(Modifier.fillMaxWidth().height(cardHeight)
                                             .then(if (groupName == lastBouquet) Modifier.focusRequester(restoreBouquetFocus) else Modifier)
-                                            .clip(RoundedCornerShape(18.dp))
-                                            .background(Color.White.copy(alpha = 0.88f))
-                                            .border(2.dp, Color(0xFFB2C9C3), RoundedCornerShape(18.dp))
+                                            .onFocusChanged { cardFocused = it.isFocused }
+                                            .clip(cardShape)
+                                            .background(if (cardFocused) Color(0xFFFFE2B5) else Color.White.copy(alpha = 0.88f))
+                                            .border(if (cardFocused) 4.dp else 2.dp,
+                                                if (cardFocused) Color(0xFFB64B00) else Color(0xFFB2C9C3), cardShape)
                                             .clickable { lastBouquet = groupName; s.requestGroup(groupName) }
-                                            .padding(10.dp),
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.Center) {
-                                            Text(bouquetIcon(groupName), fontSize = if (tvWide) 37.sp else 28.sp)
-                                            Spacer(Modifier.height(6.dp))
-                                            Text(groupName, fontSize = if (tvWide) 19.sp else 15.sp,
-                                                maxLines = 3, color = Color(0xFF17332B), textAlign = TextAlign.Center,
-                                                fontWeight = FontWeight.Bold,
-                                                lineHeight = if (tvWide) 24.sp else 19.sp)
+                                            .padding(10.dp)) {
+                                            Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                    Text(bouquetIcon(groupName), fontSize = if (tvWide) 37.sp else 28.sp)
+                                                    Spacer(Modifier.height(6.dp))
+                                                    Text(groupName, fontSize = if (tvWide) 19.sp else 15.sp,
+                                                        maxLines = 3, color = Color(0xFF17332B), textAlign = TextAlign.Center,
+                                                        fontWeight = FontWeight.Bold,
+                                                        lineHeight = if (tvWide) 24.sp else 19.sp)
+                                                }
+                                            }
+                                            Text("Explorer  →", fontSize = 12.sp, fontWeight = FontWeight.Bold,
+                                                color = Color(0xFF15523B), modifier = Modifier.align(Alignment.Start))
                                         }
-                                    }
-                                }
-                                if (!exploreAllBouquets && groups.size > 9) {
-                                    TextButton(onClick = { exploreAllBouquets = true },
-                                        modifier = Modifier.align(Alignment.BottomStart).height(34.dp)) {
-                                        Text("Explorer  →", color = Color(0xFF15523B),
-                                            fontWeight = FontWeight.Bold, fontSize = 13.sp)
                                     }
                                 }
                             }
