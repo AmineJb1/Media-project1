@@ -527,7 +527,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 SettingsScreen(s, settingsPage, onSettingsPage, Modifier.weight(1f))
             } else {
             Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.weight(1f)) { if (s.section != 0) Text(
+            Box(Modifier.weight(1f)) { if (s.section != 0 && s.section != 2 && s.section != 3) Text(
                 when (s.section) { 2 -> "Films"; 3 -> "Séries"; 4 -> "Mes favoris"; else -> "" },
                 color = c.onSurface,
                 style = if (useSideRail) MaterialTheme.typography.titleMedium else if (wide) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineMedium,
@@ -565,7 +565,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
             if (!useSideRail) Text("Vos chaînes et vos contenus", color = c.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium)
             Spacer(Modifier.height(if (useSideRail && s.section == 0) 0.dp else 5.dp))
-            if (s.group != null && s.section != 4 && !(useSideRail && s.section == 0)) {
+            if (s.group != null && s.section != 4 && !(useSideRail && s.section == 0) && s.section != 2 && s.section != 3) {
                 TextButton({ s.group = null }) {
                     Text(if (landscapeCompact) "‹  Bouquets" else "‹  Retour aux catégories", color = Color(0xFF154A36), fontWeight = FontWeight.SemiBold, fontSize = if (landscapeCompact) 12.sp else 14.sp)
                 }
