@@ -402,8 +402,8 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                         var navFocused by remember { mutableStateOf(false) }
                         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(9.dp))
                             .onFocusChanged { navFocused = it.isFocused }
-                            .background(if (navFocused) Color(0xFFFFE2B5) else if (active) Color(0xFFBFE9D3) else Color.White)
-                            .border(if (navFocused) 4.dp else if (active) 3.dp else 1.dp, if (navFocused) Color(0xFFB64B00) else if (active) Color(0xFF087246) else Color(0xFFE4E9ED), RoundedCornerShape(9.dp))
+                            .background(if (navFocused) Color(0xFFD6EAE0) else if (active) Color(0xFFBFE9D3) else Color.White)
+                            .border(if (navFocused) 4.dp else if (active) 3.dp else 1.dp, if (navFocused) Color(0xFF145A43) else if (active) Color(0xFF087246) else Color(0xFFE4E9ED), RoundedCornerShape(9.dp))
                             .clickable {
                                 if (section == 5) { onSettingsOpen(true); s.clearPreview() }
                                 else { onSettingsOpen(false); onSettingsPage(null); s.pickSection(section) }
@@ -609,7 +609,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                     if (s.group == null && s.section == 0 && restoreBouquetPending && lastBouquet != null) {
                                         val index = groups.indexOf(lastBouquet)
                                         if (index >= 0) {
-                                            bouquetGridState.scrollToItem(index)
+                                            bouquetGridState.scrollToItem((index / 3) * 3)
                                             kotlinx.coroutines.delay(180)
                                             runCatching { restoreBouquetFocus.requestFocus() }
                                         }
@@ -626,13 +626,13 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                         var cardFocused by remember { mutableStateOf(false) }
                                         val cardShape = RoundedCornerShape(18.dp)
                                         Column(Modifier.fillMaxWidth().height(cardHeight)
-                                            .then(if (groupName == lastBouquet) Modifier.focusRequester(restoreBouquetFocus) else Modifier)
                                             .onFocusChanged { cardFocused = it.isFocused }
                                             .clip(cardShape)
-                                            .background(if (cardFocused) Color(0xFFFFE2B5) else Color.White.copy(alpha = 0.88f))
+                                            .background(if (cardFocused) Color(0xFFD6EAE0) else Color.White.copy(alpha = 0.88f))
                                             .border(if (cardFocused) 4.dp else 2.dp,
-                                                if (cardFocused) Color(0xFFB64B00) else Color(0xFFB2C9C3), cardShape)
+                                                if (cardFocused) Color(0xFF145A43) else Color(0xFFB2C9C3), cardShape)
                                             .clickable { lastBouquet = groupName; s.requestGroup(groupName) }
+                                            .then(if (groupName == lastBouquet) Modifier.focusRequester(restoreBouquetFocus) else Modifier)
                                             .padding(10.dp)) {
                                             Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -651,17 +651,29 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                 }
                             }
                         } else {
+                            val firstChannelFocus = remember { FocusRequester() }
+                            LaunchedEffect(s.group, visibleItems.firstOrNull()?.id) {
+                                if (s.group != null && visibleItems.isNotEmpty()) {
+                                    kotlinx.coroutines.delay(180)
+                                    runCatching { firstChannelFocus.requestFocus() }
+                                }
+                            }
                             LazyVerticalGrid(columns = GridCells.Adaptive(if (tvWide) 180.dp else 150.dp),
                                 horizontalArrangement = Arrangement.spacedBy(7.dp),
                                 verticalArrangement = Arrangement.spacedBy(7.dp),
                                 contentPadding = PaddingValues(bottom = 12.dp)) {
-                                items(visibleItems) { item ->
+                                itemsIndexed(visibleItems, key = { _, item -> item.id }) { index, item ->
+                                    var channelFocused by remember { mutableStateOf(false) }
                                     Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-                                        .background(Color.White.copy(alpha = if (s.previewChannelId == item.id) 1f else 0.96f))
+                                        .onFocusChanged { channelFocused = it.isFocused }
+                                        .background(if (channelFocused) Color(0xFFD6EAE0) else Color.White.copy(alpha = if (s.previewChannelId == item.id) 1f else 0.96f))
+                                        .border(if (channelFocused) 4.dp else 1.dp,
+                                            if (channelFocused) Color(0xFF145A43) else Color(0xFFB2C9C3), RoundedCornerShape(12.dp))
                                         .clickable {
                                             s.selectPlaybackBouquet(s.group, visibleItems)
                                             s.requestAdultItem(item) { s.pick(item) }
-                                        }.padding(7.dp),
+                                        }.then(if (index == 0) Modifier.focusRequester(firstChannelFocus) else Modifier)
+                                        .padding(7.dp),
                                         horizontalAlignment = Alignment.CenterHorizontally) {
                                         Logo(item)
                                         Spacer(Modifier.height(4.dp))
