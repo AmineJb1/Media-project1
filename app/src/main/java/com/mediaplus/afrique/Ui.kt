@@ -73,8 +73,8 @@ fun Header(showAccount: Boolean, expiryEpochSeconds: Long?, compact: Boolean = f
         Image(
             painter = painterResource(R.drawable.media_plus_brand),
             contentDescription = "Logo Media+ Afrique",
-            modifier = Modifier.width(if (compact) 105.dp else 135.dp)
-                .height(if (compact) 74.dp else 98.dp),
+            modifier = Modifier.width(if (compact) 125.dp else 155.dp)
+                .height(if (compact) 86.dp else 108.dp),
             contentScale = ContentScale.Fit
         )
         Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
