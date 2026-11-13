@@ -1013,12 +1013,6 @@ private fun LivePreviewPanel(s: AppState, compact: Boolean) {
         } else {
             Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) {
                 Column(Modifier.padding(8.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(s.previewChannelName, Modifier.weight(1f),
-                            style = MaterialTheme.typography.titleSmall)
-                        TextButton(onClick = { s.clearPreview() }) { Text("Fermer") }
-                    }
-                    Text("$epgText · $resolution", style = MaterialTheme.typography.labelSmall)
                     Box(Modifier.fillMaxWidth().aspectRatio(16f / 9f)
                         .clip(RoundedCornerShape(10.dp)).background(Color.Black)
                         .clickable(enabled = s.previewUrl != null) { s.playLive(selected) }) {
@@ -1026,6 +1020,18 @@ private fun LivePreviewPanel(s: AppState, compact: Boolean) {
                         if (url != null) VideoPlayer(url, onError = { s.onPlayerError(it) },
                             modifier = Modifier.fillMaxSize(), showControls = false,
                         onVideoResolution = { w, h -> resolution = if (w > 0 && h > 0) "$w × $h" else "—" }, sharedPlayer = s.livePlayer)
+                    }
+                    Column(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 9.dp),
+                        verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Text(s.previewChannelName, color = Color(0xFF103C2D),
+                            fontWeight = FontWeight.Bold, fontSize = 16.sp,
+                            maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(epgText, color = Color(0xFF385B4E),
+                            fontSize = 13.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        if (nextText.isNotEmpty()) Text(nextText, color = Color(0xFF526B60),
+                            fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text("Résolution : $resolution", color = Color(0xFF0B4F32),
+                            fontSize = 12.sp, fontWeight = FontWeight.Medium)
                     }
                 }
             }
