@@ -182,7 +182,7 @@ fun LoginScreen(s: AppState) {
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Column(Modifier.fillMaxWidth().padding(if (tvLayout) 4.dp else if (wide) 22.dp else 16.dp)) {
-                    Text("Bienvenue", fontSize = if (tvLayout) 42.sp else 23.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF123D30), maxLines = 1, modifier = Modifier.align(Alignment.CenterHorizontally))
+                    Text("Bienvenue", fontSize = if (tvLayout) 38.sp else 23.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF102B43), maxLines = 1, modifier = Modifier.align(Alignment.CenterHorizontally))
                     Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, fontSize = if (tvLayout) 15.sp else 13.sp, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp, bottom = 18.dp))
                     Text("Identifiants", color = c.onSurface, fontSize = if (tvLayout) 19.sp else 15.sp,
                         fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 4.dp))
@@ -195,10 +195,10 @@ fun LoginScreen(s: AppState) {
                     OutlinedTextField(s.pass, { s.pass = it },
                         f.onFocusChanged { if (it.isFocused && s.hasSavedBiometricAccount()) requestBiometric() },
                         singleLine = true, shape = field, label = { Text("Mot de passe") },
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = if (tvLayout) Color(0xFFFFC928) else Color(0xFF9D3C16), unfocusedBorderColor = if (tvLayout) Color(0xFFE5F4FF) else Color(0xFF275A4A)),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF9D3C16), unfocusedBorderColor = Color(0xFF275A4A)),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                        trailingIcon = {
+                        trailingIcon = if (tvLayout) null else {
                             Button(onClick = { showPassword = !showPassword }, modifier = Modifier.width(88.dp).height(48.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE3EEE8), contentColor = Color(0xFF174C3B)),
                                 contentPadding = PaddingValues(horizontal = 4.dp)) {
@@ -208,6 +208,17 @@ fun LoginScreen(s: AppState) {
                                     fontWeight = FontWeight.SemiBold)
                             }
                         })
+                    if (tvLayout) {
+                        Button(
+                            onClick = { showPassword = !showPassword },
+                            modifier = Modifier.align(Alignment.End).padding(top = 6.dp).height(44.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE3EEE8), contentColor = Color(0xFF174C3B))
+                        ) {
+                            Text(if (showPassword) "Masquer le mot de passe" else "Voir le mot de passe",
+                                color = Color(0xFF174C3B), fontWeight = FontWeight.Bold)
+                        }
+                    }
                     if (biometricReady) {
                         TextButton(onClick = {
                             if (s.hasSavedBiometricAccount()) requestBiometric()
@@ -224,7 +235,7 @@ fun LoginScreen(s: AppState) {
                         onClick = { s.mode = 0; s.connect() },
                         modifier = Modifier.fillMaxWidth().padding(top = 12.dp).height(if (tvLayout) 52.dp else if (wide) 52.dp else 48.dp),
                         shape = RoundedCornerShape(28.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F2F1), contentColor = if (tvLayout) Color.White else c.onSurface),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F2F1), contentColor = c.onSurface),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
                     ) { Text("▶  Se connecter", fontSize = 15.sp, fontWeight = FontWeight.SemiBold) }
