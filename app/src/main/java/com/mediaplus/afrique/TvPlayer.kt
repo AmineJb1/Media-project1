@@ -70,6 +70,7 @@ fun TvPlayer(s: AppState) {
     var drawerTab by remember { mutableIntStateOf(1) }
     var selectedBouquet by remember { mutableStateOf<String?>(null) }
     var settingsVisible by remember { mutableStateOf(false) }
+    var settingsButtonFocused by remember { mutableStateOf(false) }
     var infoVisible by remember { mutableStateOf(true) }
     var resizeMode by remember {
         mutableIntStateOf(displayPrefs.getInt("resize_mode", AspectRatioFrameLayout.RESIZE_MODE_FIT))
@@ -178,7 +179,7 @@ fun TvPlayer(s: AppState) {
                         } else false
                     }
                     Key.DirectionCenter, Key.Enter, Key.NumPadEnter -> {
-                        if (menuVisible || settingsVisible) false
+                        if (menuVisible || settingsVisible || settingsButtonFocused) false
                         else { settingsVisible = false; infoVisible = true; menuVisible = true; selectedBouquet = initialBouquet; drawerTab = 1; true }
                     }
                     Key.Back, Key.Escape -> { if (settingsVisible) { settingsVisible = false; true } else if (menuVisible) { menuVisible = false; true } else false }
@@ -218,8 +219,22 @@ fun TvPlayer(s: AppState) {
                         style = MaterialTheme.typography.labelSmall,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp))
                 }
-                TextButton(modifier = Modifier.focusRequester(infoSettingsFocusRequester), onClick = { settingsVisible = true; infoVisible = true }) {
-                    Text("⚙", color = Color.White, fontSize = 24.sp)
+                TextButton(
+                    modifier = Modifier
+                        .focusRequester(infoSettingsFocusRequester)
+                        .onFocusChanged { settingsButtonFocused = it.isFocused }
+                        .background(
+                            if (settingsButtonFocused) Color(0xFF075D3A) else Color(0x99222E2A),
+                            RoundedCornerShape(12.dp)
+                        )
+                        .border(
+                            if (settingsButtonFocused) 3.dp else 1.dp,
+                            if (settingsButtonFocused) Color(0xFF2CFF86) else Color(0x66FFFFFF),
+                            RoundedCornerShape(12.dp)
+                        ),
+                    onClick = { menuVisible = false; settingsVisible = true; infoVisible = true }
+                ) {
+                    Text("⚙ Paramètres", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -229,6 +244,35 @@ fun TvPlayer(s: AppState) {
             val availableGroups = remember(observedTracksRevision) { player.currentTracks.groups }
             val audioGroups = availableGroups.filter { it.type == C.TRACK_TYPE_AUDIO }
             val textGroups = availableGroups.filter { it.type == C.TRACK_TYPE_TEXT }
+            Surface(
+                modifier = Modifier.align(Alignment.Center).fillMaxWidth(0.55f),
+                color = Color(0xE9112820),
+                shape = RoundedCornerShape(18.dp)
+            ) {
+                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Paramètres vidéo", color = Color.White, fontSize = 23.sp, fontWeight = FontWeight.Bold)
+                    Text("Format de l'image", color = Color.White)
+                    listOf(
+                        "Adapter à l'écran" to AspectRatioFrameLayout.RESIZE_MODE_FIT,
+                        "Remplir l'écran" to AspectRatioFrameLayout.RESIZE_MODE_ZOOM,
+                        "Étirer" to AspectRatioFrameLayout.RESIZE_MODE_FILL
+                    ).forEach { (label, mode) ->
+                        var focused by remember { mutableStateOf(false) }
+                        Text(
+                            label + if (resizeMode == mode) " ✓" else "",
+                            modifier = Modifier.fillMaxWidth()
+                                .onFocusChanged { focused = it.isFocused }
+                                .background(if (focused) Color(0xFF075D3A) else Color(0x663D5047), RoundedCornerShape(9.dp))
+                                .border(if (focused) 2.dp else 0.dp, if (focused) Color(0xFF2CFF86) else Color.Transparent, RoundedCornerShape(9.dp))
+                                .clickable { setDisplayMode(mode); settingsVisible = false }
+                                .focusable()
+                                .padding(12.dp),
+                            color = Color.White
+                        )
+                    }
+                    TextButton(onClick = { settingsVisible = false }) { Text("Fermer", color = Color.White) }
+                }
+            }
         }
         if (menuVisible && !settingsVisible) {
             Surface(
