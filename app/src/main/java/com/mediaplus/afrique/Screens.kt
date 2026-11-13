@@ -410,7 +410,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
             runCatching { firstVodFocus.requestFocus() }
         }
     }
-    var initialBouquetFocusDone by remember { mutableStateOf(false) }
+    var directFocusRequest by remember { mutableIntStateOf(0) }
     val bouquetGridState = rememberLazyGridState()
     var restoreBouquetPending by remember { mutableStateOf(false) }
     LaunchedEffect(s.group, s.section) {
@@ -476,7 +476,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                 RoundedCornerShape(15.dp))
                             .clickable {
                                 if (section == 5) { onSettingsOpen(true); s.clearPreview() }
-                                else { onSettingsOpen(false); onSettingsPage(null); s.pickSection(section) }
+                                else { onSettingsOpen(false); onSettingsPage(null); s.pickSection(section); if (section == 0) directFocusRequest++ }
                             }
                             .padding(horizontal = 8.dp, vertical = 9.dp),
                             verticalAlignment = Alignment.CenterVertically) {
@@ -739,13 +739,16 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                             val groups = (specialGroups.keys + list.map { it.group }).filter { it.isNotBlank() }.distinct()
                             BoxWithConstraints(Modifier.fillMaxSize()) {
                                 val cardHeight = (maxHeight - 42.dp) / 3
-                                LaunchedEffect(groups.size, useSideRail, settingsOpen, s.section, s.group) {
-                                    if (useSideRail && !initialBouquetFocusDone && !settingsOpen && s.section == 0 && s.group == null && groups.isNotEmpty()) {
-                                        kotlinx.coroutines.delay(200)
-                                        if (runCatching { firstBouquetFocus.requestFocus() }.isSuccess) initialBouquetFocusDone = true
+                                LaunchedEffect(groups, useSideRail, settingsOpen, s.section, s.group, directFocusRequest) {
+                                    if (useSideRail && !settingsOpen && s.section == 0 && s.group == null && groups.isNotEmpty()) {
+                                        val target = groups.indexOfFirst { it.contains("Côte d’Ivoire", ignoreCase = true) || it.contains("Cote d'Ivoire", ignoreCase = true) }
+                                            .takeIf { it >= 0 } ?: 0
+                                        bouquetGridState.scrollToItem((target / 3) * 3)
+                                        kotlinx.coroutines.delay(220)
+                                        runCatching { firstBouquetFocus.requestFocus() }
                                     }
                                 }
-                                LaunchedEffect(s.group, s.section, lastBouquet, groups.size) {
+                                                                LaunchedEffect(s.group, s.section, lastBouquet, groups.size) {
                                     if (s.group == null && s.section == 0 && restoreBouquetPending && lastBouquet != null) {
                                         val index = groups.indexOf(lastBouquet)
                                         if (index >= 0) {
@@ -773,7 +776,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                                 if (cardFocused) Color(0xFF145A43) else Color(0xFFB2C9C3), cardShape)
                                             .clickable { lastBouquet = groupName; s.requestGroup(groupName) }
                                             .then(if (groupName == lastBouquet) Modifier.focusRequester(restoreBouquetFocus) else Modifier)
-                                            .then(if (groupName == groups.firstOrNull()) Modifier.focusRequester(firstBouquetFocus) else Modifier)
+                                            .then(if (groupName == (groups.firstOrNull { it.contains("Côte d’Ivoire", ignoreCase = true) || it.contains("Cote d'Ivoire", ignoreCase = true) } ?: groups.firstOrNull())) Modifier.focusRequester(firstBouquetFocus) else Modifier)
                                             .padding(10.dp)) {
                                             Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
