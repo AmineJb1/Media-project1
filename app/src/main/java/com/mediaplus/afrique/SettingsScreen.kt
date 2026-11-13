@@ -73,7 +73,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
     var confirmDisconnect by remember { mutableStateOf(false) }
     var confirmClearCache by remember { mutableStateOf(false) }
     val firstSettingFocus = remember { FocusRequester() }
-    val parentalPinFocus = remember { FocusRequester() }
+    val parentalActionFocus = remember { FocusRequester() }
     val detailFocus = remember { FocusRequester() }
     var addAccountFocused by remember { mutableStateOf(false) }
     var disconnectFocused by remember { mutableStateOf(false) }
@@ -87,7 +87,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
         kotlinx.coroutines.delay(180)
         when (page) {
             null -> runCatching { firstSettingFocus.requestFocus() }
-            "Contrôle parental" -> runCatching { parentalPinFocus.requestFocus() }
+            "Contrôle parental" -> runCatching { parentalActionFocus.requestFocus() }
             "Informations d’abonnement" -> runCatching { infoFocus.requestFocus() }
             "Vider le cache" -> runCatching { cacheFocus.requestFocus() }
             "À propos" -> runCatching { aboutFocus.requestFocus() }
@@ -213,7 +213,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                                     trailingIcon = { TextButton(onClick = { showOldPin = !showOldPin }) {
                                         Text(if (showOldPin) "Masquer" else "Voir")
                                     } },
-                                    singleLine = true, modifier = Modifier.fillMaxWidth().focusRequester(parentalPinFocus),
+                                    singleLine = true, modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(18.dp))
                                 OutlinedTextField(newPin, { newPin = it.filter(Char::isDigit).take(4) },
                                     label = { Text("Nouveau code (4 chiffres)") },
@@ -234,7 +234,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                                 Button(onClick = {
                                     message = if (newPin == confirmPin && s.changeParentalPin(oldPin, newPin)) "Code parental modifié" else "Vérifiez le code actuel et la confirmation"
                                     oldPin = ""; newPin = ""; confirmPin = ""
-                                }, modifier = Modifier.fillMaxWidth(),
+                                }, modifier = Modifier.fillMaxWidth().focusRequester(parentalActionFocus),
                                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF075A36)),
                                     shape = RoundedCornerShape(18.dp)) {
                                     Text("▣  Enregistrer le nouveau code")
