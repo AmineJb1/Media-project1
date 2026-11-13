@@ -27,6 +27,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.Image
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
@@ -124,10 +126,6 @@ fun LoginScreen(s: AppState) {
                         )
                         Text("🇨🇮", fontSize = 18.sp, modifier = Modifier.offset(x = (-18).dp, y = (-30).dp))
                     }
-                    Text("DIRECT  ·  FILMS  ·  SÉRIES",
-                        color = c.onSurface, fontSize = 13.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(start = 6.dp, top = 2.dp))
                 }
                 val tvAppContext = LocalContext.current
                 val tvVersion = remember(tvAppContext) {
@@ -186,7 +184,7 @@ fun LoginScreen(s: AppState) {
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Column(Modifier.fillMaxWidth().padding(if (tvLayout) 18.dp else if (wide) 22.dp else 16.dp)) {
-                    Text("Bienvenue", fontSize = if (tvLayout) 27.sp else 23.sp, fontWeight = FontWeight.Bold, color = c.onSurface, modifier = Modifier.align(Alignment.CenterHorizontally))
+                    Text("Bienvenue", fontSize = if (tvLayout) 32.sp else 23.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF123D30), maxLines = 1, modifier = Modifier.align(Alignment.CenterHorizontally))
                     Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, fontSize = if (tvLayout) 15.sp else 13.sp, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp, bottom = 18.dp))
                     Text("Identifiants", color = c.onSurface, fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 4.dp))
@@ -197,9 +195,13 @@ fun LoginScreen(s: AppState) {
                         singleLine = true, shape = field, label = { Text("Mot de passe") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                        trailingIcon = { TextButton(onClick = { showPassword = !showPassword }) {
-                            Text(if (showPassword) "◉ Masquer" else "◉ Voir")
-                        } })
+                        trailingIcon = {
+                            IconButton(onClick = { showPassword = !showPassword }, modifier = Modifier.size(48.dp)) {
+                                Icon(if (showPassword) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                                    contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe",
+                                    tint = Color(0xFF174C3B))
+                            }
+                        })
                     if (biometricReady) {
                         TextButton(onClick = {
                             if (s.hasSavedBiometricAccount()) requestBiometric()
