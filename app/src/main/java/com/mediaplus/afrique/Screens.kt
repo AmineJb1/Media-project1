@@ -35,11 +35,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Tv
-import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.Brush
@@ -227,14 +223,14 @@ fun LoginScreen(s: AppState) {
                         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
                             IconButton(onClick = { showPassword = !showPassword }, modifier = Modifier.size(48.dp)) {
-                                Icon(if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                Icon(if (showPassword) Icons.Default.Lock else Icons.Default.Lock,
                                     contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe",
                                     tint = Color(0xFF102C54))
                             }
                         })
                     AnimatedVisibility(s.mode == 0 && (s.status.startsWith("Erreur", ignoreCase = true) || s.status == "Abonnement Expiré")) {
                         Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.ErrorOutline, contentDescription = null, tint = Color(0xFFD32F2F), modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.Close, contentDescription = null, tint = Color(0xFFD32F2F), modifier = Modifier.size(18.dp))
                             Spacer(Modifier.width(6.dp))
                             Text(s.status, color = Color(0xFFD32F2F), style = MaterialTheme.typography.bodySmall)
                         }
@@ -269,7 +265,7 @@ fun LoginScreen(s: AppState) {
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F2F1), contentColor = c.onSurface),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 3.dp, pressedElevation = 1.dp)
-                    ) { Icon(Icons.Default.Tv, contentDescription = null, tint = Color(0xFF102C54))
+                    ) { Icon(Icons.Default.Home, contentDescription = null, tint = Color(0xFF102C54))
                         Spacer(Modifier.width(8.dp))
                         Text("Connexion avec Adresse MAC", fontSize = if (tvLayout) 13.sp else 14.sp, color = Color(0xFF102C54), fontWeight = FontWeight.SemiBold) }
 
