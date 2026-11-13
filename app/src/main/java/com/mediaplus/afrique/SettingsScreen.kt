@@ -75,6 +75,8 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
     val firstSettingFocus = remember { FocusRequester() }
     val parentalPinFocus = remember { FocusRequester() }
     val detailFocus = remember { FocusRequester() }
+    var addAccountFocused by remember { mutableStateOf(false) }
+    var disconnectFocused by remember { mutableStateOf(false) }
     val infoFocus = remember { FocusRequester() }
     val cacheFocus = remember { FocusRequester() }
     val aboutFocus = remember { FocusRequester() }
@@ -244,7 +246,7 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                 "Mon compte" -> {
                     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                         Column(
-                            modifier = Modifier.fillMaxWidth(0.80f).widthIn(max = 760.dp),
+                            modifier = Modifier.fillMaxWidth(0.72f).widthIn(max = 590.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             Surface(
@@ -283,18 +285,31 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                             }
                             Button(
                                 onClick = { onPage("Ajouter un compte") },
-                                modifier = Modifier.fillMaxWidth().focusRequester(detailFocus),
-                                shape = RoundedCornerShape(18.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF075A36))
-                            ) { Text("＋  Ajouter un compte", fontWeight = FontWeight.Bold) }
+                                modifier = Modifier.fillMaxWidth().height(46.dp)
+                                    .focusRequester(detailFocus)
+                                    .onFocusChanged { addAccountFocused = it.isFocused },
+                                shape = RoundedCornerShape(13.dp),
+                                border = BorderStroke(if (addAccountFocused) 3.dp else 1.dp,
+                                    if (addAccountFocused) Color(0xFF43DE7E) else Color(0xFF0D7047)),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (addAccountFocused) Color(0xFF073D29) else Color(0xFF075A36))
+                            ) {
+                                Text("＋  Ajouter un compte", fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp, color = Color.White)
+                            }
                             OutlinedButton(
                                 onClick = { confirmDisconnect = true },
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(18.dp),
-                                border = BorderStroke(1.dp, Color(0xFF075A36)),
+                                modifier = Modifier.fillMaxWidth().height(46.dp)
+                                    .onFocusChanged { disconnectFocused = it.isFocused },
+                                shape = RoundedCornerShape(13.dp),
+                                border = BorderStroke(if (disconnectFocused) 3.dp else 1.dp,
+                                    if (disconnectFocused) Color(0xFF43DE7E) else Color(0xFF075A36)),
                                 colors = ButtonDefaults.outlinedButtonColors(
-                                    containerColor = Color.White.copy(alpha = 0.68f))
-                            ) { Text("Se déconnecter", color = Color(0xFF075A36), fontWeight = FontWeight.SemiBold) }
+                                    containerColor = if (disconnectFocused) Color(0xFF073D29) else Color.White.copy(alpha = 0.68f))
+                            ) {
+                                Text("Se déconnecter", fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                                    color = if (disconnectFocused) Color.White else Color(0xFF075A36))
+                            }
                         }
                     }
                 }
