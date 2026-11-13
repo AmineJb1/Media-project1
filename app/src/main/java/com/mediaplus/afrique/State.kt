@@ -410,6 +410,16 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     }
 
     private var liveRequestId = 0L
+    fun returnLiveToPreview() {
+        val channel = playingChannel ?: return
+        // Keep the same ExoPlayer instance, media item and buffered stream alive.
+        previewChannelId = channel.id
+        previewChannelName = channel.name
+        previewUrl = playing ?: previewUrl
+        playing = null
+        playingChannel = null
+    }
+
     fun stopLivePlayback() {
         ++liveRequestId // Cancel any pending channel URL resolution.
         if (isLivePlayerInitialized()) {
@@ -435,7 +445,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
                 } else i.url
                 if (request == liveRequestId) {
                     playing = resolved
-                    if (fromPreview) clearPreview()
+                    // Preserve preview selection while expanding to fullscreen.
                 }
             } catch (e: Exception) {
                 if (request == liveRequestId) { playingChannel = null; status = "Erreur chaîne : ${e.message}" }
