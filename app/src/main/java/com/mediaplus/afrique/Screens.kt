@@ -391,7 +391,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
         val useSideRail = landscapeCompact || tvWide
         Row(Modifier.fillMaxSize()) {
             if (useSideRail) {
-                Column(Modifier.width(if (tvWide) 174.dp else 144.dp).fillMaxHeight()
+                Column(Modifier.width(if (tvWide) 188.dp else 154.dp).fillMaxHeight()
                     .background(Color(0xFFF8FAFC))
                     .border(1.dp, Color(0xFFE0E8EC))
                     .padding(horizontal = 7.dp, vertical = 12.dp),
