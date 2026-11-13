@@ -220,29 +220,60 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                     }
                 }
                 "Mon compte" -> {
-                    SettingsPanel {
-                        Text("Compte actuellement connecté", style = MaterialTheme.typography.titleMedium,
-                            color = Color(0xFF193D30), fontWeight = FontWeight.SemiBold)
-                        SettingsDetail(if (s.mode == 0) "Identifiant" else "Adresse MAC",
-                            if (s.mode == 0) s.user.ifBlank { "Non renseigné" } else s.mac)
-                    }
-                    s.accounts.forEachIndexed { index, account ->
-                        SettingsPanel {
-                            Text(account.name, style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold, color = Color(0xFF193D30))
-                            SettingsDetail(if (account.mode == 0) "Identifiant" else "Adresse MAC",
-                                if (account.mode == 0) account.user else account.mac)
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                TextButton(onClick = { s.activateAccount(index) }) { Text("Utiliser") }
-                                TextButton(onClick = { deleteIndex = index }) { Text("Supprimer") }
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(0.80f).widthIn(max = 760.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(24.dp),
+                                color = Color(0xFFF6FAF8).copy(alpha = 0.76f),
+                                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.9f)),
+                                shadowElevation = 5.dp
+                            ) {
+                                Column(Modifier.fillMaxWidth().padding(20.dp),
+                                    verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                                    Text("Compte actuellement connecté",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        color = Color(0xFF174A35), fontWeight = FontWeight.Bold)
+                                    SettingsDetail(if (s.mode == 0) "Identifiant" else "Adresse MAC",
+                                        if (s.mode == 0) s.user.ifBlank { "Non renseigné" } else s.mac)
+                                }
                             }
+                            s.accounts.forEachIndexed { index, account ->
+                                Surface(
+                                    shape = RoundedCornerShape(20.dp),
+                                    color = Color(0xFFF6FAF8).copy(alpha = 0.76f),
+                                    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.85f))
+                                ) {
+                                    Column(Modifier.fillMaxWidth().padding(16.dp),
+                                        verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        Text(account.name, fontWeight = FontWeight.SemiBold,
+                                            color = Color(0xFF174A35))
+                                        SettingsDetail(if (account.mode == 0) "Identifiant" else "Adresse MAC",
+                                            if (account.mode == 0) account.user else account.mac)
+                                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            TextButton(onClick = { s.activateAccount(index) }) { Text("Utiliser") }
+                                            TextButton(onClick = { deleteIndex = index }) { Text("Supprimer") }
+                                        }
+                                    }
+                                }
+                            }
+                            Button(
+                                onClick = { onPage("Ajouter un compte") },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(18.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF075A36))
+                            ) { Text("＋  Ajouter un compte", fontWeight = FontWeight.Bold) }
+                            OutlinedButton(
+                                onClick = { confirmDisconnect = true },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(18.dp),
+                                border = BorderStroke(1.dp, Color(0xFF075A36)),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    containerColor = Color.White.copy(alpha = 0.68f))
+                            ) { Text("Se déconnecter", color = Color(0xFF075A36), fontWeight = FontWeight.SemiBold) }
                         }
-                    }
-                    Button(onClick = { onPage("Ajouter un compte") }, modifier = Modifier.fillMaxWidth()) {
-                        Text("+ Ajouter un compte")
-                    }
-                    OutlinedButton(onClick = { confirmDisconnect = true }, modifier = Modifier.fillMaxWidth()) {
-                        Text("Se déconnecter")
                     }
                 }
                 "Ajouter un compte" -> {
