@@ -462,7 +462,8 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     listOf(0 to "Direct", 2 to "Films", 3 to "Séries", 4 to "Favoris", 5 to "Réglages").forEach { (section, title) ->
                         val active = if (section == 5) settingsOpen else !settingsOpen && s.section == section
                         var navFocused by remember { mutableStateOf(false) }
-                        val selected = if (focusedNavSection != null) focusedNavSection == section else active
+                        // TV highlight represents real D-pad focus, not the last active section.
+                        val selected = navFocused
                         val bottleGreen = Color(0xFF0B4F32)
                         Row(Modifier.fillMaxWidth()
                             .shadow(if (selected) 6.dp else 3.dp, RoundedCornerShape(15.dp))
@@ -784,9 +785,9 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                             .background(if (cardFocused) Color(0xFFD6EAE0) else Color.White.copy(alpha = 0.88f))
                                             .border(if (cardFocused) 4.dp else 2.dp,
                                                 if (cardFocused) Color(0xFF145A43) else Color(0xFFB2C9C3), cardShape)
-                                            .clickable { lastBouquet = groupName; s.requestGroup(groupName) }
-                                            .then(if (groupName == lastBouquet) Modifier.focusRequester(restoreBouquetFocus) else Modifier)
+                                             .then(if (groupName == lastBouquet) Modifier.focusRequester(restoreBouquetFocus) else Modifier)
                                             .then(if (groupName == (groups.firstOrNull { it.contains("Côte d’Ivoire", ignoreCase = true) || it.contains("Cote d'Ivoire", ignoreCase = true) } ?: groups.firstOrNull())) Modifier.focusRequester(firstBouquetFocus) else Modifier)
+                                            .clickable { lastBouquet = groupName; s.requestGroup(groupName) }
                                             .padding(10.dp)) {
                                             Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
