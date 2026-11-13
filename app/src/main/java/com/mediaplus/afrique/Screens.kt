@@ -620,12 +620,12 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     }
                 }
             } else if (s.episodes != null && s.section == 3) {
-                Column(Modifier.weight(1f)) {
+                Column(Modifier.weight(1f).widthIn(max = 980.dp).padding(horizontal = 16.dp)) {
                     TextButton(onClick = { s.closeEpisodes() }) {
                         Text("‹  Retour aux séries", color = Color(0xFF15523B),
                             fontWeight = FontWeight.SemiBold)
                     }
-                    Text(s.episodeSeries?.name ?: "Épisodes", fontSize = 20.sp,
+                    Text(s.episodeSeries?.name ?: "Épisodes", fontSize = 25.sp,
                         fontWeight = FontWeight.Bold, color = Color(0xFF173D2E))
                     Spacer(Modifier.height(10.dp))
                     val episodes = s.episodes.orEmpty()
@@ -642,6 +642,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                         ) {
                             items(episodes.size) { index ->
                                 val episode = episodes[index]
+                                var episodeFocused by remember { mutableStateOf(false) }
                                 Row(
                                     Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
                                         .background(Color.White.copy(alpha = .94f))
@@ -650,7 +651,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
-                                    Box(Modifier.width(92.dp).height(65.dp)
+                                    Box(Modifier.width(112.dp).height(65.dp)
                                         .clip(RoundedCornerShape(9.dp))
                                         .background(Color(0xFFE7EEE9)),
                                         contentAlignment = Alignment.Center) {
@@ -670,7 +671,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                             color = Color(0xFFCB651B),
                                             fontSize = 12.sp,
                                             fontWeight = FontWeight.Bold)
-                                        Text(episode.name, color = Color(0xFF173D2E),
+                                        Text(episode.name, color = if (episodeFocused) Color.White else Color(0xFF173D2E),
                                             fontSize = 13.sp,
                                             fontWeight = FontWeight.SemiBold,
                                             maxLines = 2,
@@ -678,7 +679,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                     }
                                     Icon(Icons.Filled.PlayArrow,
                                         contentDescription = "Lire l’épisode",
-                                        tint = Color(0xFF15523B))
+                                        tint = if (episodeFocused) Color.White else Color(0xFF15523B))
                                 }
                             }
                         }
@@ -1164,9 +1165,9 @@ private fun VodDetailsPage(s: AppState) {
     val favorite = s.favs.any { it.url == item.url }
     Dialog(onDismissRequest = { s.closeVodDetails() },
         properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        Surface(Modifier.fillMaxSize(), color = Color(0xFFFAFCFA)) {
-            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-                Box(Modifier.fillMaxWidth().height(230.dp)) {
+        Surface(Modifier.fillMaxSize(), color = Color(0xFFF4F8F6)) {
+            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(Modifier.fillMaxWidth().height(280.dp)) {
                     AsyncImage(
                         model = info?.backdrop?.takeIf { it.startsWith("http") } ?: item.logo,
                         contentDescription = item.name,
@@ -1185,7 +1186,7 @@ private fun VodDetailsPage(s: AppState) {
                         fontSize = 24.sp, fontWeight = FontWeight.Bold,
                         color = Color.White, maxLines = 3, lineHeight = 28.sp)
                 }
-                Column(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 16.dp),
+                Column(Modifier.fillMaxWidth().widthIn(max = 850.dp).padding(horizontal = 24.dp, vertical = 18.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(if (item.kind == 2) "SÉRIE" else "FILM", color = Color(0xFFCB651B), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     val metadata = listOfNotNull(
@@ -1197,7 +1198,7 @@ private fun VodDetailsPage(s: AppState) {
                         fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
                     Button(onClick = { s.launchSelectedVod() },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF15523B)),
-                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                        modifier = Modifier.fillMaxWidth().height(44.dp),
                         shape = RoundedCornerShape(16.dp)) {
                         Icon(Icons.Filled.PlayArrow, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
