@@ -1222,11 +1222,6 @@ private fun VodDetailsPage(s: AppState) {
                     .65f to Color.Black.copy(alpha = .70f),
                     1f to Color.Black.copy(alpha = .96f)
                 )))
-            IconButton(onClick = { s.closeVodDetails() },
-                modifier = Modifier.align(Alignment.TopStart).padding(14.dp)
-                    .background(Color.White.copy(alpha = .90f), RoundedCornerShape(50))) {
-                Icon(Icons.Filled.Close, contentDescription = "Retour")
-            }
             Column(
                 Modifier.align(Alignment.BottomStart).fillMaxWidth()
                     .verticalScroll(rememberScrollState())
