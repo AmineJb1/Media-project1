@@ -439,17 +439,40 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
         confirmButton = { TextButton(onClick = { s.removeAccount(deleteIndex); deleteIndex = -1 }) { Text("Supprimer") } },
         dismissButton = { TextButton(onClick = { deleteIndex = -1 }) { Text("Annuler") } }
     )
-    if (confirmClearCache) AlertDialog(
-        onDismissRequest = { confirmClearCache = false },
-        title = { Text("Vider le cache ?") },
-        text = { Text("L’historique récent et les fichiers temporaires seront supprimés. Vos favoris et vos comptes ne seront pas effacés.") },
-        confirmButton = { TextButton(onClick = {
-            s.clearCache()
-            confirmClearCache = false
-            message = "Cache et historique récent supprimés"
-        }) { Text("Effacer") } },
-        dismissButton = { TextButton(onClick = { confirmClearCache = false }) { Text("Annuler") } }
-    )
+    if (confirmClearCache) {
+        var clearConfirmFocused by remember { mutableStateOf(false) }
+        var clearCancelFocused by remember { mutableStateOf(false) }
+        val clearCancelFocus = remember { FocusRequester() }
+        LaunchedEffect(confirmClearCache) { runCatching { clearCancelFocus.requestFocus() } }
+        AlertDialog(
+            onDismissRequest = { confirmClearCache = false },
+            title = { Text("Vider le cache ?") },
+            text = { Text("L’historique récent et les fichiers temporaires seront supprimés. Vos favoris et vos comptes ne seront pas effacés.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        s.clearCache()
+                        confirmClearCache = false
+                        message = "Cache et historique récent supprimés"
+                    },
+                    modifier = Modifier.onFocusChanged { clearConfirmFocused = it.isFocused }
+                        .border(if (clearConfirmFocused) 3.dp else 0.dp, Color(0xFF39DF83), RoundedCornerShape(12.dp)),
+                    colors = ButtonDefaults.buttonColors(containerColor = if (clearConfirmFocused) Color(0xFF075A36) else Color(0xFFE58A18)),
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text("Effacer", color = Color.White) }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { confirmClearCache = false },
+                    modifier = Modifier.focusRequester(clearCancelFocus)
+                        .onFocusChanged { clearCancelFocused = it.isFocused }
+                        .border(if (clearCancelFocused) 3.dp else 0.dp, Color(0xFF39DF83), RoundedCornerShape(12.dp)),
+                    colors = ButtonDefaults.buttonColors(containerColor = if (clearCancelFocused) Color(0xFF075A36) else Color(0xFFE58A18)),
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text("Annuler", color = Color.White) }
+            }
+        )
+    }
     if (confirmDisconnect) AlertDialog(
         onDismissRequest = { confirmDisconnect = false },
         title = { Text("Déconnexion") },
