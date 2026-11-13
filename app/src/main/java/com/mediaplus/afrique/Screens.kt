@@ -35,6 +35,11 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Tv
+import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.Brush
@@ -65,7 +70,7 @@ import java.util.Locale
 fun LoginScreen(s: AppState) {
     val c = MaterialTheme.colorScheme
     val field = RoundedCornerShape(17.dp)
-    val f = Modifier.fillMaxWidth().padding(top = 6.dp)
+    val f = Modifier.fillMaxWidth().padding(top = 8.dp)
     var showPassword by remember { mutableStateOf(false) }
     var showMacAccess by remember { mutableStateOf(false) }
     val initialButtonFocus = remember { FocusRequester() }
@@ -150,7 +155,7 @@ fun LoginScreen(s: AppState) {
                 Modifier.align(if (tvLayout) Alignment.TopEnd else Alignment.TopCenter)
                     .widthIn(max = if (tvLayout) 390.dp else 560.dp)
                     .fillMaxWidth()
-                    .padding(top = if (tvLayout) 16.dp else 0.dp)
+                    .padding(top = if (tvLayout) 34.dp else 0.dp)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -193,9 +198,9 @@ fun LoginScreen(s: AppState) {
             ) {
                 Column(Modifier.fillMaxWidth().padding(if (tvLayout) 4.dp else if (wide) 22.dp else 16.dp)) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                        Text("Media+", fontSize = if (tvLayout) 36.sp else 26.sp,
+                        Text("Media+", fontSize = if (tvLayout) 40.sp else 26.sp,
                             fontWeight = FontWeight.ExtraBold, color = Color.Black, maxLines = 1)
-                        Text("Côte d’Ivoire", fontSize = if (tvLayout) 23.sp else 18.sp,
+                        Text("Côte d’Ivoire", fontSize = if (tvLayout) 25.sp else 18.sp,
                             fontWeight = FontWeight.Bold, color = Color(0xFF124D37), maxLines = 1)
                         Row(Modifier.padding(top = 5.dp).width(if (tvLayout) 190.dp else 150.dp).height(6.dp).clip(RoundedCornerShape(4.dp))) {
                             Box(Modifier.weight(1f).fillMaxHeight().background(Color(0xFFFF8200)))
@@ -204,36 +209,35 @@ fun LoginScreen(s: AppState) {
                         }
                     }
                     Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, fontSize = if (tvLayout) 15.sp else 13.sp, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp, bottom = 18.dp))
-                    Text("Identifiants", color = c.onSurface, fontSize = if (tvLayout) 19.sp else 15.sp,
+                    Text("Identifiants", color = Color(0xFF102C54), fontSize = if (tvLayout) 20.sp else 15.sp,
                         fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 4.dp))
-                    OutlinedTextField(s.user, { s.saveUsername(it) }, f.widthIn(max = if (tvLayout) 340.dp else 560.dp).align(Alignment.CenterHorizontally), singleLine = true,
+                    OutlinedTextField(s.user, { s.saveUsername(it) }, f.widthIn(max = if (tvLayout) 320.dp else 560.dp).align(Alignment.CenterHorizontally), singleLine = true,
                         shape = field, label = { Text("Nom d'utilisateur") },
+                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = Color(0xFF102C54)) },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF9D3C16),
                             unfocusedBorderColor = Color(0xFF275A4A),
                             focusedLabelColor = Color(0xFF71311E)))
                     OutlinedTextField(s.pass, { s.pass = it },
-                        f.widthIn(max = if (tvLayout) 340.dp else 560.dp).align(Alignment.CenterHorizontally).onFocusChanged { if (it.isFocused && s.hasSavedBiometricAccount()) requestBiometric() },
+                        f.widthIn(max = if (tvLayout) 320.dp else 560.dp).align(Alignment.CenterHorizontally).onFocusChanged { if (it.isFocused && s.hasSavedBiometricAccount()) requestBiometric() },
                         singleLine = true, shape = field, label = { Text("Mot de passe") },
+                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFF102C54)) },
                         colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF9D3C16), unfocusedBorderColor = Color(0xFF275A4A)),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
-                            if (!tvLayout) IconButton(onClick = { showPassword = !showPassword }, modifier = Modifier.size(48.dp)) { androidx.compose.material3.Icon(if (showPassword) androidx.compose.material.icons.Icons.Default.Lock else androidx.compose.material.icons.Icons.Default.Lock, contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe", tint = Color(0xFF174C3B)) }
-
+                            IconButton(onClick = { showPassword = !showPassword }, modifier = Modifier.size(48.dp)) {
+                                Icon(if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe",
+                                    tint = Color(0xFF102C54))
+                            }
                         })
-                    if (tvLayout) {
-                        Button(
-                            onClick = { showPassword = !showPassword },
-                            modifier = Modifier.align(Alignment.End).padding(top = 6.dp).height(44.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE3EEE8), contentColor = Color(0xFF174C3B))
-                        ) {
-                            androidx.compose.material3.Icon(if (showPassword) androidx.compose.material.icons.Icons.Default.Lock else androidx.compose.material.icons.Icons.Default.Lock, contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe", tint = Color(0xFF174C3B))
-                        }
-                    }
                     AnimatedVisibility(s.mode == 0 && (s.status.startsWith("Erreur", ignoreCase = true) || s.status == "Abonnement Expiré")) {
-                        Text(s.status, Modifier.padding(top = 8.dp), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                        Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.ErrorOutline, contentDescription = null, tint = Color(0xFFD32F2F), modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text(s.status, color = Color(0xFFD32F2F), style = MaterialTheme.typography.bodySmall)
+                        }
                     }
                     if (biometricReady) {
                         TextButton(onClick = {
@@ -251,10 +255,12 @@ fun LoginScreen(s: AppState) {
                         onClick = { s.mode = 0; s.connect() },
                         modifier = Modifier.fillMaxWidth(if (tvLayout) .78f else .90f).align(Alignment.CenterHorizontally).focusRequester(initialButtonFocus).padding(top = 12.dp).height(if (tvLayout) 52.dp else if (wide) 52.dp else 48.dp),
                         shape = RoundedCornerShape(28.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F2F1), contentColor = c.onSurface),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE4EDFF), contentColor = Color(0xFF102C54)),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 3.dp, pressedElevation = 1.dp)
-                    ) { Text("▶  Se connecter", fontSize = 15.sp, fontWeight = FontWeight.SemiBold) }
+                    ) { Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color(0xFF102C54))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Se connecter", fontSize = 15.sp, color = Color(0xFF102C54), fontWeight = FontWeight.Bold) }
                     Spacer(Modifier.height(10.dp))
                     Button(
                         onClick = { showMacAccess = true },
@@ -263,7 +269,9 @@ fun LoginScreen(s: AppState) {
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F2F1), contentColor = c.onSurface),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 3.dp, pressedElevation = 1.dp)
-                    ) { Text("▶  Connexion avec Adresse MAC", fontSize = if (tvLayout) 13.sp else 14.sp, fontWeight = FontWeight.SemiBold) }
+                    ) { Icon(Icons.Default.Tv, contentDescription = null, tint = Color(0xFF102C54))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Connexion avec Adresse MAC", fontSize = if (tvLayout) 13.sp else 14.sp, color = Color(0xFF102C54), fontWeight = FontWeight.SemiBold) }
 
                 }
             }
