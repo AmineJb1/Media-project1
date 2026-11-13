@@ -71,10 +71,6 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
     Column(modifier.verticalScroll(rememberScrollState()).padding(horizontal = 10.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)) {
         if (page == null) {
-            Text("Paramètres", style = MaterialTheme.typography.headlineMedium,
-                color = Color(0xFF153E30), fontWeight = FontWeight.Bold)
-            Text("Gérez votre abonnement et personnalisez votre expérience.",
-                style = MaterialTheme.typography.bodyMedium, color = Color(0xFF65726C))
             val sections = listOf(
                 Triple("Mon compte", "Gérer vos profils et connexions", "♙"),
                 Triple("Informations d’abonnement", "Validité, expiration et accès", "◷"),
