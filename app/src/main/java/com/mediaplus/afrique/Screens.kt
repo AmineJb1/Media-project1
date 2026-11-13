@@ -813,12 +813,20 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                             val initialChannel = visibleItems.firstOrNull { it.id == s.previewChannelId }
                                 ?: visibleItems.firstOrNull { !it.name.trimStart().startsWith("##") }
                                 ?: visibleItems.firstOrNull()
-                            LaunchedEffect(s.group, initialChannel?.id) {
-                                if (s.group != null && initialChannel != null) {
+                            LaunchedEffect(s.group, initialChannel?.id, settingsOpen) {
+                                if (!settingsOpen && s.group != null && initialChannel != null) {
                                     val index = visibleItems.indexOfFirst { it.id == initialChannel.id }
                                     if (index >= 0) channelListState.scrollToItem(index)
-                                    kotlinx.coroutines.delay(180)
-                                    runCatching { firstChannelFocus.requestFocus() }
+                                    // LazyColumn composes its focus target asynchronously on Android TV.
+                                    // Retry until the channel row is attached instead of leaving focus on Direct.
+                                    for (attempt in 0 until 8) {
+                                        kotlinx.coroutines.delay(if (attempt == 0) 220 else 120)
+                                        val focused = runCatching {
+                                            firstChannelFocus.requestFocus()
+                                            true
+                                        }.getOrDefault(false)
+                                        if (focused) break
+                                    }
                                 }
                             }
                             LazyColumn(
