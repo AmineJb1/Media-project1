@@ -839,6 +839,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                             .border(if (channelFocused) 3.dp else 1.dp,
                                                 if (channelFocused) Color(0xFF42D77B) else Color(0xFFB2C9C3),
                                                 RoundedCornerShape(12.dp))
+                                            .then(if (initialChannel?.id == item.id) Modifier.focusRequester(firstChannelFocus) else Modifier)
                                             .clickable {
                                                 if (previewSelected && s.previewUrl != null) {
                                                     s.playLive(item, fromPreview = true)
@@ -847,7 +848,6 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                                     s.requestAdultItem(item) { s.pick(item) }
                                                 }
                                             }
-                                            .then(if (initialChannel?.id == item.id) Modifier.focusRequester(firstChannelFocus) else Modifier)
                                             .padding(horizontal = 10.dp, vertical = 5.dp),
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -858,6 +858,21 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                             fontSize = if (tvWide) 15.sp else 13.sp,
                                             fontWeight = FontWeight.SemiBold, maxLines = 2,
                                             overflow = TextOverflow.Ellipsis)
+                                        Box(
+                                            Modifier.size(39.dp)
+                                                .clip(RoundedCornerShape(9.dp))
+                                                .background(if (item.url in favUrls) Color(0xFFFFE2A0) else Color.White.copy(alpha = .75f))
+                                                .border(1.5.dp, Color(0xFFD39A32), RoundedCornerShape(9.dp))
+                                                .clickable { s.toggleFav(item) },
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                Icons.Filled.Star,
+                                                contentDescription = if (item.url in favUrls) "Retirer des favoris" else "Ajouter aux favoris",
+                                                tint = if (item.url in favUrls) Color(0xFFE89A00) else Color(0xFF6D7977),
+                                                modifier = Modifier.size(25.dp)
+                                            )
+                                        }
                                         if (previewSelected) Text("▶", color = if (channelFocused) Color.White else Color(0xFF0B4F32))
                                     }
                                 }
