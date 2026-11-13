@@ -34,6 +34,8 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.Brush
@@ -199,15 +201,8 @@ fun LoginScreen(s: AppState) {
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
-                            if (!tvLayout) IconButton(onClick = { showPassword = !showPassword }, modifier = Modifier.size(48.dp)) { androidx.compose.material3.Icon(if (showPassword) androidx.compose.material.icons.Icons.Default.Visibility else androidx.compose.material.icons.Icons.Default.VisibilityOff, contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe", tint = Color(0xFF174C3B)) }
-                            /*Button(onClick = { showPassword = !showPassword }, modifier = Modifier.width(88.dp).height(48.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE3EEE8), contentColor = Color(0xFF174C3B)),
-                                contentPadding = PaddingValues(horizontal = 4.dp)) {
-                                Text(if (showPassword) "Masquer" else "Voir",
-                                    color = Color(0xFF174C3B),
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.SemiBold)
-                            }*/
+                            if (!tvLayout) IconButton(onClick = { showPassword = !showPassword }, modifier = Modifier.size(48.dp)) { androidx.compose.material3.Icon(if (showPassword) androidx.compose.material.icons.Icons.Default.LockOpen else androidx.compose.material.icons.Icons.Default.Lock, contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe", tint = Color(0xFF174C3B)) }
+
                         })
                     if (tvLayout) {
                         Button(
@@ -216,7 +211,7 @@ fun LoginScreen(s: AppState) {
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE3EEE8), contentColor = Color(0xFF174C3B))
                         ) {
-                            androidx.compose.material3.Icon(if (showPassword) androidx.compose.material.icons.Icons.Default.Visibility else androidx.compose.material.icons.Icons.Default.VisibilityOff, contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe", tint = Color(0xFF174C3B))
+                            androidx.compose.material3.Icon(if (showPassword) androidx.compose.material.icons.Icons.Default.LockOpen else androidx.compose.material.icons.Icons.Default.Lock, contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe", tint = Color(0xFF174C3B))
                         }
                     }
                     if (biometricReady) {
