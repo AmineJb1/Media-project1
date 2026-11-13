@@ -76,6 +76,8 @@ fun App() {
             settingsPage = if (settingsPage == "Ajouter un compte") "Mon compte" else null
         } else if (settingsOpen) {
             settingsOpen = false; settingsPage = null; s.pickSection(0)
+        } else if (s.playing != null && s.playingChannel != null) {
+            s.returnLiveToPreview()
         } else if (s.playing != null || s.previewChannelId != null || s.query.isNotEmpty() || s.episodes != null || s.selectedVod != null || s.group != null) {
             s.back()
         } else if (s.section != 0) {
