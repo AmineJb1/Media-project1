@@ -1055,20 +1055,8 @@ private fun LivePreviewPanel(s: AppState, compact: Boolean) {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Box(
-                            Modifier.size(52.dp).clip(RoundedCornerShape(12.dp))
-                                .background(Color(0xFF1038CE)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (selected.logo.startsWith("http")) {
-                                AsyncImage(
-                                    model = selected.logo, contentDescription = null,
-                                    contentScale = ContentScale.Fit,
-                                    modifier = Modifier.fillMaxSize().padding(4.dp)
-                                )
-                            } else {
-                                Text("TV", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                            }
+                        Box(Modifier.size(52.dp), contentAlignment = Alignment.Center) {
+                            Logo(selected)
                         }
                         Box(Modifier.width(3.dp).height(47.dp)
                             .clip(RoundedCornerShape(2.dp))
