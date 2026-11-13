@@ -396,7 +396,8 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     .border(1.dp, Color(0xFFE0E8EC))
                     .padding(horizontal = 7.dp, vertical = 12.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                    Spacer(Modifier.height(if (tvWide) 36.dp else 20.dp))
                     listOf(0 to "Direct", 2 to "Films", 3 to "Séries", 4 to "Favoris", 5 to "Réglages").forEach { (section, title) ->
                         val active = if (section == 5) settingsOpen else !settingsOpen && s.section == section
                         var navFocused by remember { mutableStateOf(false) }
@@ -414,23 +415,20 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                 if (section == 5) { onSettingsOpen(true); s.clearPreview() }
                                 else { onSettingsOpen(false); onSettingsPage(null); s.pickSection(section) }
                             }
-                            .padding(horizontal = 8.dp, vertical = 12.dp),
+                            .padding(horizontal = 8.dp, vertical = 9.dp),
                             verticalAlignment = Alignment.CenterVertically) {
                             Box(Modifier.size(38.dp).clip(RoundedCornerShape(11.dp))
                                 .background(if (selected) Color(0xFF126B42) else Color(0xFFFFA533)),
                                 contentAlignment = Alignment.Center) {
-                                if (section == 3) {
-                                    Text("🎬", fontSize = 23.sp)
-                                } else {
-                                    Icon(when (section) {
+                                Icon(when (section) {
                                         0 -> Icons.Filled.Home
                                         2 -> Icons.Filled.PlayArrow
+                                        3 -> Icons.Filled.List
                                         4 -> Icons.Filled.Star
                                         else -> Icons.Filled.Settings
                                     }, contentDescription = title,
                                         tint = Color.Black,
                                         modifier = Modifier.size(26.dp))
-                                }
                             }
                             Spacer(Modifier.width(7.dp))
                             Text(title, fontSize = if (tvWide) 14.sp else 12.sp,
@@ -451,8 +449,8 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 SettingsScreen(s, settingsPage, onSettingsPage, Modifier.weight(1f))
             } else {
             Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.weight(1f)) { Text(
-                when (s.section) { 2 -> "Films"; 3 -> "Séries"; 4 -> "Mes favoris"; else -> "TV en direct" },
+            Box(Modifier.weight(1f)) { if (s.section != 0) Text(
+                when (s.section) { 2 -> "Films"; 3 -> "Séries"; 4 -> "Mes favoris"; else -> "" },
                 color = c.onSurface,
                 style = if (useSideRail) MaterialTheme.typography.titleMedium else if (wide) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.ExtraBold
