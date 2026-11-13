@@ -110,6 +110,21 @@ fun App() {
         if (s.playingChannel != null) TvPlayer(s) else Box(Modifier.fillMaxSize().background(Color.Black)) {
             VideoPlayer(p, { s.onPlayerError(it) }, modifier = Modifier.fillMaxSize())
         }
+    } else if (s.restoringSession) {
+        // Saved credentials are being verified in the background. Do not flash the
+        // interactive login form before opening the user's already-active session.
+        Box(Modifier.fillMaxSize().background(Color(0xFFF1F8FC)),
+            contentAlignment = Alignment.Center) {
+            androidx.compose.foundation.layout.Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(18.dp)
+            ) {
+                Text("Media+ Côte d’Ivoire", color = Color(0xFF0B4F32),
+                    style = MaterialTheme.typography.headlineMedium)
+                CircularProgressIndicator(color = Color(0xFF0B4F32))
+                Text("Ouverture de votre session…", color = Color(0xFF385B72))
+            }
+        }
     } else if (s.showLogin) {
         LoginScreen(s)
     } else {
