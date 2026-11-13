@@ -466,16 +466,35 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 style = if (useSideRail) MaterialTheme.typography.titleMedium else if (wide) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.ExtraBold
             ) }
-            Surface(shape = RoundedCornerShape(16.dp), color = Color(0xFFE8F3EE),
-                border = BorderStroke(1.5.dp, Color(0xFF6DAD92)), shadowElevation = 3.dp) {
+            Surface(shape = RoundedCornerShape(16.dp), color = if (searchOpen) Color(0xFF0B4F32) else Color.White,
+                border = BorderStroke(2.dp, if (searchOpen) Color(0xFF42D77B) else Color(0xFF0B4F32)), shadowElevation = 5.dp) {
                 IconButton(onClick = { searchOpen = !searchOpen; if (!searchOpen) s.query = "" }, modifier = Modifier.size(48.dp)) {
                     Icon(if (searchOpen) Icons.Filled.Close else Icons.Filled.Search,
                         contentDescription = if (searchOpen) "Fermer la recherche" else "Rechercher",
-                        tint = Color(0xFF145E44), modifier = Modifier.size(27.dp))
+                        tint = if (searchOpen) Color(0xFFFFA02A) else Color(0xFF0B4F32), modifier = Modifier.size(30.dp))
                 }
             }
             }
-            if (searchOpen) OutlinedTextField(s.query, { s.query = it }, Modifier.fillMaxWidth(), singleLine = true, placeholder = { Text("Rechercher une chaîne ou un bouquet") })
+            if (searchOpen) OutlinedTextField(
+                value = s.query,
+                onValueChange = { s.query = it },
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                    .shadow(5.dp, RoundedCornerShape(16.dp))
+                    .background(Color.White, RoundedCornerShape(16.dp)),
+                singleLine = true,
+                shape = RoundedCornerShape(16.dp),
+                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null, tint = Color(0xFF0B4F32)) },
+                placeholder = { Text("Rechercher une chaîne ou un bouquet", color = Color(0xFF536A60)) },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color(0xFF173D2E),
+                    unfocusedTextColor = Color(0xFF173D2E),
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    focusedBorderColor = Color(0xFF0B4F32),
+                    unfocusedBorderColor = Color(0xFF8FAFA1),
+                    cursorColor = Color(0xFF0B4F32)
+                )
+            )
             if (!useSideRail) Text("Vos chaînes et vos contenus", color = c.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium)
             Spacer(Modifier.height(5.dp))
