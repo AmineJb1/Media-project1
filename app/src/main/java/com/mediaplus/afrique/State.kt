@@ -6,6 +6,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import java.io.File
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -342,10 +344,19 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         scope.launch {
             try {
                 val l = withContext(Dispatchers.IO) {
-                    if (mode == 0 && xt().isSubscriptionExpired()) {
-                        throw IllegalStateException("Abonnement Expiré")
-                    }
-                    val r = if (mode == 0) xt().live() else Stalker(Config.PORTAL, mac.trim().uppercase()).also { stalker = it }.channels()
+                    // Run subscription validation and channel download concurrently instead of
+                    // waiting for two sequential network requests. Never open the session
+                    // before the expiry check completes successfully.
+                    val r = if (mode == 0) coroutineScope {
+                        val client = xt()
+                        val expiryCheck = async { client.isSubscriptionExpired() }
+                        val channelDownload = async { client.live() }
+                        if (expiryCheck.await()) {
+                            channelDownload.cancel()
+                            throw IllegalStateException("Abonnement Expiré")
+                        }
+                        channelDownload.await()
+                    } else Stalker(Config.PORTAL, mac.trim().uppercase()).also { stalker = it }.channels()
                     cacheFile.bufferedWriter().use { writer ->
                         r.forEach { item -> writer.write(encode(item)); writer.newLine() }
                     }
