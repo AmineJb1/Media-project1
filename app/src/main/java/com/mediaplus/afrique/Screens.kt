@@ -304,6 +304,15 @@ fun LoginScreen(s: AppState) {
         }
     }
     if (showMacAccess) {
+        val macActionFocus = remember { FocusRequester() }
+        var macActionFocused by remember { mutableStateOf(false) }
+        var copyMacFocused by remember { mutableStateOf(false) }
+        var copyKeyFocused by remember { mutableStateOf(false) }
+        var closeMacFocused by remember { mutableStateOf(false) }
+        LaunchedEffect(showMacAccess) {
+            kotlinx.coroutines.delay(140)
+            macActionFocus.requestFocus()
+        }
         Dialog(onDismissRequest = { showMacAccess = false },
             properties = DialogProperties(usePlatformDefaultWidth = false)) {
             Surface(
@@ -321,7 +330,10 @@ fun LoginScreen(s: AppState) {
                             modifier = Modifier.weight(1f),
                             style = if (isTv) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold, color = c.onSurface)
-                        IconButton(onClick = { showMacAccess = false }) {
+                        IconButton(onClick = { showMacAccess = false },
+                            modifier = Modifier.onFocusChanged { closeMacFocused = it.isFocused }
+                                .border(if (closeMacFocused) 2.dp else 0.dp, Color(0xFF42D77B), RoundedCornerShape(10.dp))
+                                .background(if (closeMacFocused) Color(0xFF0B4F32) else Color.Transparent, RoundedCornerShape(10.dp))) {
                             Icon(Icons.Filled.Close, contentDescription = "Fermer")
                         }
                     }
@@ -330,8 +342,10 @@ fun LoginScreen(s: AppState) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(s.mac, modifier = Modifier.weight(1f),
                             color = c.onSurface, fontWeight = FontWeight.SemiBold)
-                        TextButton(onClick = { clipboard.setText(AnnotatedString(s.mac)) }) {
-                            Text("Copier MAC")
+                        TextButton(onClick = { clipboard.setText(AnnotatedString(s.mac)) },
+                            modifier = Modifier.onFocusChanged { copyMacFocused = it.isFocused }
+                                .background(if (copyMacFocused) Color(0xFF0B4F32) else Color.Transparent, RoundedCornerShape(12.dp))) {
+                            Text("Copier MAC", color = if (copyMacFocused) Color.White else Color(0xFF0B4F32))
                         }
                     }
                     HorizontalDivider()
@@ -340,12 +354,18 @@ fun LoginScreen(s: AppState) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(s.macDisplayKey(), modifier = Modifier.weight(1f),
                             color = c.primary, fontWeight = FontWeight.Bold)
-                        TextButton(onClick = { clipboard.setText(AnnotatedString(s.macDisplayKey())) }) {
-                            Text("Copier clé")
+                        TextButton(onClick = { clipboard.setText(AnnotatedString(s.macDisplayKey())) },
+                            modifier = Modifier.onFocusChanged { copyKeyFocused = it.isFocused }
+                                .background(if (copyKeyFocused) Color(0xFF0B4F32) else Color.Transparent, RoundedCornerShape(12.dp))) {
+                            Text("Copier clé", color = if (copyKeyFocused) Color.White else Color(0xFF0B4F32))
                         }
                     }
                     Button(onClick = { s.mode = 1; s.connect() },
-                        modifier = Modifier.fillMaxWidth().height(if (isTv) 40.dp else 48.dp),
+                        modifier = Modifier.fillMaxWidth().height(if (isTv) 40.dp else 48.dp)
+                            .focusRequester(macActionFocus)
+                            .onFocusChanged { macActionFocused = it.isFocused },
+                        colors = ButtonDefaults.buttonColors(containerColor = if (macActionFocused) Color(0xFF0B4F32) else Color(0xFFFF8A00)),
+                        border = BorderStroke(if (macActionFocused) 3.dp else 1.dp, if (macActionFocused) Color(0xFF42D77B) else Color(0xFFE87500)),
                         shape = RoundedCornerShape(24.dp)) {
                         Text("Récupérer Ma Liste", fontWeight = FontWeight.SemiBold)
                     }
