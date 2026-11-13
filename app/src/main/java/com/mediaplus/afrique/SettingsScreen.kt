@@ -8,6 +8,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
@@ -69,6 +71,13 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
     var deleteIndex by remember { mutableIntStateOf(-1) }
     var confirmDisconnect by remember { mutableStateOf(false) }
     var confirmClearCache by remember { mutableStateOf(false) }
+    val firstSettingFocus = remember { FocusRequester() }
+    LaunchedEffect(page) {
+        if (page == null) {
+            kotlinx.coroutines.delay(180)
+            runCatching { firstSettingFocus.requestFocus() }
+        }
+    }
 
     Column(modifier.verticalScroll(rememberScrollState()).padding(horizontal = 10.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -80,12 +89,13 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                 Triple("Vider le cache", "Effacer l’historique récent et les données temporaires", "⌫"),
                 Triple("À propos", "Version et informations de l’application", "ⓘ")
             )
-            sections.forEach { (section, subtitle, symbol) ->
+            sections.forEachIndexed { index, (section, subtitle, symbol) ->
                 var focused by remember(section) { mutableStateOf(false) }
                 Surface(
                     onClick = { onPage(section); message = "" },
-                    modifier = Modifier.fillMaxWidth(0.88f)
-                        .widthIn(max = 760.dp)
+                    modifier = Modifier.fillMaxWidth(0.72f)
+                        .widthIn(max = 610.dp)
+                        .then(if (index == 0) Modifier.focusRequester(firstSettingFocus) else Modifier)
                         .onFocusChanged { focused = it.isFocused }
                         .shadow(if (focused) 7.dp else 3.dp, RoundedCornerShape(18.dp)),
                     color = if (focused) Color(0xFF0B4F32).copy(alpha = 0.94f)
