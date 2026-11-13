@@ -217,20 +217,30 @@ fun LoginScreen(s: AppState) {
                             focusedBorderColor = Color(0xFF9D3C16),
                             unfocusedBorderColor = Color(0xFF275A4A),
                             focusedLabelColor = Color(0xFF71311E)))
-                    OutlinedTextField(s.pass, { s.pass = it },
-                        f.widthIn(max = if (tvLayout) 320.dp else 560.dp).align(Alignment.CenterHorizontally).onFocusChanged { if (it.isFocused && s.hasSavedBiometricAccount()) requestBiometric() },
-                        singleLine = true, shape = field, label = { Text("Mot de passe") },
-                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFF102C54)) },
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF9D3C16), unfocusedBorderColor = Color(0xFF275A4A)),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                        trailingIcon = {
-                            IconButton(onClick = { showPassword = !showPassword }, modifier = Modifier.size(52.dp).border(1.5.dp, Color(0xFF447F69), RoundedCornerShape(12.dp))) {
-                                Text(if (showPassword) "◉" else "◎",
-                                    color = Color(0xFF102C54), fontSize = 27.sp,
-                                    fontWeight = FontWeight.Bold)
-                            }
-                        })
+                    Row(Modifier.fillMaxWidth().widthIn(max = if (tvLayout) 390.dp else 620.dp)
+                        .align(Alignment.CenterHorizontally).padding(top = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(s.pass, { s.pass = it },
+                            Modifier.weight(1f).onFocusChanged {
+                                if (it.isFocused && s.hasSavedBiometricAccount()) requestBiometric()
+                            },
+                            singleLine = true, shape = field, label = { Text("Mot de passe") },
+                            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFF102C54)) },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color(0xFF9D3C16), unfocusedBorderColor = Color(0xFF275A4A)),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                            visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation())
+                        OutlinedButton(onClick = { showPassword = !showPassword },
+                            modifier = Modifier.size(56.dp),
+                            shape = RoundedCornerShape(14.dp),
+                            contentPadding = PaddingValues(0.dp),
+                            border = BorderStroke(2.dp, Color(0xFF237A57))) {
+                            Text(if (showPassword) "◉" else "◎",
+                                color = Color(0xFF124E3B), fontSize = 28.sp,
+                                fontWeight = FontWeight.Bold)
+                        }
+                    }
                     AnimatedVisibility(s.mode == 0 && (s.status.startsWith("Erreur", ignoreCase = true) || s.status == "Abonnement Expiré")) {
                         Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.Close, contentDescription = null, tint = Color(0xFFD32F2F), modifier = Modifier.size(18.dp))
