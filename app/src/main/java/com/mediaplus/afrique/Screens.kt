@@ -893,7 +893,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
                                             ) {
                                                 Text("●", color = Color(0xFFEA4D45), fontSize = 12.sp)
-                                                Text("LIVE", color = if (channelFocused) Color.White else Color(0xFF0B4F32),
+                                                Text("LIVE", color = Color(0xFFE53935),
                                                     fontWeight = FontWeight.Bold, fontSize = 10.sp)
                                             }
                                         }
