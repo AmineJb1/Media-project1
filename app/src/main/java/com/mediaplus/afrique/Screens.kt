@@ -75,6 +75,8 @@ fun LoginScreen(s: AppState) {
     val f = Modifier.fillMaxWidth().padding(top = 8.dp)
     var showPassword by remember { mutableStateOf(false) }
     var showMacAccess by remember { mutableStateOf(false) }
+    var loginButtonFocused by remember { mutableStateOf(false) }
+    var macButtonFocused by remember { mutableStateOf(false) }
     val initialButtonFocus = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     val isTv = (LocalContext.current.resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK) == Configuration.UI_MODE_TYPE_TELEVISION
@@ -275,10 +277,10 @@ fun LoginScreen(s: AppState) {
                     }
                     Button(
                         onClick = { s.mode = 0; s.connect() },
-                        modifier = Modifier.fillMaxWidth(if (tvLayout) .86f else .90f).align(Alignment.CenterHorizontally).focusRequester(initialButtonFocus).padding(top = 8.dp).height(if (tvLayout) 44.dp else if (wide) 52.dp else 48.dp),
+                        modifier = Modifier.fillMaxWidth(if (tvLayout) .86f else .90f).align(Alignment.CenterHorizontally).focusRequester(initialButtonFocus).onFocusChanged { loginButtonFocused = it.isFocused }.padding(top = 8.dp).height(if (tvLayout) 44.dp else if (wide) 52.dp else 48.dp),
                         shape = RoundedCornerShape(28.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B4F32), contentColor = Color.White),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
+                        colors = ButtonDefaults.buttonColors(containerColor = if (loginButtonFocused) Color(0xFFFF8A00) else Color(0xFF0B4F32), contentColor = Color.White),
+                        border = androidx.compose.foundation.BorderStroke(if (loginButtonFocused) 3.dp else 1.dp, if (loginButtonFocused) Color(0xFF0B4F32) else Color(0xFFCDD1CD)),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 3.dp, pressedElevation = 1.dp)
                     ) { Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.White)
                         Spacer(Modifier.width(8.dp))
@@ -286,10 +288,10 @@ fun LoginScreen(s: AppState) {
                     Spacer(Modifier.height(10.dp))
                     Button(
                         onClick = { showMacAccess = true },
-                        modifier = Modifier.fillMaxWidth(if (tvLayout) .86f else .90f).align(Alignment.CenterHorizontally).height(if (tvLayout) 38.dp else 44.dp),
+                        modifier = Modifier.fillMaxWidth(if (tvLayout) .86f else .90f).align(Alignment.CenterHorizontally).onFocusChanged { macButtonFocused = it.isFocused }.height(if (tvLayout) 38.dp else 44.dp),
                         shape = RoundedCornerShape(28.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF8A00), contentColor = Color.White),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
+                        colors = ButtonDefaults.buttonColors(containerColor = if (macButtonFocused) Color(0xFF0B4F32) else Color(0xFFFF8A00), contentColor = Color.White),
+                        border = androidx.compose.foundation.BorderStroke(if (macButtonFocused) 3.dp else 1.dp, if (macButtonFocused) Color(0xFF42D77B) else Color(0xFFCDD1CD)),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 3.dp, pressedElevation = 1.dp)
                     ) { Icon(Icons.Default.Home, contentDescription = null, tint = Color.White)
                         Spacer(Modifier.width(8.dp))
