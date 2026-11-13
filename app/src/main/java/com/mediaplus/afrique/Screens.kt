@@ -155,7 +155,7 @@ fun LoginScreen(s: AppState) {
             }
             Column(
                 Modifier.align(if (tvLayout) Alignment.CenterEnd else Alignment.TopCenter)
-                    .widthIn(max = if (tvLayout) 430.dp else 560.dp)
+                    .widthIn(max = if (tvLayout) 370.dp else 560.dp)
                     .fillMaxWidth()
                     .padding(top = if (tvLayout) 0.dp else 0.dp)
                     .verticalScroll(rememberScrollState()),
@@ -198,7 +198,7 @@ fun LoginScreen(s: AppState) {
                 border = androidx.compose.foundation.BorderStroke(if (tvLayout) 0.dp else 1.dp, if (tvLayout) Color.Transparent else Color.White.copy(alpha = .95f)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
-                Column(Modifier.fillMaxWidth().padding(if (tvLayout) 12.dp else if (wide) 22.dp else 16.dp)) {
+                Column(Modifier.fillMaxWidth().padding(if (tvLayout) 8.dp else if (wide) 22.dp else 16.dp)) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.align(Alignment.CenterHorizontally)) {
                         Text("Media+", fontSize = if (tvLayout) 39.sp else 26.sp,
                             fontWeight = FontWeight.Black, color = Color.Black, maxLines = 1)
@@ -211,16 +211,16 @@ fun LoginScreen(s: AppState) {
                         }
                     }
                     Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, fontSize = if (tvLayout) 15.sp else 13.sp, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp, bottom = 18.dp))
-                    Text("Identifiants", color = Color.Black, fontSize = if (tvLayout) 22.sp else 15.sp,
+                    Text("Identifiants", color = Color.Black, fontSize = if (tvLayout) 19.sp else 15.sp,
                         fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 4.dp))
-                    OutlinedTextField(s.user, { s.saveUsername(it) }, f.widthIn(max = if (tvLayout) 380.dp else 560.dp).align(Alignment.CenterHorizontally), singleLine = true,
+                    OutlinedTextField(s.user, { s.saveUsername(it) }, f.widthIn(max = if (tvLayout) 330.dp else 560.dp).align(Alignment.CenterHorizontally), singleLine = true,
                         shape = if (tvLayout) RoundedCornerShape(8.dp) else field, label = { Text("Nom d'utilisateur") },
                         leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = Color(0xFF0B4F32)) },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF008D43),
                             unfocusedBorderColor = Color(0xFF0B4F32),
                             focusedLabelColor = Color(0xFF71311E)))
-                    Row(Modifier.fillMaxWidth().widthIn(max = if (tvLayout) 380.dp else 620.dp)
+                    Row(Modifier.fillMaxWidth().widthIn(max = if (tvLayout) 330.dp else 620.dp)
                         .align(Alignment.CenterHorizontally).padding(top = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -235,7 +235,7 @@ fun LoginScreen(s: AppState) {
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation())
                         OutlinedButton(onClick = { showPassword = !showPassword },
-                            modifier = Modifier.size(50.dp),
+                            modifier = Modifier.size(if (tvLayout) 44.dp else 50.dp),
                             shape = RoundedCornerShape(15.dp),
                             contentPadding = PaddingValues(0.dp),
                             colors = ButtonDefaults.outlinedButtonColors(
@@ -275,7 +275,7 @@ fun LoginScreen(s: AppState) {
                     }
                     Button(
                         onClick = { s.mode = 0; s.connect() },
-                        modifier = Modifier.fillMaxWidth(if (tvLayout) .82f else .90f).align(Alignment.CenterHorizontally).focusRequester(initialButtonFocus).padding(top = 8.dp).height(if (tvLayout) 48.dp else if (wide) 52.dp else 48.dp),
+                        modifier = Modifier.fillMaxWidth(if (tvLayout) .86f else .90f).align(Alignment.CenterHorizontally).focusRequester(initialButtonFocus).padding(top = 8.dp).height(if (tvLayout) 44.dp else if (wide) 52.dp else 48.dp),
                         shape = RoundedCornerShape(28.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B4F32), contentColor = Color.White),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
@@ -286,7 +286,7 @@ fun LoginScreen(s: AppState) {
                     Spacer(Modifier.height(10.dp))
                     Button(
                         onClick = { showMacAccess = true },
-                        modifier = Modifier.fillMaxWidth(if (tvLayout) .82f else .90f).align(Alignment.CenterHorizontally).height(if (tvLayout) 40.dp else 44.dp),
+                        modifier = Modifier.fillMaxWidth(if (tvLayout) .86f else .90f).align(Alignment.CenterHorizontally).height(if (tvLayout) 38.dp else 44.dp),
                         shape = RoundedCornerShape(28.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF8A00), contentColor = Color.White),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
