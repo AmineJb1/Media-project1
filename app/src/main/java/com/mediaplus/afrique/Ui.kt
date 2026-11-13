@@ -147,9 +147,22 @@ fun Logo(item: Item) {
             Modifier.fillMaxSize().background(Color(0xFFF0F7F0)),
             contentAlignment = Alignment.Center
         ) {
+            val prefix = item.name.trim().substringBefore(" - ").trim().uppercase(Locale.ROOT)
+            val countryFlag = when (prefix) {
+                "FR" -> "🇫🇷"
+                "AF", "CI", "CIV", "COITED", "IVOIRE" -> "🇨🇮"
+                "TN" -> "🇹🇳"
+                "DZ" -> "🇩🇿"
+                "MA" -> "🇲🇦"
+                "SN" -> "🇸🇳"
+                "UK", "GB" -> "🇬🇧"
+                "US", "USA" -> "🇺🇸"
+                "CA" -> "🇨🇦"
+                else -> bouquetCountryFlag(item.group) ?: bouquetCountryFlag(item.name)
+            }
             Text(
-                item.name.trim().take(2).uppercase(Locale.ROOT),
-                fontSize = 15.sp,
+                countryFlag ?: item.name.trim().take(2).uppercase(Locale.ROOT),
+                fontSize = if (countryFlag != null) 30.sp else 15.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF0B4F32)
             )
