@@ -101,7 +101,7 @@ fun LoginScreen(s: AppState) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val wide = maxWidth >= 700.dp
         val tvLayout = isTv || (maxWidth >= 800.dp && maxWidth > maxHeight)
-        Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.12f)))
+        Box(Modifier.fillMaxSize().background(if (tvLayout) Color(0xC900153B) else Color.White.copy(alpha = 0.12f)))
         // Constrain the parent before using fillMaxWidth inside the login form.
         Box(
             Modifier.fillMaxSize().padding(
@@ -122,7 +122,7 @@ fun LoginScreen(s: AppState) {
                             modifier = Modifier.size(148.dp),
                             contentScale = ContentScale.Fit
                         )
-                        Text("🇨🇮", fontSize = 18.sp, modifier = Modifier.offset(x = (-18).dp, y = (-30).dp))
+                        Text("🇨🇮", fontSize = 34.sp, modifier = Modifier.offset(x = (-24).dp, y = (-42).dp))
                     }
                 }
                 val tvAppContext = LocalContext.current
@@ -136,10 +136,10 @@ fun LoginScreen(s: AppState) {
                     modifier = Modifier.align(Alignment.BottomEnd).padding(end = 12.dp, bottom = 8.dp))
             }
             Column(
-                Modifier.align(Alignment.TopCenter)
-                    .widthIn(max = if (tvLayout) 480.dp else 560.dp)
+                Modifier.align(if (tvLayout) Alignment.TopEnd else Alignment.TopCenter)
+                    .widthIn(max = if (tvLayout) 470.dp else 560.dp)
                     .fillMaxWidth()
-                    .padding(top = if (tvLayout) 168.dp else 0.dp)
+                    .padding(top = if (tvLayout) 16.dp else 0.dp)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -182,20 +182,20 @@ fun LoginScreen(s: AppState) {
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Column(Modifier.fillMaxWidth().padding(if (tvLayout) 4.dp else if (wide) 22.dp else 16.dp)) {
-                    Text("Bienvenue", fontSize = if (tvLayout) 34.sp else 23.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF123D30), maxLines = 1, modifier = Modifier.align(Alignment.CenterHorizontally))
-                    Text("Accédez à vos chaînes, films et séries.", color = c.onSurfaceVariant, fontSize = if (tvLayout) 15.sp else 13.sp, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp, bottom = 18.dp))
-                    Text("Identifiants", color = c.onSurface, fontSize = 15.sp,
+                    Text("Bienvenue", fontSize = if (tvLayout) 42.sp else 23.sp, fontWeight = FontWeight.ExtraBold, color = if (tvLayout) Color.White else Color(0xFF123D30), maxLines = 1, modifier = Modifier.align(Alignment.CenterHorizontally))
+                    Text("Accédez à vos chaînes, films et séries.", color = if (tvLayout) Color(0xFFD7E9FF) else c.onSurfaceVariant, fontSize = if (tvLayout) 15.sp else 13.sp, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp, bottom = 18.dp))
+                    Text("Identifiants", color = if (tvLayout) Color.White else c.onSurface, fontSize = if (tvLayout) 19.sp else 15.sp,
                         fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 4.dp))
                     OutlinedTextField(s.user, { s.saveUsername(it) }, f, singleLine = true,
                         shape = field, label = { Text("Nom d'utilisateur") },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF9D3C16),
-                            unfocusedBorderColor = Color(0xFF275A4A),
+                            focusedBorderColor = if (tvLayout) Color(0xFFFFC928) else Color(0xFF9D3C16),
+                            unfocusedBorderColor = if (tvLayout) Color(0xFFE5F4FF) else Color(0xFF275A4A),
                             focusedLabelColor = Color(0xFF71311E)))
                     OutlinedTextField(s.pass, { s.pass = it },
                         f.onFocusChanged { if (it.isFocused && s.hasSavedBiometricAccount()) requestBiometric() },
                         singleLine = true, shape = field, label = { Text("Mot de passe") },
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF9D3C16), unfocusedBorderColor = Color(0xFF275A4A)),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = if (tvLayout) Color(0xFFFFC928) else Color(0xFF9D3C16), unfocusedBorderColor = if (tvLayout) Color(0xFFE5F4FF) else Color(0xFF275A4A)),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
@@ -224,8 +224,8 @@ fun LoginScreen(s: AppState) {
                         onClick = { s.mode = 0; s.connect() },
                         modifier = Modifier.fillMaxWidth().padding(top = 12.dp).height(if (tvLayout) 52.dp else if (wide) 52.dp else 48.dp),
                         shape = RoundedCornerShape(28.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF1F2F1), contentColor = c.onSurface),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCDD1CD)),
+                        colors = ButtonDefaults.buttonColors(containerColor = if (tvLayout) Color(0xFF0075F5) else Color(0xFFF1F2F1), contentColor = if (tvLayout) Color.White else c.onSurface),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, if (tvLayout) Color(0xFF35D9FF) else Color(0xFFCDD1CD)),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
                     ) { Text("▶  Se connecter", fontSize = 15.sp, fontWeight = FontWeight.SemiBold) }
                     Spacer(Modifier.height(10.dp))
