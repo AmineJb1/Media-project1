@@ -814,12 +814,12 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                             val channelScrollScope = rememberCoroutineScope()
                             // Restore focus to the channel that was playing when leaving fullscreen.
                             // Only use the preview ID if it belongs to the currently opened bouquet.
-                            val initialChannelId = remember(s.group, s.previewChannelId) {
-                                visibleItems.firstOrNull { it.id == s.previewChannelId }?.id
-                                    ?: visibleItems.firstOrNull { !it.name.trimStart().startsWith("##") }?.id
+                            val initialChannelId = remember(s.group) {
+                                visibleItems.firstOrNull { !it.name.trimStart().startsWith("##") }?.id
                                     ?: visibleItems.firstOrNull()?.id
                             }
                             val initialChannel = visibleItems.firstOrNull { it.id == initialChannelId }
+                            val channelFocusRequesters = remember(s.group) { mutableMapOf<String, FocusRequester>() }
                             LaunchedEffect(s.group, settingsOpen) {
                                 if (!settingsOpen && s.group != null && initialChannel != null && focusedChannelId == null) {
                                     val index = visibleItems.indexOfFirst { it.id == initialChannel.id }
