@@ -483,7 +483,29 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     }
                 }
             }
-            if (s.episodes != null && s.section == 3) {
+            if (s.section == 4 && list.none { it.url in favUrls }) {
+                Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Column(
+                        Modifier.widthIn(max = 460.dp)
+                            .clip(RoundedCornerShape(22.dp))
+                            .background(Color.White.copy(alpha = 0.96f))
+                            .border(1.5.dp, Color(0xFFB5D8C6), RoundedCornerShape(22.dp))
+                            .padding(horizontal = 28.dp, vertical = 30.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Icon(Icons.Filled.Star, contentDescription = null,
+                            tint = Color(0xFF176247), modifier = Modifier.size(44.dp))
+                        Text("Aucun favori pour le moment", fontWeight = FontWeight.Bold,
+                            color = Color(0xFF153F31), fontSize = 20.sp, textAlign = TextAlign.Center)
+                        Text("Pour retrouver facilement une chaîne, ajoutez-la à vos favoris depuis la liste des chaînes.",
+                            color = Color(0xFF466257), fontSize = 14.sp, textAlign = TextAlign.Center)
+                        OutlinedButton(onClick = { s.section = 0; s.group = null }) {
+                            Text("Découvrir les chaînes", color = Color(0xFF145A43))
+                        }
+                    }
+                }
+            } else if (s.episodes != null && s.section == 3) {
                 Column(Modifier.weight(1f)) {
                     TextButton(onClick = { s.closeEpisodes() }) {
                         Text("‹  Retour aux séries", color = Color(0xFF15523B),
