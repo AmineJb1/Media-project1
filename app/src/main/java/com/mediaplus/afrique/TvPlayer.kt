@@ -2,7 +2,6 @@
 package com.mediaplus.afrique
 
 import android.content.Context
-import android.media.AudioManager
 import android.app.Activity
 import android.view.View
 import androidx.compose.ui.platform.LocalView
@@ -53,7 +52,6 @@ fun TvPlayer(s: AppState) {
     val ctx = LocalContext.current
     val configuration = LocalConfiguration.current
     val portrait = configuration.screenHeightDp > configuration.screenWidthDp
-    val audio = remember { ctx.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
     val view = LocalView.current
     DisposableEffect(view) {
         val decor = (ctx as? Activity)?.window?.decorView
@@ -85,10 +83,12 @@ fun TvPlayer(s: AppState) {
     }
     val focusRequester = remember { FocusRequester() }
     val drawerFocusRequester = remember { FocusRequester() }
-    LaunchedEffect(menuVisible) {
-        if (menuVisible) drawerFocusRequester.requestFocus() else focusRequester.requestFocus()
+    LaunchedEffect(menuVisible, settingsVisible) {
+        // Wait for the target to enter the composition before requesting TV focus.
+        kotlinx.coroutines.yield()
+        if (menuVisible && !settingsVisible) drawerFocusRequester.requestFocus()
+        else if (!settingsVisible) focusRequester.requestFocus()
     }
-    LaunchedEffect(Unit) { focusRequester.requestFocus() }
     var videoSize by remember { mutableStateOf(VideoSize.UNKNOWN) }
     var epg by remember { mutableStateOf<List<Prog>>(emptyList()) }
     var epgError by remember { mutableStateOf(false) }
@@ -152,39 +152,12 @@ fun TvPlayer(s: AppState) {
             catch (_: Exception) { epgError = true }
         }
     }
-    // Coalesce fast remote presses: only prepare the final requested stream.
-    var pendingChannelIndex by remember { mutableIntStateOf(-1) }
-    var pendingChannelKey by remember { mutableStateOf<String?>(null) }
-    LaunchedEffect(channels) {
-        pendingChannelIndex = -1
-        pendingChannelKey = null
-    }
-    LaunchedEffect(pendingChannelIndex, pendingChannelKey) {
-        val index = pendingChannelIndex
-        if (index >= 0 && index < channels.size) {
-            delay(450)
-            val target = channels[index]
-            pendingChannelIndex = -1
-            pendingChannelKey = null
-            if (target.id != s.playingChannel?.id) s.playLive(target)
-        }
-    }
-    fun changeChannel(delta: Int) {
-        if (channels.isEmpty()) return
-        val currentIndex = channels.indexOfFirst { it.id == channel?.id }.coerceAtLeast(0)
-        val base = if (pendingChannelIndex in channels.indices) pendingChannelIndex else currentIndex
-        pendingChannelIndex = (base + delta + channels.size) % channels.size
-        pendingChannelKey = channels[pendingChannelIndex].id
-        infoVisible = true
-    }
     Box(
         Modifier.fillMaxSize().background(Color.Black)
             .onPreviewKeyEvent { event ->
                 if (event.type != KeyEventType.KeyDown) false else when (event.key) {
-                    Key.DirectionUp -> { if (menuVisible) false else { changeChannel(-1); true } }
-                    Key.DirectionDown -> { if (menuVisible) false else { changeChannel(1); true } }
-                    Key.DirectionLeft -> { if (menuVisible) false else { audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI); true } }
-                    Key.DirectionRight -> { if (menuVisible) false else { audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI); true } }
+                    // Do not switch channels or change volume with directional keys in fullscreen.
+                    Key.DirectionUp, Key.DirectionDown, Key.DirectionLeft, Key.DirectionRight -> false
                     Key.DirectionCenter, Key.Enter, Key.NumPadEnter -> {
                         if (menuVisible || settingsVisible) false
                         else { settingsVisible = false; infoVisible = true; menuVisible = true; selectedBouquet = initialBouquet; drawerTab = 1; true }
@@ -237,6 +210,8 @@ fun TvPlayer(s: AppState) {
             val availableGroups = remember(observedTracksRevision) { player.currentTracks.groups }
             val audioGroups = availableGroups.filter { it.type == C.TRACK_TYPE_AUDIO }
             val textGroups = availableGroups.filter { it.type == C.TRACK_TYPE_TEXT }
+        }
+        if (menuVisible && !settingsVisible) {
             Surface(
                 modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(0.84f).fillMaxWidth(0.62f),
                 color = Color(0xF0152119),
