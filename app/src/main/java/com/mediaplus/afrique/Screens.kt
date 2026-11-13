@@ -133,14 +133,14 @@ fun LoginScreen(s: AppState) {
         ) {
             if (tvLayout) {
                 Column(
-                    Modifier.align(Alignment.BottomStart).offset(x = (-42).dp).padding(bottom = 34.dp),
+                    Modifier.align(Alignment.BottomStart).padding(start = 4.dp, bottom = 38.dp),
                     horizontalAlignment = Alignment.Start
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(
                             painter = painterResource(R.drawable.media_plus_brand),
                             contentDescription = "Media+ Afrique",
-                            modifier = Modifier.size(205.dp),
+                            modifier = Modifier.size(170.dp),
                             contentScale = ContentScale.Fit
                         )
                     }
