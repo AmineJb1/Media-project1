@@ -500,6 +500,17 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     end = if (useSideRail) 34.dp else if (wide) 30.dp else 16.dp)) {
             Spacer(Modifier.height(if (landscapeCompact) 2.dp else 14.dp))
             Header(false, s.subscriptionExpirySeconds, compact = useSideRail) { }
+            // Keep the welcome tagline on spacious pages without squeezing TV content.
+            if (!landscapeCompact && !useSideRail) {
+                Text(
+                    "Accédez à vos chaînes, films et séries.",
+                    color = c.onSurfaceVariant,
+                    fontSize = if (wide) 13.sp else 11.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.fillMaxWidth().padding(top = 2.dp, bottom = 2.dp)
+                )
+            }
             Spacer(Modifier.height(if (landscapeCompact) 1.dp else 5.dp))
             if (settingsOpen) {
                 SettingsScreen(s, settingsPage, onSettingsPage, Modifier.weight(1f))
