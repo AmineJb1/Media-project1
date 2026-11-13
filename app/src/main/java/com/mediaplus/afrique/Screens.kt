@@ -35,8 +35,6 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.unit.sp
@@ -226,9 +224,9 @@ fun LoginScreen(s: AppState) {
                         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
                             IconButton(onClick = { showPassword = !showPassword }, modifier = Modifier.size(52.dp).border(1.5.dp, Color(0xFF447F69), RoundedCornerShape(12.dp))) {
-                                Icon(if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                    contentDescription = if (showPassword) "Masquer le mot de passe" else "Afficher le mot de passe",
-                                    tint = Color(0xFF102C54))
+                                Text(if (showPassword) "◉" else "◎",
+                                    color = Color(0xFF102C54), fontSize = 27.sp,
+                                    fontWeight = FontWeight.Bold)
                             }
                         })
                     AnimatedVisibility(s.mode == 0 && (s.status.startsWith("Erreur", ignoreCase = true) || s.status == "Abonnement Expiré")) {
