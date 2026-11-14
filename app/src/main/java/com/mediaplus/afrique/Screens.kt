@@ -828,9 +828,9 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                         Column(Modifier.fillMaxWidth().height(cardHeight)
                                             .onFocusChanged { cardFocused = it.isFocused }
                                             .clip(cardShape)
-                                            .background(if (cardFocused) Color(0xFFD6EAE0) else Color.White.copy(alpha = 0.88f))
-                                            .border(if (cardFocused) 4.dp else 2.dp,
-                                                if (cardFocused) Color(0xFF145A43) else Color(0xFFB2C9C3), cardShape)
+                                            .background(if (cardFocused) Color(0xFF064B34) else Color.White.copy(alpha = 0.88f))
+                                            .border(if (cardFocused) 5.dp else 2.dp,
+                                                if (cardFocused) Color(0xFF45F59A) else Color(0xFFB2C9C3), cardShape)
                                              .then(if (groupName == lastBouquet) Modifier.focusRequester(restoreBouquetFocus) else Modifier)
                                             .then(if (groupName == (groups.firstOrNull { it.contains("Côte d’Ivoire", ignoreCase = true) || it.contains("Cote d'Ivoire", ignoreCase = true) } ?: groups.firstOrNull())) Modifier.focusRequester(firstBouquetFocus) else Modifier)
                                             .clickable { lastBouquet = groupName; s.requestGroup(groupName) }
@@ -840,7 +840,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                                     Text(bouquetIcon(groupName), fontSize = if (tvWide) 37.sp else 28.sp)
                                                     Spacer(Modifier.height(6.dp))
                                                     Text(groupName, fontSize = if (tvWide) 19.sp else 15.sp,
-                                                        maxLines = 3, color = Color(0xFF17332B), textAlign = TextAlign.Center,
+                                                        maxLines = 3, color = if (cardFocused) Color.White else Color(0xFF17332B), textAlign = TextAlign.Center,
                                                         fontWeight = FontWeight.Bold,
                                                         lineHeight = if (tvWide) 24.sp else 19.sp)
                                                 }
@@ -848,7 +848,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                                                 horizontalArrangement = Arrangement.SpaceBetween) {
                                                 Text("Explorer  →", fontSize = 12.sp, fontWeight = FontWeight.Bold,
-                                                    color = Color(0xFF15523B))
+                                                    color = if (cardFocused) Color.White else Color(0xFF15523B))
                                                 Text("● LIVE", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold,
                                                     color = Color(0xFFD51D27))
                                             }
