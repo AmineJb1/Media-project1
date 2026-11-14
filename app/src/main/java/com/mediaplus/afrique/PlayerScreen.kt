@@ -9,6 +9,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import android.view.View
+import android.graphics.drawable.GradientDrawable
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
@@ -48,6 +50,30 @@ fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Mod
             this.player = player
             keepScreenOn = true
             useController = showControls
+            if (showControls) {
+                controllerShowTimeoutMs = 8000
+                controllerAutoShow = true
+                val density = resources.displayMetrics.density
+                findViewById<View>(androidx.media3.ui.R.id.exo_bottom_bar)?.apply {
+                    minimumHeight = (96 * density).toInt()
+                    setPadding((14 * density).toInt(), (12 * density).toInt(), (14 * density).toInt(), (16 * density).toInt())
+                    setBackgroundColor(android.graphics.Color.argb(205, 9, 27, 24))
+                }
+                val seek = findViewById<View>(androidx.media3.ui.R.id.exo_progress)
+                val settings = findViewById<View>(androidx.media3.ui.R.id.exo_settings)
+                listOfNotNull(seek, settings).forEach { control ->
+                    control.isFocusable = true
+                    control.setOnFocusChangeListener { v, focused ->
+                        v.background = if (focused) GradientDrawable().apply {
+                            setColor(android.graphics.Color.argb(190, 4, 91, 54))
+                            setStroke((3 * density).toInt(), android.graphics.Color.rgb(44, 255, 134))
+                            cornerRadius = 12 * density
+                        } else null
+                    }
+                }
+                settings?.nextFocusLeftId = androidx.media3.ui.R.id.exo_progress
+                seek?.nextFocusRightId = androidx.media3.ui.R.id.exo_settings
+            }
             resizeMode = if (showControls) AspectRatioFrameLayout.RESIZE_MODE_ZOOM else AspectRatioFrameLayout.RESIZE_MODE_FIT
             setBackgroundColor(android.graphics.Color.BLACK)
             layoutParams = android.widget.FrameLayout.LayoutParams(-1, -1)
