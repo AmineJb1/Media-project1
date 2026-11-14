@@ -251,6 +251,13 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     var playing by mutableStateOf<String?>(null)
     var playingChannel by mutableStateOf<Item?>(null)
     var lastEpisodeUrl by mutableStateOf<String?>(null)
+    var pendingResumeItem by mutableStateOf<Item?>(null)
+    fun chooseResume(continuePlayback: Boolean) {
+        val item = pendingResumeItem ?: return
+        pendingResumeItem = null
+        if (!continuePlayback) savePosition(item.url, 0L, 0L)
+        startVodPlayback(item)
+    }
     private fun resumeKey(url: String) = "resume_" + url.hashCode().toUInt().toString(16)
     fun resumePosition(url: String): Long = prefs.getLong(resumeKey(url), 0L)
     fun savePosition(url: String, position: Long, duration: Long) {
@@ -526,13 +533,21 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
                 if (episodeSeries?.id == i.id) episodes = loaded
             }
         } else {
-            if (i.kind == 1 || i.kind == 3) rememberVod(i)
-            if (i.kind == 3) lastEpisodeUrl = i.url
-            scope.launch {
-                try {
-                    playing = if (mode == 1 && i.kind == 0) withContext(Dispatchers.IO) { stalker!!.resolve(i.url) } else i.url
-                } catch (e: Exception) { status = "Erreur : ${e.message}" }
+            if ((i.kind == 1 || i.kind == 3) && resumePosition(i.url) > 5000L) {
+                pendingResumeItem = i
+            } else {
+                startVodPlayback(i)
             }
+        }
+    }
+
+    private fun startVodPlayback(i: Item) {
+        if (i.kind == 1 || i.kind == 3) rememberVod(i)
+        if (i.kind == 3) lastEpisodeUrl = i.url
+        scope.launch {
+            try {
+                playing = if (mode == 1 && i.kind == 0) withContext(Dispatchers.IO) { stalker!!.resolve(i.url) } else i.url
+            } catch (e: Exception) { status = "Erreur : ${e.message}" }
         }
     }
 
