@@ -929,11 +929,18 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                     val channelIndex = visibleItems.indexOfFirst { it.id == item.id }
                                     var channelFocused by remember { mutableStateOf(false) }
                                     val previewSelected = s.previewChannelId == item.id
+                                    val favoriteFocusRequester = remember(item.id) { FocusRequester() }
                                     Row(
                                         Modifier.fillMaxWidth().height(if (tvWide) 65.dp else 58.dp)
                                             .onFocusChanged {
                                                 channelFocused = it.isFocused
                                                 if (it.isFocused) focusedChannelId = item.id
+                                            }
+                                            .onPreviewKeyEvent { event ->
+                                                if (event.type == KeyEventType.KeyDown && event.key == Key.DirectionRight) {
+                                                    runCatching { favoriteFocusRequester.requestFocus() }
+                                                    true
+                                                } else false
                                             }
                                             .clip(RoundedCornerShape(12.dp))
                                             .background(if (channelFocused) Color(0xFF0B4F32)
@@ -974,6 +981,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                         }
                                         Box(
                                             Modifier.size(39.dp)
+                                                .focusRequester(favoriteFocusRequester)
                                                 .clip(RoundedCornerShape(9.dp))
                                                 .background(if (item.url in favUrls) Color(0xFFFFE2A0) else Color.White.copy(alpha = .75f))
                                                 .border(1.5.dp, Color(0xFFD39A32), RoundedCornerShape(9.dp))
