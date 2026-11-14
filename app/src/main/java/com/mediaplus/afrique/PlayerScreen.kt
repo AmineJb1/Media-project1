@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import android.view.View
+import android.view.KeyEvent
 import android.graphics.drawable.GradientDrawable
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
@@ -46,13 +47,30 @@ fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Mod
         player.playWhenReady = true
     }
     AndroidView(
-        factory = { PlayerView(it).apply {
+        factory = { object : PlayerView(it) {
+            override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+                if (showControls && event.keyCode == KeyEvent.KEYCODE_DPAD_CENTER &&
+                    event.action == KeyEvent.ACTION_DOWN && !isControllerFullyVisible && player?.isPlaying == true) {
+                    player?.pause()
+                    controllerShowTimeoutMs = 0
+                    showController()
+                    return true
+                }
+                return super.dispatchKeyEvent(event)
+            }
+        }.apply {
             this.player = player
             keepScreenOn = true
             useController = showControls
             if (showControls) {
-                controllerShowTimeoutMs = 8000
+                controllerShowTimeoutMs = 5000
                 controllerAutoShow = true
+                val playButton = findViewById<View>(androidx.media3.ui.R.id.exo_play)
+                playButton?.setOnClickListener {
+                    player.play()
+                    controllerShowTimeoutMs = 5000
+                    showController()
+                }
                 val density = resources.displayMetrics.density
                 findViewById<View>(androidx.media3.ui.R.id.exo_bottom_bar)?.apply {
                     minimumHeight = (96 * density).toInt()
