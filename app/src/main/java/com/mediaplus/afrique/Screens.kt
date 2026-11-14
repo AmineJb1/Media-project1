@@ -444,8 +444,9 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
         val landscapeCompact = maxWidth > maxHeight && maxHeight < 560.dp
         val tvWide = maxWidth >= 900.dp && maxHeight >= 560.dp
         val useSideRail = landscapeCompact || tvWide
+        val episodeFullscreen = s.episodes != null && s.section == 3 && !settingsOpen
         Row(Modifier.fillMaxSize()) {
-            if (useSideRail) {
+            if (useSideRail && !episodeFullscreen) {
                 Column(Modifier.width(if (tvWide) 188.dp else 154.dp).fillMaxHeight()
                     .background(Color(0xFFF8FAFC))
                     .border(1.dp, Color(0xFFE0E8EC))
@@ -507,12 +508,14 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 }
             }
             Column(Modifier.weight(1f).fillMaxHeight()
-                .padding(start = if (useSideRail) 14.dp else if (wide) 30.dp else 16.dp,
-                    end = if (useSideRail) 34.dp else if (wide) 30.dp else 16.dp)) {
+                .padding(start = if (episodeFullscreen) 0.dp else if (useSideRail) 14.dp else if (wide) 30.dp else 16.dp,
+                    end = if (episodeFullscreen) 0.dp else if (useSideRail) 34.dp else if (wide) 30.dp else 16.dp)) {
+            if (!episodeFullscreen) {
             Spacer(Modifier.height(if (landscapeCompact) 2.dp else 14.dp))
             Header(false, s.subscriptionExpirySeconds, compact = useSideRail) { }
+            }
             // Keep the welcome tagline on spacious pages without squeezing TV content.
-            if (!landscapeCompact && !useSideRail) {
+            if (!episodeFullscreen && !landscapeCompact && !useSideRail) {
                 Text(
                     "Accédez à vos chaînes, films et séries.",
                     color = c.onSurfaceVariant,
@@ -526,6 +529,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
             if (settingsOpen) {
                 SettingsScreen(s, settingsPage, onSettingsPage, Modifier.weight(1f))
             } else {
+            if (!episodeFullscreen) {
             Row(verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.weight(1f)) { if (s.section != 0 && s.section != 2 && s.section != 3) Text(
                 when (s.section) { 2 -> "Films"; 3 -> "Séries"; 4 -> "Mes favoris"; else -> "" },
@@ -542,7 +546,8 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 }
             }
             }
-            if (searchOpen) OutlinedTextField(
+            }
+            if (!episodeFullscreen && searchOpen) OutlinedTextField(
                 value = s.query,
                 onValueChange = { s.query = it },
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
@@ -562,7 +567,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     cursorColor = Color(0xFF0B4F32)
                 )
             )
-            if (!useSideRail) Text("Vos chaînes et vos contenus", color = c.onSurfaceVariant,
+            if (!episodeFullscreen && !useSideRail) Text("Vos chaînes et vos contenus", color = c.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium)
             Spacer(Modifier.height(if (useSideRail && s.section == 0) 0.dp else 5.dp))
             if (s.group != null && s.section != 4 && !(useSideRail && s.section == 0) && s.section != 2 && s.section != 3) {
@@ -570,10 +575,10 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                     Text(if (landscapeCompact) "‹  Bouquets" else "‹  Retour aux catégories", color = Color(0xFF154A36), fontWeight = FontWeight.SemiBold, fontSize = if (landscapeCompact) 12.sp else 14.sp)
                 }
             }
-            if (s.status.isNotEmpty()) {
+            if (!episodeFullscreen && s.status.isNotEmpty()) {
                 Text(s.status, color = c.secondary, style = MaterialTheme.typography.bodySmall)
             }
-            if (s.section == 2 || s.section == 3) {
+            if (!episodeFullscreen && (s.section == 2 || s.section == 3)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.End)) {
                     OutlinedButton(onClick = { s.refreshCatalog() }, contentPadding = PaddingValues(horizontal = 10.dp)) { Text("↻ Actualiser", color = Color(0xFF154A36), maxLines = 1, fontSize = 12.sp) }
@@ -622,6 +627,13 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
             } else if (s.episodes != null && s.section == 3) {
                 val episodes = s.episodes.orEmpty()
                 val seriesImage = s.episodeSeries?.logo.orEmpty()
+                val firstEpisodeRequester = remember { FocusRequester() }
+                LaunchedEffect(s.episodeSeries?.id, episodes.size) {
+                    if (episodes.isNotEmpty()) {
+                        kotlinx.coroutines.delay(180)
+                        runCatching { firstEpisodeRequester.requestFocus() }
+                    }
+                }
                 Box(Modifier.weight(1f).fillMaxWidth().clipToBounds()) {
                     if (seriesImage.startsWith("http")) {
                         AsyncImage(
@@ -636,14 +648,14 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                         ))
                     ))
                     Column(
-                        Modifier.fillMaxSize().padding(horizontal = 22.dp, vertical = 14.dp),
+                        Modifier.fillMaxSize().padding(horizontal = 28.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(9.dp)
                     ) {
                         TextButton(onClick = { s.closeEpisodes() }) {
                             Text("‹  Retour aux séries", color = Color.White,
                                 fontWeight = FontWeight.SemiBold)
                         }
-                        Text(s.episodeSeries?.name ?: "Épisodes", fontSize = 26.sp,
+                        Text(s.episodeSeries?.name ?: "Épisodes", fontSize = 24.sp,
                             fontWeight = FontWeight.Bold, color = Color.White,
                             maxLines = 2, overflow = TextOverflow.Ellipsis)
                         Text("${episodes.size} épisodes", fontSize = 13.sp,
@@ -656,7 +668,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                         } else {
                             LazyColumn(
                                 modifier = Modifier.weight(1f).widthIn(max = 900.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp),
                                 contentPadding = PaddingValues(bottom = 18.dp)
                             ) {
                                 items(episodes.size, key = { index -> index }) { index ->
@@ -665,6 +677,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                     val episodeShape = RoundedCornerShape(14.dp)
                                     Row(
                                         Modifier.fillMaxWidth()
+                                            .then(if (index == 0) Modifier.focusRequester(firstEpisodeRequester) else Modifier)
                                             .clip(episodeShape)
                                             .background(if (episodeFocused) Color(0xFF104D37)
                                                 else Color(0xC9243D38))
@@ -673,12 +686,12 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                                 else Color.White.copy(alpha = .20f), episodeShape)
                                             .onFocusChanged { episodeFocused = it.isFocused }
                                             .clickable { s.pick(episode) }
-                                            .padding(horizontal = 12.dp, vertical = 9.dp),
+                                            .padding(horizontal = 12.dp, vertical = 6.dp),
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(14.dp)
                                     ) {
                                         Box(
-                                            Modifier.width(132.dp).height(74.dp)
+                                            Modifier.width(122.dp).height(68.dp)
                                                 .clip(RoundedCornerShape(9.dp))
                                                 .background(Color(0xFF2D5145)),
                                             contentAlignment = Alignment.Center
