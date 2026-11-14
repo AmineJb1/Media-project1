@@ -511,7 +511,8 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
             rememberVod(i)
             episodeSeries = i
             episodes = emptyList()
-            group = null; query = ""
+            // Preserve the series category so Back returns to the previous list.
+            query = ""
             fetch {
                 val loaded = withContext(Dispatchers.IO) { xt().episodes(i.url) }
                 if (episodeSeries?.id == i.id) episodes = loaded
@@ -565,7 +566,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
             selectedVod != null -> closeVodDetails()
             previewChannelId != null -> clearPreview()
             query.isNotEmpty() -> query = ""
-            episodes != null -> { closeEpisodes(); group = null }
+            episodes != null -> closeEpisodes()
             group != null -> group = null
             !showLogin -> showLogin = true
         }
