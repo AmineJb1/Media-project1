@@ -870,8 +870,20 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                                 horizontalArrangement = Arrangement.SpaceBetween) {
                                                 Text("Explorer  →", fontSize = 12.sp, fontWeight = FontWeight.Bold,
                                                     color = if (cardFocused) Color.White else Color(0xFF15523B))
-                                                Text("● LIVE", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold,
-                                                    color = Color(0xFFD51D27))
+                                                Surface(
+                                                    color = Color(0xFFC62828),
+                                                    shape = RoundedCornerShape(6.dp)
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                        horizontalArrangement = Arrangement.spacedBy(5.dp)
+                                                    ) {
+                                                        Box(Modifier.size(6.dp).background(Color.White, RoundedCornerShape(50)))
+                                                        Text("LIVE", fontSize = 10.sp, fontWeight = FontWeight.Bold,
+                                                            color = Color.White)
+                                                    }
+                                                }
                                             }
                                         }
                                     }
