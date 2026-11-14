@@ -581,15 +581,36 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
             if (!episodeFullscreen && (s.section == 2 || s.section == 3)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.End)) {
-                    OutlinedButton(onClick = { s.refreshCatalog() }, contentPadding = PaddingValues(horizontal = 10.dp)) { Text("↻ Actualiser", color = Color(0xFF154A36), maxLines = 1, fontSize = 12.sp) }
+                    var refreshFocused by remember { mutableStateOf(false) }
+                    OutlinedButton(
+                        onClick = { s.refreshCatalog() },
+                        modifier = Modifier.onFocusChanged { refreshFocused = it.isFocused },
+                        contentPadding = PaddingValues(horizontal = 14.dp),
+                        border = BorderStroke(if (refreshFocused) 3.dp else 1.dp,
+                            if (refreshFocused) Color(0xFF45F59A) else Color(0xFFB8D4C5)),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = if (refreshFocused) Color(0xFF064B34) else Color.White.copy(alpha = .9f))
+                    ) {
+                        Text("↻ Actualiser", color = if (refreshFocused) Color.White else Color(0xFF154A36),
+                            fontWeight = FontWeight.Bold, maxLines = 1, fontSize = 14.sp)
+                    }
                     var sortOpen by remember { mutableStateOf(false) }
+                    var sortFocused by remember { mutableStateOf(false) }
                     Box {
-                        OutlinedButton(onClick = { sortOpen = true }) {
+                        OutlinedButton(
+                            onClick = { sortOpen = true },
+                            modifier = Modifier.onFocusChanged { sortFocused = it.isFocused },
+                            border = BorderStroke(if (sortFocused) 3.dp else 1.dp,
+                                if (sortFocused) Color(0xFF45F59A) else Color(0xFFB8D4C5)),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = if (sortFocused) Color(0xFF064B34) else Color.White.copy(alpha = .9f))
+                        ) {
                             Text("Trier : " + when (s.vodSort) {
                                 1 -> "Récents"
                                 2 -> "A-Z"
                                 else -> "Défaut"
-                            }, maxLines = 1, fontSize = 12.sp, color = Color(0xFF154A36))
+                            }, maxLines = 1, fontSize = 14.sp, fontWeight = FontWeight.Bold,
+                                color = if (sortFocused) Color.White else Color(0xFF154A36))
                         }
                         DropdownMenu(expanded = sortOpen, onDismissRequest = { sortOpen = false }) {
                             listOf("Par défaut", "Récemment ajouté", "A-Z").forEachIndexed { index, label ->
@@ -1159,9 +1180,9 @@ private fun VodIconTile(title: String, poster: String, isBouquet: Boolean, isCon
         modifier.fillMaxWidth()
             .onFocusChanged { tileFocused = it.isFocused }
             .clip(tileShape)
-            .background(if (isBouquet && tileFocused) Color(0xFF064B34) else Color.White.copy(alpha = .95f))
-            .border(if (isBouquet && tileFocused) 4.dp else 1.dp,
-                if (isBouquet && tileFocused) Color(0xFF45F59A) else Color(0xFFD6E6DC), tileShape)
+            .background(if (tileFocused) Color(0xFF064B34) else Color.White.copy(alpha = .95f))
+            .border(if (tileFocused) 4.dp else 1.dp,
+                if (tileFocused) Color(0xFF45F59A) else Color(0xFFD6E6DC), tileShape)
             .clickable(onClick = onClick).padding(7.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -1213,9 +1234,10 @@ private fun VodIconTile(title: String, poster: String, isBouquet: Boolean, isCon
                 }
             }
             Spacer(Modifier.height(7.dp))
-            Text(title, color = Color(0xFF173D2E), fontWeight = FontWeight.SemiBold,
-                fontSize = 12.sp, maxLines = 2, overflow = TextOverflow.Ellipsis,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center, lineHeight = 16.sp)
+            Text(title, color = if (tileFocused) Color.White else Color(0xFF173D2E),
+                fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center, lineHeight = 18.sp)
         }
     }
 }
