@@ -11,6 +11,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import android.view.View
 import android.view.KeyEvent
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.graphics.drawable.GradientDrawable
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
@@ -70,10 +72,13 @@ fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Mod
                      event.keyCode == KeyEvent.KEYCODE_ENTER ||
                      event.keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER) &&
                     !isControllerFullyVisible) {
-                    if (player?.isPlaying == true) player?.pause()
-                    controllerShowTimeoutMs = if (player?.isPlaying == true) 5000 else 0
+                    player?.pause()
+                    controllerShowTimeoutMs = 0
                     showController()
-                    findViewById<View>(androidx.media3.ui.R.id.exo_play_pause)?.requestFocus()
+                    post {
+                        findViewById<View>(androidx.media3.ui.R.id.exo_play_pause)?.requestFocus()
+                            ?: findViewById<View>(androidx.media3.ui.R.id.exo_play)?.requestFocus()
+                    }
                     return true
                 }
                 return super.dispatchKeyEvent(event)
@@ -96,9 +101,9 @@ fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Mod
                 }
                 val density = resources.displayMetrics.density
                 findViewById<View>(androidx.media3.ui.R.id.exo_bottom_bar)?.apply {
-                    minimumHeight = (96 * density).toInt()
-                    setPadding((14 * density).toInt(), (12 * density).toInt(), (14 * density).toInt(), (16 * density).toInt())
-                    setBackgroundColor(android.graphics.Color.argb(205, 9, 27, 24))
+                    minimumHeight = (112 * density).toInt()
+                    setPadding((18 * density).toInt(), (16 * density).toInt(), (18 * density).toInt(), (20 * density).toInt())
+                    setBackgroundColor(android.graphics.Color.argb(215, 9, 25, 46))
                 }
                 val seek = findViewById<View>(androidx.media3.ui.R.id.exo_progress)
                 val settings = findViewById<View>(androidx.media3.ui.R.id.exo_settings)
@@ -108,11 +113,11 @@ fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Mod
                 seek?.isFocusable = true
                 seek?.setOnFocusChangeListener(null)
                 seek?.background = null
-                settings?.isFocusable = true
+                settings?.apply { isFocusable = true; minimumWidth = (52 * density).toInt(); minimumHeight = (52 * density).toInt(); setPadding((8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt()) }
                 settings?.setOnFocusChangeListener { v, focused ->
                     v.background = if (focused) GradientDrawable().apply {
-                        setColor(android.graphics.Color.argb(190, 4, 91, 54))
-                        setStroke((3 * density).toInt(), android.graphics.Color.rgb(44, 255, 134))
+                        setColor(android.graphics.Color.argb(190, 15, 78, 160))
+                        setStroke((3 * density).toInt(), android.graphics.Color.rgb(70, 164, 255))
                         cornerRadius = 12 * density
                     } else null
                 }
