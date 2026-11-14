@@ -785,7 +785,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 ) {
                     if (s.group == null && s.query.isBlank()) {
                         item {
-                            VodIconTile("Continuez à Regarder", "", true, isContinue = true,
+                            VodIconTile("▶ Reprendre mes lectures (" + resume.size + ")", "", true, isContinue = true,
                                 modifier = Modifier.focusRequester(firstVodFocus)) {
                                 s.group = "Continuez à Regarder"
                             }
@@ -1345,7 +1345,7 @@ private fun VodDetailsPage(s: AppState) {
                         Icon(Icons.Filled.PlayArrow, contentDescription = null,
                             modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(5.dp))
-                        Text(if (item.kind == 2) "Voir les épisodes" else "Lancer le film",
+                        Text(if (item.kind == 2) "Voir les épisodes" else if (s.resumePosition(item.url) > 5000L) "▶ Reprendre / Recommencer" else "Lancer le film",
                             fontSize = 12.sp, maxLines = 1)
                     }
                     OutlinedButton(onClick = { s.toggleFav(item) },
