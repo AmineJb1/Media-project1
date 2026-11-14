@@ -72,7 +72,7 @@ fun App() {
 
     BackHandler(enabled = s.pendingResumeItem != null) { s.pendingResumeItem = null }
     BackHandler(enabled = confirmExit) { confirmExit = false }
-    BackHandler(enabled = !confirmExit && (s.playing != null || !s.showLogin)) {
+    BackHandler(enabled = !confirmExit && s.pendingResumeItem == null && (s.playing != null || !s.showLogin)) {
         if (settingsOpen && settingsPage != null) {
             settingsPage = if (settingsPage == "Ajouter un compte") "Mon compte" else null
         } else if (settingsOpen) {
