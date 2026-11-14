@@ -1,7 +1,6 @@
 package com.mediaplus.afrique
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.BorderStroke
@@ -201,7 +200,7 @@ fun LoginScreen(s: AppState) {
             }
             Spacer(Modifier.height(if (tvLayout) 8.dp else if (wide) 14.dp else 9.dp))
             Card(
-                Modifier.fillMaxWidth().animateContentSize()
+                Modifier.fillMaxWidth()
                     ,
                 shape = RoundedCornerShape(26.dp),
                 colors = CardDefaults.cardColors(containerColor = if (tvLayout) Color.Transparent else Color.White.copy(alpha = .88f)),
@@ -473,7 +472,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                         val selected = navFocused
                         val bottleGreen = Color(0xFF0B4F32)
                         Row(Modifier.fillMaxWidth()
-                            .shadow(if (selected) 6.dp else 3.dp, RoundedCornerShape(15.dp))
+                            .shadow(if (selected) 3.dp else 0.dp, RoundedCornerShape(15.dp))
                             .clip(RoundedCornerShape(15.dp))
                             .onFocusChanged {
                                 navFocused = it.isFocused
@@ -556,7 +555,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 value = s.query,
                 onValueChange = { s.query = it },
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-                    .shadow(5.dp, RoundedCornerShape(16.dp))
+                    .shadow(1.dp, RoundedCornerShape(16.dp))
                     .background(Color.White, RoundedCornerShape(16.dp)),
                 singleLine = true,
                 shape = RoundedCornerShape(16.dp),
