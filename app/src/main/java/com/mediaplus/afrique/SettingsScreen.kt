@@ -26,6 +26,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.nativeKeyEvent
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -216,36 +223,61 @@ fun SettingsScreen(s: AppState, page: String?, onPage: (String?) -> Unit, modifi
                                     color = Color(0xFF174A35), fontWeight = FontWeight.Bold)
                                 Text("Le code initial est 0000. Saisissez votre code actuel pour le modifier.",
                                     style = MaterialTheme.typography.bodyMedium, color = Color(0xFF334B40))
-                                OutlinedTextField(oldPin, { oldPin = it.filter(Char::isDigit).take(4) },
-                                    label = { Text("Code actuel") },
-                                    visualTransformation = if (showOldPin) VisualTransformation.None else PasswordVisualTransformation(),
-                                    trailingIcon = { TextButton(onClick = { showOldPin = !showOldPin }) {
-                                        Text(if (showOldPin) "Masquer" else "Voir")
-                                    } },
-                                    singleLine = true, modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(18.dp))
-                                OutlinedTextField(newPin, { newPin = it.filter(Char::isDigit).take(4) },
-                                    label = { Text("Nouveau code (4 chiffres)") },
-                                    visualTransformation = if (showNewPin) VisualTransformation.None else PasswordVisualTransformation(),
-                                    trailingIcon = { TextButton(onClick = { showNewPin = !showNewPin }) {
-                                        Text(if (showNewPin) "Masquer" else "Voir")
-                                    } },
-                                    singleLine = true, modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(18.dp))
-                                OutlinedTextField(confirmPin, { confirmPin = it.filter(Char::isDigit).take(4) },
-                                    label = { Text("Confirmer le code") },
-                                    visualTransformation = if (showConfirmPin) VisualTransformation.None else PasswordVisualTransformation(),
-                                    trailingIcon = { TextButton(onClick = { showConfirmPin = !showConfirmPin }) {
-                                        Text(if (showConfirmPin) "Masquer" else "Voir")
-                                    } },
-                                    singleLine = true, modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(18.dp))
+                                // D-pad navigation focuses a field without summoning the IME.
+                                // Press OK to start entering a four-digit PIN.
+                                var editingPin by remember { mutableIntStateOf(-1) }
+                                val pinKeyboard = LocalSoftwareKeyboardController.current
+                                @Composable
+                                fun PinInput(index: Int, value: String, onValue: (String) -> Unit,
+                                             title: String, visible: Boolean, toggle: () -> Unit) {
+                                    var focused by remember { mutableStateOf(false) }
+                                    OutlinedTextField(
+                                        value = value,
+                                        onValueChange = { onValue(it.filter(Char::isDigit).take(4)) },
+                                        label = { Text(title) },
+                                        visualTransformation = if (visible) VisualTransformation.None else PasswordVisualTransformation(),
+                                        trailingIcon = { TextButton(onClick = toggle) {
+                                            Text(if (visible) "Masquer" else "Voir")
+                                        } },
+                                        singleLine = true,
+                                        readOnly = editingPin != index,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                                        modifier = Modifier.fillMaxWidth()
+                                            .onFocusChanged {
+                                                focused = it.isFocused
+                                                if (!it.isFocused && editingPin == index) {
+                                                    editingPin = -1
+                                                    pinKeyboard?.hide()
+                                                }
+                                            }
+                                            .onPreviewKeyEvent { event ->
+                                                if (event.type == KeyEventType.KeyDown &&
+                                                    (event.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_DPAD_CENTER ||
+                                                     event.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_ENTER)) {
+                                                    if (editingPin != index) {
+                                                        editingPin = index
+                                                        pinKeyboard?.show()
+                                                        true
+                                                    } else false
+                                                } else false
+                                            }
+                                            .border(if (focused) 3.dp else 0.dp,
+                                                if (focused) Color(0xFF39D77C) else Color.Transparent,
+                                                RoundedCornerShape(18.dp)),
+                                        shape = RoundedCornerShape(18.dp)
+                                    )
+                                }
+                                PinInput(0, oldPin, { oldPin = it }, "Code actuel", showOldPin, { showOldPin = !showOldPin })
+                                PinInput(1, newPin, { newPin = it }, "Nouveau code (4 chiffres)", showNewPin, { showNewPin = !showNewPin })
+                                PinInput(2, confirmPin, { confirmPin = it }, "Confirmer le code", showConfirmPin, { showConfirmPin = !showConfirmPin })
                                 Button(onClick = {
                                     message = if (newPin == confirmPin && s.changeParentalPin(oldPin, newPin)) "Code parental modifié" else "Vérifiez le code actuel et la confirmation"
                                     oldPin = ""; newPin = ""; confirmPin = ""
                                 }, modifier = Modifier.align(Alignment.CenterHorizontally).widthIn(min = 220.dp, max = 310.dp).height(44.dp)
-                                    .focusRequester(parentalActionFocus),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE58A18)),
+                                    .focusRequester(parentalActionFocus)
+                                    .onFocusChanged { savePinFocused = it.isFocused }
+                                    .border(if (savePinFocused) 3.dp else 0.dp, if (savePinFocused) Color(0xFF39D77C) else Color.Transparent, RoundedCornerShape(14.dp)),
+                                    colors = ButtonDefaults.buttonColors(containerColor = if (savePinFocused) Color(0xFF0B4F32) else Color(0xFFFF8A00)),
                                     shape = RoundedCornerShape(14.dp)) {
                                     Text("▣  Enregistrer le nouveau code", fontSize = 14.sp)
                                 }
