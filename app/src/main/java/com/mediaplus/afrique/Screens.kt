@@ -845,8 +845,13 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                                         lineHeight = if (tvWide) 24.sp else 19.sp)
                                                 }
                                             }
-                                            Text("Explorer  →", fontSize = 12.sp, fontWeight = FontWeight.Bold,
-                                                color = Color(0xFF15523B), modifier = Modifier.align(Alignment.Start))
+                                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.SpaceBetween) {
+                                                Text("Explorer  →", fontSize = 12.sp, fontWeight = FontWeight.Bold,
+                                                    color = Color(0xFF15523B))
+                                                Text("● LIVE", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold,
+                                                    color = Color(0xFFD51D27))
+                                            }
                                         }
                                     }
                                 }
