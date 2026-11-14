@@ -226,16 +226,17 @@ fun TvPlayer(s: AppState) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                // Channel logo stays at the far left of the fullscreen information bar.
+                val logo = channel?.logo.orEmpty()
+                if (logo.startsWith("http")) {
+                    AsyncImage(model = logo, contentDescription = "Logo de la chaîne",
+                        modifier = Modifier.size(width = 94.dp, height = 70.dp), contentScale = ContentScale.Fit)
+                }
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                     Text(channel?.name ?: "Direct", color = Color.White,
                         fontSize = 20.sp, fontWeight = FontWeight.Bold, maxLines = 1)
                     Text(if (current != null) current.title else "EPG indisponible",
                         color = Color(0xFFE2E6E6), fontSize = 15.sp, maxLines = 2)
-                }
-                val logo = channel?.logo.orEmpty()
-                if (logo.startsWith("http")) {
-                    AsyncImage(model = logo, contentDescription = "Logo de la chaîne",
-                        modifier = Modifier.size(width = 94.dp, height = 70.dp), contentScale = ContentScale.Fit)
                 }
                 Surface(color = Color(0xB2223230), shape = RoundedCornerShape(8.dp)) {
                     Text(quality, color = Color.White, fontWeight = FontWeight.Bold,
