@@ -92,11 +92,17 @@ fun TvPlayer(s: AppState) {
     val focusRequester = remember { FocusRequester() }
     val drawerFocusRequester = remember { FocusRequester() }
     val infoSettingsFocusRequester = remember { FocusRequester() }
-    LaunchedEffect(menuVisible, settingsVisible) {
-        // Wait for the target to enter the composition before requesting TV focus.
+    LaunchedEffect(menuVisible, settingsVisible, infoVisible) {
+        // Focus targets can disappear while a remote key is still being dispatched.
+        // Never let an unattached FocusRequester crash the player.
         kotlinx.coroutines.yield()
-        if (menuVisible && !settingsVisible) drawerFocusRequester.requestFocus()
-        else if (!settingsVisible) focusRequester.requestFocus()
+        runCatching {
+            when {
+                settingsVisible -> Unit
+                menuVisible -> drawerFocusRequester.requestFocus()
+                else -> focusRequester.requestFocus()
+            }
+        }
     }
     var videoSize by remember { mutableStateOf(VideoSize.UNKNOWN) }
     var epg by remember { mutableStateOf<List<Prog>>(emptyList()) }
@@ -179,15 +185,27 @@ fun TvPlayer(s: AppState) {
                     }
                     Key.DirectionLeft, Key.DirectionRight -> {
                         if (!menuVisible && !settingsVisible && infoVisible) {
-                            infoSettingsFocusRequester.requestFocus()
-                            true
+                            runCatching { infoSettingsFocusRequester.requestFocus() }.isSuccess
                         } else false
                     }
                     Key.DirectionCenter, Key.Enter, Key.NumPadEnter -> {
+                        // Child controls handle OK while a drawer, settings or the gear has focus.
                         if (menuVisible || settingsVisible || settingsButtonFocused) false
-                        else { settingsVisible = false; infoVisible = true; menuVisible = true; selectedBouquet = initialBouquet; drawerTab = 1; true }
+                        else {
+                            infoVisible = true
+                            menuVisible = true
+                            selectedBouquet = initialBouquet
+                            drawerTab = 1
+                            true
+                        }
                     }
-                    Key.Back, Key.Escape -> { if (settingsVisible) { settingsVisible = false; true } else if (menuVisible) { menuVisible = false; true } else false }
+                    Key.Back, Key.Escape -> {
+                        when {
+                            settingsVisible -> { settingsVisible = false; true }
+                            menuVisible -> { menuVisible = false; true }
+                            else -> false
+                        }
+                    }
                     else -> false
                 }
             }.focusRequester(focusRequester).focusTarget()
