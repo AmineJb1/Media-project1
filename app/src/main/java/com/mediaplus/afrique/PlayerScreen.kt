@@ -49,17 +49,24 @@ fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Mod
     AndroidView(
         factory = { object : PlayerView(it) {
             override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-                if (showControls && event.keyCode == KeyEvent.KEYCODE_DPAD_CENTER &&
-                    event.action == KeyEvent.ACTION_DOWN && !isControllerFullyVisible && player?.isPlaying == true) {
-                    player?.pause()
-                    controllerShowTimeoutMs = 0
+                if (showControls && event.action == KeyEvent.ACTION_DOWN &&
+                    (event.keyCode == KeyEvent.KEYCODE_DPAD_CENTER ||
+                     event.keyCode == KeyEvent.KEYCODE_ENTER ||
+                     event.keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER) &&
+                    !isControllerFullyVisible) {
+                    if (player?.isPlaying == true) player?.pause()
+                    controllerShowTimeoutMs = if (player?.isPlaying == true) 5000 else 0
                     showController()
+                    findViewById<View>(androidx.media3.ui.R.id.exo_play_pause)?.requestFocus()
                     return true
                 }
                 return super.dispatchKeyEvent(event)
             }
         }.apply {
             this.player = player
+            isFocusable = true
+            isFocusableInTouchMode = true
+            requestFocus()
             keepScreenOn = true
             useController = showControls
             if (showControls) {
