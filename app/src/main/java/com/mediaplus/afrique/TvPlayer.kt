@@ -176,7 +176,7 @@ fun TvPlayer(s: AppState) {
                         else {
                             val index = channels.indexOfFirst { it.id == channel?.id }
                             if (index >= 0 && channels.isNotEmpty()) {
-                                val step = if (event.key == Key.DirectionUp) -1 else 1
+                                val step = if (event.key == Key.DirectionUp) 1 else -1
                                 val nextIndex = (index + step + channels.size) % channels.size
                                 s.playLive(channels[nextIndex])
                                 true
