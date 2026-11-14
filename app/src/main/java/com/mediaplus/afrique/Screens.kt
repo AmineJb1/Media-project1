@@ -1121,7 +1121,7 @@ private fun LivePreviewPanel(s: AppState, compact: Boolean) {
                     if (url != null) VideoPlayer(url, onError = { s.onPlayerError(it) },
                         modifier = Modifier.fillMaxSize(), showControls = false,
                         onVideoResolution = { w, h -> resolution = if (w > 0 && h > 0) "$w × $h" else "—" }, sharedPlayer = s.livePlayer)
-                    else Text("Chargement…", color = Color.White,
+                    else Text(if (s.previewError != null) "Flux indisponible · OK pour réessayer" else "Chargement…", color = Color.White,
                         style = MaterialTheme.typography.labelSmall)
                 }
                 Column(Modifier.weight(0.56f)) {
@@ -1155,6 +1155,11 @@ private fun LivePreviewPanel(s: AppState, compact: Boolean) {
                         if (url != null) VideoPlayer(url, onError = { s.onPlayerError(it) },
                             modifier = Modifier.fillMaxSize(), showControls = false,
                         onVideoResolution = { w, h -> resolution = if (w > 0 && h > 0) "$w × $h" else "—" }, sharedPlayer = s.livePlayer)
+                        else Box(Modifier.fillMaxSize().clickable { s.selectLive(selected) },
+                            contentAlignment = Alignment.Center) {
+                            Text(if (s.previewError != null) "Flux indisponible · OK pour réessayer" else "Chargement…",
+                                color = Color.White, fontSize = 14.sp)
+                        }
                     }
                     Row(
                         Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 10.dp),
