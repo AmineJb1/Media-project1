@@ -1179,14 +1179,23 @@ private fun VodIconTile(title: String, poster: String, isBouquet: Boolean, isCon
                 Spacer(Modifier.height(2.dp))
                 Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Text(title, color = if (tileFocused) Color.White else Color(0xFF163C2E), fontWeight = FontWeight.Bold,
-                        fontSize = if (title.length > 25) 10.sp else if (title.length > 17) 11.sp else 13.sp,
-                        maxLines = 6, overflow = TextOverflow.Ellipsis,
+                        fontSize = when {
+                            title.length > 34 -> 13.sp
+                            title.length > 23 -> 14.sp
+                            title.length > 16 -> 15.sp
+                            else -> 17.sp
+                        },
+                        maxLines = 4, overflow = TextOverflow.Ellipsis,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                        lineHeight = if (title.length > 25) 12.sp else 15.sp)
+                        lineHeight = when {
+                            title.length > 34 -> 16.sp
+                            title.length > 23 -> 18.sp
+                            else -> 20.sp
+                        })
                 }
                 Spacer(Modifier.height(7.dp))
                 Text("Explorer  →", color = if (tileFocused) Color.White else Color(0xFF15523B),
-                    fontWeight = FontWeight.Bold, fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold, fontSize = 14.sp,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = androidx.compose.ui.text.style.TextAlign.Start,
                     maxLines = 1)
