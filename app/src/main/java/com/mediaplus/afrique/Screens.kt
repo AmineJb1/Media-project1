@@ -1153,9 +1153,15 @@ private fun LivePreviewPanel(s: AppState, compact: Boolean) {
 @Composable
 private fun VodIconTile(title: String, poster: String, isBouquet: Boolean, isContinue: Boolean = false, modifier: Modifier = Modifier, onClick: () -> Unit) {
     val c = MaterialTheme.colorScheme
+    var tileFocused by remember { mutableStateOf(false) }
+    val tileShape = RoundedCornerShape(15.dp)
     Column(
-        modifier.fillMaxWidth().clip(RoundedCornerShape(15.dp))
-            .background(Color.White.copy(alpha = .95f))
+        modifier.fillMaxWidth()
+            .onFocusChanged { tileFocused = it.isFocused }
+            .clip(tileShape)
+            .background(if (isBouquet && tileFocused) Color(0xFF064B34) else Color.White.copy(alpha = .95f))
+            .border(if (isBouquet && tileFocused) 4.dp else 1.dp,
+                if (isBouquet && tileFocused) Color(0xFF45F59A) else Color(0xFFD6E6DC), tileShape)
             .clickable(onClick = onClick).padding(7.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -1163,24 +1169,26 @@ private fun VodIconTile(title: String, poster: String, isBouquet: Boolean, isCon
             Column(
                 Modifier.fillMaxWidth().aspectRatio(.82f)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFF4F8F5))
-                    .border(1.dp, Color(0xFFD6E6DC), RoundedCornerShape(12.dp))
+                    .background(if (tileFocused) Color(0xFF064B34) else Color(0xFFF4F8F5))
+                    .border(if (tileFocused) 2.dp else 1.dp,
+                        if (tileFocused) Color(0xFF45F59A) else Color(0xFFD6E6DC), RoundedCornerShape(12.dp))
                     .padding(horizontal = 8.dp, vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Spacer(Modifier.height(2.dp))
                 Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    Text(title, color = Color(0xFF163C2E), fontWeight = FontWeight.Bold,
+                    Text(title, color = if (tileFocused) Color.White else Color(0xFF163C2E), fontWeight = FontWeight.Bold,
                         fontSize = if (title.length > 25) 10.sp else if (title.length > 17) 11.sp else 13.sp,
                         maxLines = 6, overflow = TextOverflow.Ellipsis,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                         lineHeight = if (title.length > 25) 12.sp else 15.sp)
                 }
                 Spacer(Modifier.height(7.dp))
-                Text("Explorer  ›", color = Color(0xFF15523B),
-                    fontWeight = FontWeight.Medium, fontSize = 10.sp,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                Text("Explorer  →", color = if (tileFocused) Color.White else Color(0xFF15523B),
+                    fontWeight = FontWeight.Bold, fontSize = 11.sp,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Start,
                     maxLines = 1)
             }
         } else {
