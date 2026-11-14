@@ -649,8 +649,11 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                 val episodes = s.episodes.orEmpty()
                 val seriesImage = s.episodeSeries?.logo.orEmpty()
                 val firstEpisodeRequester = remember { FocusRequester() }
-                LaunchedEffect(s.episodeSeries?.id, episodes.size) {
+                val episodeListState = androidx.compose.foundation.lazy.rememberLazyListState()
+                val selectedEpisodeIndex = episodes.indexOfFirst { it.url == s.lastEpisodeUrl }.coerceAtLeast(0)
+                LaunchedEffect(s.episodeSeries?.id, episodes.size, selectedEpisodeIndex) {
                     if (episodes.isNotEmpty()) {
+                        episodeListState.scrollToItem(selectedEpisodeIndex)
                         kotlinx.coroutines.delay(180)
                         runCatching { firstEpisodeRequester.requestFocus() }
                     }
@@ -688,6 +691,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                 color = Color.White, fontSize = 14.sp)
                         } else {
                             LazyColumn(
+                                state = episodeListState,
                                 modifier = Modifier.weight(1f).widthIn(max = 900.dp),
                                 verticalArrangement = Arrangement.spacedBy(6.dp),
                                 contentPadding = PaddingValues(bottom = 18.dp)
@@ -698,7 +702,7 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                     val episodeShape = RoundedCornerShape(14.dp)
                                     Row(
                                         Modifier.fillMaxWidth()
-                                            .then(if (index == 0) Modifier.focusRequester(firstEpisodeRequester) else Modifier)
+                                            .then(if (index == selectedEpisodeIndex) Modifier.focusRequester(firstEpisodeRequester) else Modifier)
                                             .clip(episodeShape)
                                             .background(if (episodeFocused) Color(0xFF104D37)
                                                 else Color(0xC9243D38))
