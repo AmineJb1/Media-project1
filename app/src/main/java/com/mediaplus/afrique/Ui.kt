@@ -1,6 +1,5 @@
 package com.mediaplus.afrique
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -43,10 +42,7 @@ fun Pill(text: String, selected: Boolean, modifier: Modifier = Modifier, onClick
     var focused by remember { mutableStateOf(false) }
     val c = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(50)
-    val bg by animateColorAsState(
-        targetValue = if (focused) Color(0xFFD6EAE0) else if (selected) Color(0xFFD8F1E4) else c.surface,
-        label = "tab-background"
-    )
+    val bg = if (focused) Color(0xFFD6EAE0) else if (selected) Color(0xFFD8F1E4) else c.surface
     Box(
         modifier.clip(shape).background(bg)
             .border(if (focused) 4.dp else if (selected) 2.dp else 1.dp, if (focused) Color(0xFF145A43) else if (selected) Color(0xFF087246) else c.outline, shape)
@@ -124,10 +120,10 @@ fun Tile(onClick: () -> Unit, content: @Composable RowScope.() -> Unit) {
     var focused by remember { mutableStateOf(false) }
     val c = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(25.dp)
-    val bg by animateColorAsState(if (focused) Color(0xFFD6EAE0) else Color.White.copy(alpha = 0.96f), label = "tile-background")
+    val bg = if (focused) Color(0xFFD6EAE0) else Color.White.copy(alpha = 0.96f)
     Row(
         Modifier.fillMaxWidth().padding(vertical = 5.dp)
-            .shadow(if (focused) 10.dp else 5.dp, shape)
+            .shadow(if (focused) 4.dp else 1.dp, shape)
             .clip(shape)
             .background(bg)
             .border(if (focused) 4.dp else 1.dp, if (focused) Color(0xFF145A43) else Color(0xFFDDE0E2), shape)
@@ -169,7 +165,7 @@ fun Logo(item: Item) {
         }
         if (item.logo.startsWith("http")) {
             AsyncImage(
-                model = remember(item.logo) { ImageRequest.Builder(ctx).data(item.logo).size(128).crossfade(true).build() },
+                model = remember(item.logo) { ImageRequest.Builder(ctx).data(item.logo).size(128).crossfade(false).build() },
                 contentDescription = null, contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxSize().padding(4.dp),
                 onSuccess = { ok = true }
