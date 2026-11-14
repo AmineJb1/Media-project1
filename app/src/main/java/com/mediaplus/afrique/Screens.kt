@@ -957,13 +957,15 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                                             fontWeight = FontWeight.SemiBold, maxLines = 2,
                                             overflow = TextOverflow.Ellipsis)
                                         if (previewSelected) {
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.spacedBy(3.dp)
-                                            ) {
-                                                Text("●", color = Color(0xFFE53935), fontSize = 11.sp)
-                                                Text("LIVE", color = if (channelFocused) Color(0xFFFF6B65) else Color(0xFFD92727),
-                                                    fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                                            Surface(color = Color(0xFFC62828), shape = RoundedCornerShape(6.dp)) {
+                                                Row(
+                                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                                                ) {
+                                                    Box(Modifier.size(6.dp).background(Color.White, RoundedCornerShape(50)))
+                                                    Text("LIVE", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                                                }
                                             }
                                         }
                                         Box(
