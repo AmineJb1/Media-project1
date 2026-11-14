@@ -23,7 +23,7 @@ import androidx.media3.ui.PlayerView
 import androidx.media3.ui.AspectRatioFrameLayout
 
 @Composable
-fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Modifier.fillMaxSize(), showControls: Boolean = true, onVideoResolution: (Int, Int) -> Unit = { _, _ -> }, sharedPlayer: ExoPlayer? = null) {
+fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Modifier.fillMaxSize(), showControls: Boolean = true, onVideoResolution: (Int, Int) -> Unit = { _, _ -> }, sharedPlayer: ExoPlayer? = null, onBack: () -> Unit = {}) {
     val ctx = LocalContext.current
     val player = remember(sharedPlayer) {
         sharedPlayer ?: ExoPlayer.Builder(ctx)
@@ -49,6 +49,11 @@ fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Mod
     AndroidView(
         factory = { object : PlayerView(it) {
             override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+                if (showControls && (event.keyCode == KeyEvent.KEYCODE_BACK ||
+                    event.keyCode == KeyEvent.KEYCODE_ESCAPE)) {
+                    if (event.action == KeyEvent.ACTION_UP) onBack()
+                    return true
+                }
                 if (showControls && event.action == KeyEvent.ACTION_DOWN &&
                     (event.keyCode == KeyEvent.KEYCODE_DPAD_CENTER ||
                      event.keyCode == KeyEvent.KEYCODE_ENTER ||
