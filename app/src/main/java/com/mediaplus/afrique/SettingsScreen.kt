@@ -31,7 +31,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.input.key.nativeKeyEvent
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import java.text.SimpleDateFormat
 import java.util.Date
