@@ -70,6 +70,7 @@ fun App() {
         }
     }
 
+    BackHandler(enabled = s.pendingResumeItem != null) { s.pendingResumeItem = null }
     BackHandler(enabled = confirmExit) { confirmExit = false }
     BackHandler(enabled = !confirmExit && (s.playing != null || !s.showLogin)) {
         if (settingsOpen && settingsPage != null) {
@@ -129,6 +130,41 @@ fun App() {
         LoginScreen(s)
     } else {
         MainScreen(s, settingsOpen, settingsPage, { settingsOpen = it }, { settingsPage = it })
+    }
+
+    if (s.pendingResumeItem != null) {
+        val item = s.pendingResumeItem!!
+        val position = s.resumePosition(item.url)
+        val minutes = position / 60000L
+        val seconds = (position / 1000L) % 60L
+        Dialog(onDismissRequest = { s.pendingResumeItem = null }) {
+            Surface(
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
+                color = Color(0xFF10233E),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                androidx.compose.foundation.layout.Column(
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text("Reprendre la lecture ?", color = Color.White,
+                        style = MaterialTheme.typography.titleLarge)
+                    Text(item.name, color = Color.White,
+                        style = MaterialTheme.typography.bodyLarge)
+                    Text("Dernière position : %02d:%02d".format(minutes, seconds),
+                        color = Color(0xFFB7D1F5))
+                    Button(onClick = { s.chooseResume(true) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1766DE))) {
+                        Text("▶ Continuer à regarder")
+                    }
+                    OutlinedButton(onClick = { s.chooseResume(false) },
+                        modifier = Modifier.fillMaxWidth()) {
+                        Text("↺ Recommencer depuis le début", color = Color.White)
+                    }
+                }
+            }
+        }
     }
 
     if (confirmExit) {
