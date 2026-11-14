@@ -278,6 +278,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     var previewUrl by mutableStateOf<String?>(null)
     var previewChannelId by mutableStateOf<String?>(null)
     var previewChannelName by mutableStateOf("")
+    var previewError by mutableStateOf<String?>(null)
     var showLogin by mutableStateOf(true)
     var restoringSession by mutableStateOf(false)
     var cacheMb by mutableStateOf(0L)
@@ -425,6 +426,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     fun clearPreview() {
         if (playing == null && isLivePlayerInitialized()) livePlayer.stop()
         previewUrl = null
+        previewError = null
         previewChannelId = null
         previewChannelName = ""
     }
@@ -437,6 +439,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
         }
         clearPreview()
         previewChannelId = i.id
+        previewError = null
         previewChannelName = i.name
         scope.launch {
             try {
@@ -445,7 +448,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
                 } else i.url
                 if (previewChannelId == i.id && section == 0) previewUrl = url
             } catch (e: Exception) {
-                if (previewChannelId == i.id) { clearPreview(); status = "Aperçu impossible : ${e.message}" }
+                if (previewChannelId == i.id) { previewUrl = null; previewError = e.message ?: "Flux indisponible"; status = "Aperçu impossible : ${e.message}" }
             }
         }
     }
@@ -565,7 +568,15 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
             if (playing != null) playing = u.dropLast(5) + ".ts"
             else previewUrl = u.dropLast(5) + ".ts"
         } else {
-            playing = null; clearPreview(); status = "Lecture impossible : $msg"
+            if (playing != null) {
+                playing = null
+                playingChannel = null
+            } else {
+                // Keep the selected channel visible after a preview playback error.
+                previewUrl = null
+                previewError = msg
+            }
+            status = "Lecture impossible : $msg"
         }
     }
 
