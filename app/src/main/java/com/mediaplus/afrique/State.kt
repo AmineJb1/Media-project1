@@ -250,6 +250,14 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
     var status by mutableStateOf("")
     var playing by mutableStateOf<String?>(null)
     var playingChannel by mutableStateOf<Item?>(null)
+    var lastEpisodeUrl by mutableStateOf<String?>(null)
+    private fun resumeKey(url: String) = "resume_" + url.hashCode().toUInt().toString(16)
+    fun resumePosition(url: String): Long = prefs.getLong(resumeKey(url), 0L)
+    fun savePosition(url: String, position: Long, duration: Long) {
+        if (position < 0) return
+        val completed = duration > 0 && position >= duration - 15000L
+        prefs.edit().putLong(resumeKey(url), if (completed) 0L else position).apply()
+    }
     // Shared ExoPlayer keeps the live stream running when the preview expands.
     private val livePlayerDelegate = lazy {
         androidx.media3.exoplayer.ExoPlayer.Builder(ctx)
@@ -519,6 +527,7 @@ class AppState(private val ctx: Context, private val scope: CoroutineScope) {
             }
         } else {
             if (i.kind == 1 || i.kind == 3) rememberVod(i)
+            if (i.kind == 3) lastEpisodeUrl = i.url
             scope.launch {
                 try {
                     playing = if (mode == 1 && i.kind == 0) withContext(Dispatchers.IO) { stalker!!.resolve(i.url) } else i.url
