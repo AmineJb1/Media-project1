@@ -23,7 +23,7 @@ import androidx.media3.ui.PlayerView
 import androidx.media3.ui.AspectRatioFrameLayout
 
 @Composable
-fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Modifier.fillMaxSize(), showControls: Boolean = true, onVideoResolution: (Int, Int) -> Unit = { _, _ -> }, sharedPlayer: ExoPlayer? = null, onBack: () -> Unit = {}) {
+fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Modifier.fillMaxSize(), showControls: Boolean = true, onVideoResolution: (Int, Int) -> Unit = { _, _ -> }, sharedPlayer: ExoPlayer? = null, onBack: () -> Unit = {}, resumePositionMs: Long = 0L, onSavePosition: (Long, Long) -> Unit = { _, _ -> }) {
     val ctx = LocalContext.current
     val player = remember(sharedPlayer) {
         sharedPlayer ?: ExoPlayer.Builder(ctx)
@@ -43,8 +43,19 @@ fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Mod
         if (player.currentMediaItem?.localConfiguration?.uri?.toString() != url) {
             player.setMediaItem(MediaItem.fromUri(url))
             player.prepare()
+            if (resumePositionMs > 0L) player.seekTo(resumePositionMs)
         }
         player.playWhenReady = true
+    }
+    val latestSave by rememberUpdatedState(onSavePosition)
+    DisposableEffect(player, url) {
+        onDispose { latestSave(player.currentPosition, player.duration) }
+    }
+    LaunchedEffect(player, url) {
+        while (true) {
+            kotlinx.coroutines.delay(3000)
+            if (player.currentPosition > 0) latestSave(player.currentPosition, player.duration)
+        }
     }
     AndroidView(
         factory = { object : PlayerView(it) {
