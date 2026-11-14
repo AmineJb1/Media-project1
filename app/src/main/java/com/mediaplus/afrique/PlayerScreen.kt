@@ -61,15 +61,19 @@ fun VideoPlayer(url: String, onError: (String) -> Unit, modifier: Modifier = Mod
                 }
                 val seek = findViewById<View>(androidx.media3.ui.R.id.exo_progress)
                 val settings = findViewById<View>(androidx.media3.ui.R.id.exo_settings)
-                listOfNotNull(seek, settings).forEach { control ->
-                    control.isFocusable = true
-                    control.setOnFocusChangeListener { v, focused ->
-                        v.background = if (focused) GradientDrawable().apply {
-                            setColor(android.graphics.Color.argb(190, 4, 91, 54))
-                            setStroke((3 * density).toInt(), android.graphics.Color.rgb(44, 255, 134))
-                            cornerRadius = 12 * density
-                        } else null
-                    }
+                // Keep the native Media3 seekbar focus/scrubber visuals.
+                // Applying a background to exo_progress highlights its full width
+                // instead of the scrubber and can obscure the timeline on TV.
+                seek?.isFocusable = true
+                seek?.setOnFocusChangeListener(null)
+                seek?.background = null
+                settings?.isFocusable = true
+                settings?.setOnFocusChangeListener { v, focused ->
+                    v.background = if (focused) GradientDrawable().apply {
+                        setColor(android.graphics.Color.argb(190, 4, 91, 54))
+                        setStroke((3 * density).toInt(), android.graphics.Color.rgb(44, 255, 134))
+                        cornerRadius = 12 * density
+                    } else null
                 }
                 settings?.nextFocusLeftId = androidx.media3.ui.R.id.exo_progress
                 seek?.nextFocusRightId = androidx.media3.ui.R.id.exo_settings
