@@ -900,21 +900,21 @@ fun MainScreen(s: AppState, settingsOpen: Boolean, settingsPage: String?, onSett
                             val channelScrollScope = rememberCoroutineScope()
                             // Restore focus to the channel that was playing when leaving fullscreen.
                             // Only use the preview ID if it belongs to the currently opened bouquet.
-                            val initialChannelId = remember(s.group) {
-                                visibleItems.firstOrNull { !it.name.trimStart().startsWith("##") }?.id
-                                    ?: visibleItems.firstOrNull()?.id
-                            }
+                            val initialChannelId = s.previewChannelId?.takeIf { id ->
+                                visibleItems.any { it.id == id }
+                            } ?: visibleItems.firstOrNull { !it.name.trimStart().startsWith("##") }?.id
+                                ?: visibleItems.firstOrNull()?.id
                             val initialChannel = visibleItems.firstOrNull { it.id == initialChannelId }
                             val channelFocusRequesters = remember(s.group) { mutableMapOf<String, FocusRequester>() }
-                            LaunchedEffect(s.group, settingsOpen) {
-                                if (!settingsOpen && s.group != null && initialChannel != null && focusedChannelId == null) {
+                            LaunchedEffect(s.group, settingsOpen, initialChannelId) {
+                                if (!settingsOpen && s.group != null && initialChannel != null && focusedChannelId != initialChannelId) {
                                     val index = visibleItems.indexOfFirst { it.id == initialChannel.id }
                                     if (index >= 0) channelListState.scrollToItem(index)
                                     // LazyColumn composes its focus target asynchronously on Android TV.
                                     // Retry until the channel row is attached instead of leaving focus on Direct.
                                     for (attempt in 0 until 12) {
                                         kotlinx.coroutines.delay(if (attempt == 0) 260 else 130)
-                                        if (focusedChannelId != null || s.group == null) break
+                                        if (focusedChannelId == initialChannelId || s.group == null) break
                                         runCatching { firstChannelFocus.requestFocus() }
                                     }
                                 }
