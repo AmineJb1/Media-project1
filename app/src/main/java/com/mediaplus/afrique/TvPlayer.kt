@@ -39,6 +39,11 @@ import androidx.media3.ui.AspectRatioFrameLayout
 import coil.compose.AsyncImage
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.sp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import kotlinx.coroutines.delay
 import androidx.media3.common.Player
 import androidx.media3.common.VideoSize
@@ -212,7 +217,7 @@ fun TvPlayer(s: AppState) {
                 val logo = channel?.logo.orEmpty()
                 if (logo.startsWith("http")) {
                     AsyncImage(model = logo, contentDescription = "Logo de la chaîne",
-                        modifier = Modifier.size(68.dp), contentScale = ContentScale.Fit)
+                        modifier = Modifier.size(width = 94.dp, height = 70.dp), contentScale = ContentScale.Fit)
                 }
                 Surface(color = Color(0xB2223230), shape = RoundedCornerShape(8.dp)) {
                     Text(quality, color = Color.White, fontWeight = FontWeight.Bold,
@@ -234,7 +239,7 @@ fun TvPlayer(s: AppState) {
                         ),
                     onClick = { menuVisible = false; settingsVisible = true; infoVisible = true }
                 ) {
-                    Text("⚙ Paramètres", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Icon(Icons.Filled.Settings, contentDescription = "Paramètres", tint = Color.White, modifier = Modifier.size(26.dp))
                 }
             }
         }
@@ -245,12 +250,12 @@ fun TvPlayer(s: AppState) {
             val audioGroups = availableGroups.filter { it.type == C.TRACK_TYPE_AUDIO }
             val textGroups = availableGroups.filter { it.type == C.TRACK_TYPE_TEXT }
             Surface(
-                modifier = Modifier.align(Alignment.Center).fillMaxWidth(0.55f),
-                color = Color(0xE9112820),
+                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 12.dp, top = 12.dp, bottom = 12.dp).fillMaxWidth(if (portrait) 0.72f else 0.32f).fillMaxHeight(0.92f),
+                color = Color(0xC9112820),
                 shape = RoundedCornerShape(18.dp)
             ) {
-                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Paramètres vidéo", color = Color.White, fontSize = 23.sp, fontWeight = FontWeight.Bold)
+                Column(Modifier.padding(12.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                    Text("Paramètres", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Text("Format de l'image", color = Color.White)
                     listOf(
                         "Adapter à l'écran" to AspectRatioFrameLayout.RESIZE_MODE_FIT,
@@ -270,13 +275,59 @@ fun TvPlayer(s: AppState) {
                             color = Color.White
                         )
                     }
+                    Text("Audio", color = Color.White, fontWeight = FontWeight.Bold)
+                    if (audioGroups.isEmpty()) Text("Aucune piste audio détectée", color = Color.LightGray, fontSize = 12.sp)
+                    audioGroups.forEachIndexed { groupIndex, group ->
+                        for (trackIndex in 0 until group.length) {
+                            if (group.isTrackSupported(trackIndex)) {
+                                val format = group.getTrackFormat(trackIndex)
+                                val label = format.label ?: format.language ?: "Audio ${trackIndex + 1}"
+                                var focused by remember { mutableStateOf(false) }
+                                Text("🔊 $label" + if (group.isTrackSelected(trackIndex)) " ✓" else "",
+                                    modifier = Modifier.fillMaxWidth().onFocusChanged { focused = it.isFocused }
+                                        .background(if (focused) Color(0xFF075D3A) else Color(0x553D5047), RoundedCornerShape(8.dp))
+                                        .clickable {
+                                            player.trackSelectionParameters = player.trackSelectionParameters.buildUpon()
+                                                .setOverrideForType(TrackSelectionOverride(group.mediaTrackGroup, trackIndex))
+                                                .build()
+                                        }.focusable().padding(9.dp),
+                                    color = Color.White, fontSize = 13.sp)
+                            }
+                        }
+                    }
+                    Text("Sous-titres", color = Color.White, fontWeight = FontWeight.Bold)
+                    var subtitlesOffFocused by remember { mutableStateOf(false) }
+                    Text("Désactivés",
+                        modifier = Modifier.fillMaxWidth().onFocusChanged { subtitlesOffFocused = it.isFocused }
+                            .background(if (subtitlesOffFocused) Color(0xFF075D3A) else Color(0x553D5047), RoundedCornerShape(8.dp))
+                            .clickable { player.trackSelectionParameters = player.trackSelectionParameters.buildUpon().setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true).build() }
+                            .focusable().padding(9.dp), color = Color.White, fontSize = 13.sp)
+                    if (textGroups.isEmpty()) Text("Aucun sous-titre disponible", color = Color.LightGray, fontSize = 12.sp)
+                    textGroups.forEach { group ->
+                        for (trackIndex in 0 until group.length) {
+                            if (group.isTrackSupported(trackIndex)) {
+                                val format = group.getTrackFormat(trackIndex)
+                                val label = format.label ?: format.language ?: "Sous-titres ${trackIndex + 1}"
+                                var focused by remember { mutableStateOf(false) }
+                                Text("▤ $label" + if (group.isTrackSelected(trackIndex)) " ✓" else "",
+                                    modifier = Modifier.fillMaxWidth().onFocusChanged { focused = it.isFocused }
+                                        .background(if (focused) Color(0xFF075D3A) else Color(0x553D5047), RoundedCornerShape(8.dp))
+                                        .clickable {
+                                            player.trackSelectionParameters = player.trackSelectionParameters.buildUpon()
+                                                .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
+                                                .setOverrideForType(TrackSelectionOverride(group.mediaTrackGroup, trackIndex)).build()
+                                        }.focusable().padding(9.dp),
+                                    color = Color.White, fontSize = 13.sp)
+                            }
+                        }
+                    }
                     TextButton(onClick = { settingsVisible = false }) { Text("Fermer", color = Color.White) }
                 }
             }
         }
         if (menuVisible && !settingsVisible) {
             Surface(
-                modifier = Modifier.align(Alignment.TopStart).padding(start = 12.dp, top = 12.dp, bottom = 112.dp).fillMaxHeight(0.82f).fillMaxWidth(0.48f),
+                modifier = Modifier.align(Alignment.TopStart).padding(start = 12.dp, top = 12.dp, bottom = 92.dp).fillMaxHeight().fillMaxWidth(if (portrait) 0.76f else 0.53f),
                 color = Color(0xF0152119),
                 shape = RoundedCornerShape(topStart = 18.dp, bottomStart = 18.dp)
             ) {
