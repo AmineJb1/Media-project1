@@ -108,7 +108,7 @@ fun App() {
     }
     if (p != null) {
         if (s.playingChannel != null) TvPlayer(s) else Box(Modifier.fillMaxSize().background(Color.Black)) {
-            VideoPlayer(p, { s.onPlayerError(it) }, modifier = Modifier.fillMaxSize(), onBack = { s.back() })
+            VideoPlayer(p, { s.onPlayerError(it) }, modifier = Modifier.fillMaxSize(), onBack = { s.back() }, resumePositionMs = s.resumePosition(p), onSavePosition = { position, duration -> s.savePosition(p, position, duration) })
         }
     } else if (s.restoringSession) {
         // Saved credentials are being verified in the background. Do not flash the
